@@ -60,6 +60,7 @@ def change_proxy(driver: webdriver.Remote, c: int, gc: int):
         time.sleep(1)
         el8 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().className("android.widget.EditText").instance(2)')
         el8.click()
+        time.sleep(1)
         for _ in range(16):
             actions = ActionChains(driver)
             actions.w3c_actions = ActionBuilder(driver, mouse=PointerInput(interaction.POINTER_TOUCH, "touch"))
