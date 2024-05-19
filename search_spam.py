@@ -52,23 +52,20 @@ for _ in range(100):
     el14 = driver.find_element(by=AppiumBy.XPATH, value='//android.widget.TextView[@content-desc="Galaxy"]')
     el14.click()
     while c < 4 and not need_new_proxy:
-        while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Female")') and not driver.find_elements(
+        # так же проверить driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/dialog_confirm_cancel")
+        while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Female")') or driver.find_elements(
             by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/login_new_character"
         ):
             time.sleep(1)
             print(7, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
-        if driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/login_new_character"):
-            el15 = driver.find_element(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/login_new_character")
-            el15.click()
-        # так же проверить driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/dialog_confirm_cancel")
-        while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Female")'):
-            time.sleep(1)
-            print(8, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
+            if driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/login_new_character"):
+                el15 = driver.find_element(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/login_new_character")
+                el15.click()
         el16 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Female")')
         el16.click()
         while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("NEXT")'):
             time.sleep(1)
-            print(9, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
+            print(8, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
         el17 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("NEXT")')
         el17.click()
         el18 = driver.find_element(by=AppiumBy.CLASS_NAME, value="android.widget.EditText")
@@ -83,7 +80,7 @@ for _ in range(100):
         actions.perform()
         while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("FINISH")'):
             time.sleep(1)
-            print(10, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
+            print(9, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
         el19 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("FINISH")')
         el19.click()
         el20 = driver.find_element(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/confirm_button_ok")
@@ -91,13 +88,13 @@ for _ in range(100):
 
         while not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Galaxy"):
             time.sleep(1)
-            print(11, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
+            print(10, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
         el21 = driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="Galaxy")
         el21.click()
         time.sleep(1)
         while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Friends")'):
             time.sleep(1)
-            print(12, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
+            print(11, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
         if driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Confirm registration")'):
             need_new_proxy = True
         if not need_new_proxy:
@@ -105,7 +102,7 @@ for _ in range(100):
             el22.click()
             while not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="your location"):
                 time.sleep(1)
-                print(13, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
+                print(12, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
             el23 = driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="your location")
             el23.click()
             cities = [
@@ -144,7 +141,7 @@ for _ in range(100):
             city = random.choice(cities_by_probability)
             while not driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.widget.EditText"):
                 time.sleep(1)
-                print(14, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
+                print(13, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
             el24 = driver.find_element(by=AppiumBy.CLASS_NAME, value="android.widget.EditText")
             el24.click()
             el24.send_keys(city)
@@ -157,13 +154,13 @@ for _ in range(100):
             actions.perform()
             while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("RU").instance(0)'):
                 time.sleep(1)
-                print(15, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
+                print(14, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
             el25 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("RU").instance(0)')
             el25.click()
 
             while not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Galaxy"):
                 time.sleep(1)
-                print(16, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
+                print(15, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
             el26 = driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="Galaxy")
             el26.click()
             time.sleep(1)
@@ -177,7 +174,7 @@ for _ in range(100):
             actions.perform()
             while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Search")'):
                 time.sleep(1)
-                print(17, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
+                print(16, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
             el27 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Search")')
             el27.click()
 
@@ -186,7 +183,7 @@ for _ in range(100):
                     by=AppiumBy.XPATH, value='//android.view.View[@resource-id="search"]/android.view.View[2]/android.view.View[2]'
                 ):
                     time.sleep(1)
-                    print(18, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
+                    print(17, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
                 el28 = driver.find_element(
                     by=AppiumBy.XPATH, value='//android.view.View[@resource-id="search"]/android.view.View[2]/android.view.View[2]'
                 )
@@ -194,14 +191,14 @@ for _ in range(100):
 
                 found_new_user = False
                 while not found_new_user:
-                    if driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value="new UiSelector().resourceId(\"people_near_loader\")"):
-                        el29 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value="new UiSelector().resourceId(\"people_near_loader\")")
+                    if driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().resourceId("people_near_loader")'):
+                        el29 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().resourceId("people_near_loader")')
                         el29.click()
                     while not driver.find_elements(
                         by=AppiumBy.XPATH, value='//android.view.View[@resource-id="people_near_content"]/android.view.View/android.widget.TextView'
                     ):
                         time.sleep(1)
-                        print(19, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
+                        print(18, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
                     els1 = driver.find_elements(
                         by=AppiumBy.XPATH, value='//android.view.View[@resource-id="people_near_content"]/android.view.View/android.widget.TextView'
                     )
@@ -228,12 +225,12 @@ for _ in range(100):
 
                 while not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="MESSAGE"):
                     time.sleep(1)
-                    print(20, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
+                    print(19, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
                 el30 = driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="MESSAGE")
                 el30.click()
                 while not driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.widget.EditText"):
                     time.sleep(1)
-                    print(21, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
+                    print(20, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
                 el31 = driver.find_element(by=AppiumBy.CLASS_NAME, value="android.widget.EditText")
                 el31.click()
                 el31.send_keys(get_text())
@@ -241,7 +238,7 @@ for _ in range(100):
                 el32.click()
                 while not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Galaxy"):
                     time.sleep(1)
-                    print(22, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
+                    print(21, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
                 el33 = driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="Galaxy")
                 el33.click()
                 time.sleep(1)
@@ -255,13 +252,13 @@ for _ in range(100):
                 actions.perform()
                 while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Search")'):
                     time.sleep(1)
-                    print(23, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
+                    print(22, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
                 el34 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Search")')
                 el34.click()
 
             while not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Galaxy"):
                 time.sleep(1)
-                print(24, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
+                print(23, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
             el35 = driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="Galaxy")
             el35.click()
             time.sleep(1)
@@ -275,7 +272,7 @@ for _ in range(100):
         actions.perform()
         while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Exit")'):
             time.sleep(1)
-            print(25, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
+            print(24, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
         el36 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Exit")')
         el36.click()
         time.sleep(1)
