@@ -9,17 +9,17 @@ from selenium.webdriver.common.actions.action_builder import ActionBuilder
 from selenium.webdriver.common.actions.pointer_input import PointerInput
 
 
-def change_proxy(driver: webdriver.Remote, c: int, gc: int):
+def change_proxy(driver: webdriver.Remote, c: int, gc: int, mc=0):
     while not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Super Proxy"):
         time.sleep(1)
-        print(0, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
+        print(0, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, mc, sep="\t")
     el1 = driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="Super Proxy")
     el1.click()
     while not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="No proxies available.") and not driver.find_elements(
         by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Default Profile")'
     ):
         time.sleep(1)
-        print(1, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
+        print(1, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, mc, sep="\t")
     if driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="No proxies available."):
         el3 = driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="Add proxy")
         el3.click()
@@ -49,7 +49,7 @@ def change_proxy(driver: webdriver.Remote, c: int, gc: int):
             proxy_data = proxies_data[0]
             proxy_ip, proxy_port = proxy_data.split(":")
         else:
-            print("NEED NEW PROXIES!!!", time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
+            print("NEED NEW PROXIES!!!", time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, mc, sep="\t")
             time.sleep(1)
             continue
         el6 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().className("android.widget.Button").instance(2)')
@@ -103,13 +103,13 @@ def change_proxy(driver: webdriver.Remote, c: int, gc: int):
             and not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Authentication required")
         ):
             time.sleep(1)
-            print(2, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
+            print(2, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, mc, sep="\t")
         if not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="No authentication required"):
             el10 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().className("android.widget.Button").instance(2)')
             el10.click()
             while not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="HTTP"):
                 time.sleep(1)
-                print(3, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
+                print(3, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, mc, sep="\t")
             el11 = driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="HTTP")
             el11.click()
         time.sleep(1)
@@ -124,7 +124,7 @@ def change_proxy(driver: webdriver.Remote, c: int, gc: int):
             and not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Authentication required")
         ):
             time.sleep(1)
-            print(4, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
+            print(4, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, mc, sep="\t")
         if driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="No authentication required"):
             found_good_proxy = True
         else:
@@ -144,9 +144,9 @@ def change_proxy(driver: webdriver.Remote, c: int, gc: int):
             # добавить код который если че стопает все driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="An unknown error occured.")
             while not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Stop"):
                 time.sleep(1)
-                print(5, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
+                print(5, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, mc, sep="\t")
             if driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Stop"):
-                print(f"NEW PROXY ADDRESS: {proxy_data}", time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
+                print(f"NEW PROXY ADDRESS: {proxy_data}", time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, mc, sep="\t")
 
     actions = ActionChains(driver)
     actions.w3c_actions = ActionBuilder(driver, mouse=PointerInput(interaction.POINTER_TOUCH, "touch"))
