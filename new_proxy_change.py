@@ -1,6 +1,7 @@
 import time
 
 from appium import webdriver
+from appium.options.common.base import AppiumOptions
 from appium.webdriver.common.appiumby import AppiumBy
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.actions import interaction
@@ -133,17 +134,18 @@ def change_proxy(driver: webdriver.Remote, c: int, gc: int):
                 proxies_data = proxies_data[1:]
                 file.write("\n".join(proxies_data) + "\n")
 
-    el12 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().className("android.widget.Button").instance(1)')
-    el12.click()
-    el13 = driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="Start")
-    el13.click()
+        if found_good_proxy:
+            el12 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().className("android.widget.Button").instance(1)')
+            el12.click()
+            el13 = driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="Start")
+            el13.click()
 
-    # добавить код который если че стопает все driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="An unknown error occured.")
-    while not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Stop"):
-        time.sleep(1)
-        print(5, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
-    if driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Stop"):
-        print(f"NEW PROXY ADDRESS: {proxy_data}", time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
+            # добавить код который если че стопает все driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="An unknown error occured.")
+            while not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Stop"):
+                time.sleep(1)
+                print(5, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
+            if driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Stop"):
+                print(f"NEW PROXY ADDRESS: {proxy_data}", time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
 
     actions = ActionChains(driver)
     actions.w3c_actions = ActionBuilder(driver, mouse=PointerInput(interaction.POINTER_TOUCH, "touch"))
@@ -155,3 +157,23 @@ def change_proxy(driver: webdriver.Remote, c: int, gc: int):
     time.sleep(1)
 
     return proxy_data
+
+
+if __name__ == "__main__":
+    options = AppiumOptions()
+    options.load_capabilities(
+        {
+            "appium:deviceName": "Google_Pixel_2",
+            "platformName": "Android",
+            "appium:automationName": "UiAutomator2",
+            "appium:ensureWebviewsHavePages": True,
+            "appium:nativeWebScreenshot": True,
+            "appium:newCommandTimeout": 3600,
+            "appium:connectHardwareKeyboard": True,
+        }
+    )
+
+    driver = webdriver.Remote("http://127.0.0.1:4723/wd/hub", options=options)
+    c = 0
+    gc = 0
+    change_proxy(driver, c, gc)
