@@ -53,6 +53,7 @@ for _ in range(100):
     el14.click()
     while c < 4 and not need_new_proxy:
         # так же проверить driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/dialog_confirm_cancel")
+        tc = 0
         while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Female")') or driver.find_elements(
             by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/login_new_character"
         ):
@@ -61,42 +62,49 @@ for _ in range(100):
             if driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/login_new_character"):
                 el15 = driver.find_element(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/login_new_character")
                 el15.click()
-        el16 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Female")')
-        el16.click()
-        while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("NEXT")'):
-            time.sleep(1)
-            print(8, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
-        el17 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("NEXT")')
-        el17.click()
-        el18 = driver.find_element(by=AppiumBy.CLASS_NAME, value="android.widget.EditText")
-        el18.click()
-        el18.send_keys("".join(random.choice(string.ascii_letters + string.digits) for _ in range(12)))
-        actions = ActionChains(driver)
-        actions.w3c_actions = ActionBuilder(driver, mouse=PointerInput(interaction.POINTER_TOUCH, "touch"))
-        actions.w3c_actions.pointer_action.move_to_location(1000, 1700)
-        actions.w3c_actions.pointer_action.pointer_down()
-        actions.w3c_actions.pointer_action.pause(0.1)
-        actions.w3c_actions.pointer_action.release()
-        actions.perform()
-        while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("FINISH")'):
-            time.sleep(1)
-            print(9, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
-        el19 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("FINISH")')
-        el19.click()
-        el20 = driver.find_element(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/confirm_button_ok")
-        el20.click()
+            tc += 1
+            if tc > 300:
+                need_new_proxy = True
+                break
 
-        while not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Galaxy"):
+        if not need_new_proxy:
+            el16 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Female")')
+            el16.click()
+            while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("NEXT")'):
+                time.sleep(1)
+                print(8, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
+            el17 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("NEXT")')
+            el17.click()
+            el18 = driver.find_element(by=AppiumBy.CLASS_NAME, value="android.widget.EditText")
+            el18.click()
+            el18.send_keys("".join(random.choice(string.ascii_letters + string.digits) for _ in range(12)))
+            actions = ActionChains(driver)
+            actions.w3c_actions = ActionBuilder(driver, mouse=PointerInput(interaction.POINTER_TOUCH, "touch"))
+            actions.w3c_actions.pointer_action.move_to_location(1000, 1700)
+            actions.w3c_actions.pointer_action.pointer_down()
+            actions.w3c_actions.pointer_action.pause(0.1)
+            actions.w3c_actions.pointer_action.release()
+            actions.perform()
+            while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("FINISH")'):
+                time.sleep(1)
+                print(9, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
+            el19 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("FINISH")')
+            el19.click()
+            el20 = driver.find_element(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/confirm_button_ok")
+            el20.click()
+
+            while not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Galaxy"):
+                time.sleep(1)
+                print(10, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
+            el21 = driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="Galaxy")
+            el21.click()
             time.sleep(1)
-            print(10, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
-        el21 = driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="Galaxy")
-        el21.click()
-        time.sleep(1)
-        while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Friends")'):
-            time.sleep(1)
-            print(11, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
-        if driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Confirm registration")'):
-            need_new_proxy = True
+            while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Friends")'):
+                time.sleep(1)
+                print(11, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
+            if driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Confirm registration")'):
+                need_new_proxy = True
+
         if not need_new_proxy:
             el22 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Friends")')
             el22.click()
