@@ -284,8 +284,10 @@ for _ in range(100):
                     actions.w3c_actions.pointer_action.move_to_location(515, 147)
                     actions.w3c_actions.pointer_action.release()
                     actions.perform()
-                    while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Search")'):
-                        time.sleep(1)
+                    while not driver.find_elements(
+                        by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Search")'
+                    ) or not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("MENU")'):
+                        time.sleep(0.5)
                         print(24, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
                     el34 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Search")')
                     el34.click()
