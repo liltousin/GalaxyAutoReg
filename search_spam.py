@@ -238,24 +238,32 @@ for _ in range(100):
                         print(19, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
                     el30 = driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="MESSAGE")
                     el30.click()
-                    while not driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.widget.EditText"):
-                        time.sleep(1)
-                        print(20, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
-                    el31 = driver.find_element(by=AppiumBy.CLASS_NAME, value="android.widget.EditText")
-                    el31.click()
-                    el31.send_keys(get_text())
-                    while not driver.find_elements(
-                        by=AppiumBy.ANDROID_UIAUTOMATOR,
-                        value='new UiSelector().text("This user receives private messages only from Friends. '
-                        + 'You can send a request to private message")',
-                    ) and not driver.find_elements(
-                        by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="text_input"]/../android.widget.TextView'
+
+                    while (
+                        not driver.find_elements(
+                            by=AppiumBy.ANDROID_UIAUTOMATOR,
+                            value='new UiSelector().text("This user receives private messages only from Friends. '
+                            + 'You can send a request to private message")',
+                        )
+                        and not driver.find_elements(
+                            by=AppiumBy.ANDROID_UIAUTOMATOR,
+                            value='new UiSelector().text("You can\'t private message this user because they have punishment")',
+                        )
+                        and not driver.find_elements(
+                            by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="text_input"]/../android.widget.TextView'
+                        )
                     ):
                         time.sleep(1)
                         print(21, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
                     if driver.find_elements(
                         by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="text_input"]/../android.widget.TextView'
                     ):
+                        while not driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.widget.EditText"):
+                            time.sleep(1)
+                            print(20, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
+                        el31 = driver.find_element(by=AppiumBy.CLASS_NAME, value="android.widget.EditText")
+                        el31.click()
+                        el31.send_keys(get_text())
                         el32 = driver.find_element(
                             by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="text_input"]/../android.widget.TextView'
                         )
