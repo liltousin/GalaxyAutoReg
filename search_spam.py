@@ -63,7 +63,7 @@ for _ in range(100):
                 el15 = driver.find_element(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/login_new_character")
                 el15.click()
             tc += 1
-            if tc > 300:
+            if tc > 100:
                 need_new_proxy = True
                 break
 
