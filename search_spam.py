@@ -41,7 +41,7 @@ driver = webdriver.Remote("http://127.0.0.1:4723/wd/hub", options=options)
 c = 0
 gc = 0
 
-for _ in range(100):
+for _ in range(20):
     proxy_data = change_proxy(driver, c, gc)
 
     c = 0
