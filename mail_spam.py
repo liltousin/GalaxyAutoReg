@@ -174,8 +174,7 @@ for _ in range(100):
             el27.click()
 
             ac = 0
-            recommendations_are_available = True
-            while ac < 25 and recommendations_are_available:
+            while ac < 25:
                 while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("location").instance(0)'):
                     time.sleep(1)
                     print(18, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
@@ -192,7 +191,7 @@ for _ in range(100):
                         print(19, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
                     el28 = driver.find_element(by=AppiumBy.XPATH, value='(//android.widget.Image[@text="location"])[1]/../../android.widget.TextView')
                     el28.click()
-                    time.sleep(random.randint(100, 500) / 100)
+                    time.sleep(1)
                     continue
                 else:
                     with open("already_spammed.txt", "a") as file:
