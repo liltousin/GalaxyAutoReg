@@ -166,7 +166,7 @@ for _ in range(100):
                 el25 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("RU").instance(0)')
                 el25.click()
 
-                while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Friends")'):
+                while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Find friends")'):
                     time.sleep(1)
                     print(15, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, sep="\t")
                 while not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Galaxy"):
