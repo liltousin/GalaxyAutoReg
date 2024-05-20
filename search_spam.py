@@ -102,6 +102,21 @@ for _ in range(1000):
                 tc += 1
                 if tc > 100:
                     need_new_proxy = True
+                    actions = ActionChains(driver)
+                    actions.w3c_actions = ActionBuilder(driver, mouse=PointerInput(interaction.POINTER_TOUCH, "touch"))
+                    actions.w3c_actions.pointer_action.move_to_location(231, 1851)
+                    actions.w3c_actions.pointer_action.pointer_down()
+                    actions.w3c_actions.pointer_action.pause(0.1)
+                    actions.w3c_actions.pointer_action.release()
+                    actions.perform()
+
+                    actions = ActionChains(driver)
+                    actions.w3c_actions = ActionBuilder(driver, mouse=PointerInput(interaction.POINTER_TOUCH, "touch"))
+                    actions.w3c_actions.pointer_action.move_to_location(231, 1851)
+                    actions.w3c_actions.pointer_action.pointer_down()
+                    actions.w3c_actions.pointer_action.pause(0.1)
+                    actions.w3c_actions.pointer_action.release()
+                    actions.perform()
                     break
 
             if not need_new_proxy:
@@ -345,23 +360,23 @@ for _ in range(1000):
                     el35.click()
                     time.sleep(1)
 
-            actions = ActionChains(driver)
-            actions.w3c_actions = ActionBuilder(driver, mouse=PointerInput(interaction.POINTER_TOUCH, "touch"))
-            actions.w3c_actions.pointer_action.move_to_location(515, 1740)
-            actions.w3c_actions.pointer_action.pointer_down()
-            actions.w3c_actions.pointer_action.move_to_location(515, 147)
-            actions.w3c_actions.pointer_action.release()
-            actions.perform()
-            st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
-            while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Exit")'):
+                actions = ActionChains(driver)
+                actions.w3c_actions = ActionBuilder(driver, mouse=PointerInput(interaction.POINTER_TOUCH, "touch"))
+                actions.w3c_actions.pointer_action.move_to_location(515, 1740)
+                actions.w3c_actions.pointer_action.pointer_down()
+                actions.w3c_actions.pointer_action.move_to_location(515, 147)
+                actions.w3c_actions.pointer_action.release()
+                actions.perform()
+                st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
+                while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Exit")'):
+                    time.sleep(1)
+                    print(26, st, c, gc, mc, mac, asc, sep="\t")
+                el36 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Exit")')
+                el36.click()
                 time.sleep(1)
-                print(26, st, c, gc, mc, mac, asc, sep="\t")
-            el36 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Exit")')
-            el36.click()
-            time.sleep(1)
-            if not need_new_proxy:
-                c += 1
-                gc += 1
+                if not need_new_proxy:
+                    c += 1
+                    gc += 1
 
     print(f"Акков зарегано на проксю: {c}")
     print(f"Акков зарегано всего: {gc}")
@@ -371,7 +386,7 @@ for _ in range(1000):
     print(f"need_new_proxy={need_new_proxy}")
     actions = ActionChains(driver)
     actions.w3c_actions = ActionBuilder(driver, mouse=PointerInput(interaction.POINTER_TOUCH, "touch"))
-    actions.w3c_actions.pointer_action.move_to_location(542, 1857)
+    actions.w3c_actions.pointer_action.move_to_location(542, 1851)
     actions.w3c_actions.pointer_action.pointer_down()
     actions.w3c_actions.pointer_action.pause(0.1)
     actions.w3c_actions.pointer_action.release()

@@ -155,7 +155,7 @@ def change_proxy(driver: webdriver.Remote, c: int, gc: int, mc=0, mac=0, asc=0):
 
     actions = ActionChains(driver)
     actions.w3c_actions = ActionBuilder(driver, mouse=PointerInput(interaction.POINTER_TOUCH, "touch"))
-    actions.w3c_actions.pointer_action.move_to_location(542, 1857)
+    actions.w3c_actions.pointer_action.move_to_location(542, 1851)
     actions.w3c_actions.pointer_action.pointer_down()
     actions.w3c_actions.pointer_action.pause(0.1)
     actions.w3c_actions.pointer_action.release()
