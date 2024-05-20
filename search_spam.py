@@ -185,7 +185,7 @@ for _ in range(1000):
                 st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
                 while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("RU").instance(0)'):
                     time.sleep(1)
-                    print(14, c, gc, mc, mac, asc, sep="\t")
+                    print(14, st, c, gc, mc, mac, asc, sep="\t")
                 el25 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("RU").instance(0)')
                 el25.click()
 
