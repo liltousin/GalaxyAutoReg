@@ -109,10 +109,15 @@ for _ in range(1000):
             if not need_new_proxy:
                 el22 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Friends")')
                 el22.click()
-                while not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="your location"):
+                while not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="your location") and not driver.find_elements(
+                    by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("My Location")'
+                ):
                     time.sleep(1)
                     print(12, time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, mc, sep="\t")
-                el23 = driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="your location")
+                if driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="your location"):
+                    el23 = driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="your location")
+                else:
+                    el23 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("My Location")')
                 el23.click()
                 cities = [
                     "Москва",
