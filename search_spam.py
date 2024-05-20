@@ -219,8 +219,8 @@ for _ in range(1000):
                         for el in els1:
                             nickname = el.get_attribute("text")
                             with open("already_spammed.txt") as file:
-                                already_spammed = [i.rstrip() for i in file.readlines()]
-                            if nickname in already_spammed:
+                                already_spammed = file.readlines()
+                            if nickname + "\n" in already_spammed:
                                 continue
                             else:
                                 with open("already_spammed.txt", "a") as file:
