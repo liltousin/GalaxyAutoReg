@@ -310,8 +310,8 @@ for _ in range(1000):
                     while not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Galaxy"):
                         time.sleep(0.1)
                         print(23, st, c, gc, mc, mac, asc, sep="\t")
-                    el33 = driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="Galaxy")
-                    el33.click()
+                        if el33 := driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Galaxy"):
+                            el33[0].click()
                     time.sleep(1)
 
                     st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
