@@ -188,7 +188,9 @@ for _ in range(1000):
                 el25.click()
 
                 st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
-                while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Find friends")'):
+                while not driver.find_elements(
+                    by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Find friends")'
+                ) and not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("About me")'):
                     time.sleep(1)
                     print(15, st, c, gc, mc, mac, asc, sep="\t")
                 st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
@@ -311,6 +313,7 @@ for _ in range(1000):
                     time.sleep(1)
 
                     st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
+                    # можно педелать так чтобы не чекалось прям меню а просто если смломалось то фиксилось для повышения скорости
                     while not driver.find_elements(
                         by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Search")'
                     ) or not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("MENU")'):
