@@ -42,7 +42,7 @@ c = 0
 gc = 0
 mc = 0
 
-for _ in range(20):
+for _ in range(1000):
     proxy_data = change_proxy(driver, c, gc, mc)
 
     c = 0
