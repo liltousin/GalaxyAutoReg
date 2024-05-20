@@ -279,13 +279,6 @@ for _ in range(1000):
                     el33.click()
                     time.sleep(1)
 
-                    actions = ActionChains(driver)
-                    actions.w3c_actions = ActionBuilder(driver, mouse=PointerInput(interaction.POINTER_TOUCH, "touch"))
-                    actions.w3c_actions.pointer_action.move_to_location(515, 1740)
-                    actions.w3c_actions.pointer_action.pointer_down()
-                    actions.w3c_actions.pointer_action.move_to_location(515, 147)
-                    actions.w3c_actions.pointer_action.release()
-                    actions.perform()
                     while not driver.find_elements(
                         by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Search")'
                     ) or not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("MENU")'):
