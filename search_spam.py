@@ -111,7 +111,9 @@ for _ in range(1000):
             el21.click()
             time.sleep(1)
             st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
-            while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Friends")'):
+            while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Friends")') or driver.find_elements(
+                by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/browser_loader"
+            ):
                 time.sleep(1)
                 print(11, st, c, gc, mc, mac, asc, sep="\t")
             if driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Confirm registration")'):
