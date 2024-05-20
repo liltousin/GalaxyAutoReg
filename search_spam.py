@@ -326,6 +326,8 @@ for _ in range(1000):
     print(f"Акков зарегано на проксю: {c}")
     print(f"Акков зарегано всего: {gc}")
     print(f"Сообщений отправлено: {mc}")
+    print(f"Попыток отправки сообщений: {mac}")
+    print(f"Сообщений отправлено за все время: {asc}")
     print(f"need_new_proxy={need_new_proxy}")
     actions = ActionChains(driver)
     actions.w3c_actions = ActionBuilder(driver, mouse=PointerInput(interaction.POINTER_TOUCH, "touch"))
