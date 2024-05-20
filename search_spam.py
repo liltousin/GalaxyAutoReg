@@ -313,15 +313,20 @@ for _ in range(1000):
                     el33 = driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Galaxy")
                     if el33:
                         el33[0].click()
-                    time.sleep(1)
 
                     st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
-                    # можно педелать так чтобы не чекалось прям меню а просто если смломалось то фиксилось для повышения скорости
+                    # можно педелать так чтобы не чекалось прям меню а просто если сломалось то фиксилось для повышения скорости
+                    tc = 0
                     while not driver.find_elements(
                         by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Search")'
                     ) or not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("MENU")'):
                         time.sleep(0.1)
                         print(24, st, c, gc, mc, mac, asc, sep="\t")
+                        tc += 1
+                        if tc > 100:
+                            el33 = driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Galaxy")
+                            if el33:
+                                el33[0].click()
                     el34 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Search")')
                     el34.click()
 
