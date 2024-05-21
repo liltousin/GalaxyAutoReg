@@ -232,7 +232,6 @@ for _ in range(1000):
             el28 = driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="Galaxy")
             el28.click()
             time.sleep(1)
-
             actions = ActionChains(driver)
             actions.w3c_actions = ActionBuilder(driver, mouse=PointerInput(interaction.POINTER_TOUCH, "touch"))
             actions.w3c_actions.pointer_action.move_to_location(515, 1740)
@@ -240,14 +239,14 @@ for _ in range(1000):
             actions.w3c_actions.pointer_action.move_to_location(515, 147)
             actions.w3c_actions.pointer_action.release()
             actions.perform()
-            st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
-            while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Search")'):
-                time.sleep(1)
-                print(17, st, c, gc, mc, mac, asc, sep="\t")
-            el29 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Search")')
-            el29.click()
 
             for _ in range(25):
+                st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
+                while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Search")'):
+                    time.sleep(1)
+                    print(17, st, c, gc, mc, mac, asc, sep="\t")
+                el29 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Search")')
+                el29.click()
                 st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
                 while not driver.find_elements(
                     by=AppiumBy.XPATH, value='//android.view.View[@resource-id="search"]/android.view.View[2]/android.view.View[2]'
@@ -359,16 +358,7 @@ for _ in range(1000):
                         el36 = driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Galaxy")
                         if el36:
                             el36[0].click()
-                el37 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Search")')
-                el37.click()
-
-            st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
-            while not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Galaxy"):
-                time.sleep(1)
-                print(25, st, c, gc, mc, mac, asc, sep="\t")
-            el38 = driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="Galaxy")
-            el38.click()
-            time.sleep(1)
+                            tc = 0
 
         if not need_new_proxy:
             actions = ActionChains(driver)
