@@ -71,7 +71,7 @@ for _ in range(1000):
                 el15 = driver.find_element(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/login_new_character")
                 el15.click()
             tc += 1
-            if tc > 100:
+            if tc > 10:
                 need_new_proxy = True
                 break
 
@@ -100,7 +100,7 @@ for _ in range(1000):
                 time.sleep(1)
                 print(9, st, c, gc, mc, mac, asc, sep="\t")
                 tc += 1
-                if tc > 100:
+                if tc > 10:
                     need_new_proxy = True
                     actions = ActionChains(driver)
                     actions.w3c_actions = ActionBuilder(driver, mouse=PointerInput(interaction.POINTER_TOUCH, "touch"))
@@ -261,9 +261,7 @@ for _ in range(1000):
                 found_new_user = False
                 while not found_new_user:
                     if driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().resourceId("people_near_loader")'):
-                        el31 = driver.find_element(
-                            by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().resourceId("people_near_loader")'
-                        )
+                        el31 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().resourceId("people_near_loader")')
                         el31.click()
                     st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
                     while not driver.find_elements(
@@ -298,6 +296,7 @@ for _ in range(1000):
                         actions.w3c_actions.pointer_action.release()
                         actions.perform()
 
+                # Error while loading
                 st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
                 while not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="MESSAGE"):
                     time.sleep(0.1)
@@ -323,9 +322,7 @@ for _ in range(1000):
                 ):
                     time.sleep(0.1)
                     print(21, st, c, gc, mc, mac, asc, sep="\t")
-                if driver.find_elements(
-                    by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="text_input"]/../android.widget.TextView'
-                ):
+                if driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="text_input"]/../android.widget.TextView'):
                     st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
                     while not driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.widget.EditText"):
                         time.sleep(0.1)
@@ -337,6 +334,8 @@ for _ in range(1000):
                         by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="text_input"]/../android.widget.TextView'
                     )
                     el34.click()
+                # ru.mobstudio.andgalaxy:id/dialog_confirm_cancel подарили авторитет (вообще можно просто чекать эту ебанную кнопку везде)
+                # но провда с текстом будет напряженка. Если бан то просто смотрим куда попали после нажатия кнопки
                 st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
                 while not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Galaxy"):
                     time.sleep(0.1)
@@ -348,9 +347,9 @@ for _ in range(1000):
                 st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
                 # можно педелать так чтобы не чекалось прям меню а просто если сломалось то фиксилось для повышения скорости
                 tc = 0
-                while not driver.find_elements(
-                    by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Search")'
-                ) or not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("MENU")'):
+                while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Search")') or not driver.find_elements(
+                    by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("MENU")'
+                ):
                     time.sleep(0.1)
                     print(24, st, c, gc, mc, mac, asc, sep="\t")
                     tc += 1
