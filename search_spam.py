@@ -247,7 +247,6 @@ for _ in range(1000):
             el29 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Search")')
             el29.click()
 
-            account_banned = False
             for _ in range(50):
                 st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
                 while not driver.find_elements(
@@ -360,25 +359,18 @@ for _ in range(1000):
                         el36 = driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Galaxy")
                         if el36:
                             el36[0].click()
-                    if tc > 1000:
-                        account_banned = True
-                        print(f"account_banned={account_banned}")
-                        break
-                if account_banned:
-                    break
                 el37 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Search")')
                 el37.click()
 
-            if not account_banned:
-                st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
-                while not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Galaxy"):
-                    time.sleep(1)
-                    print(25, st, c, gc, mc, mac, asc, sep="\t")
-                el38 = driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="Galaxy")
-                el38.click()
+            st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
+            while not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Galaxy"):
                 time.sleep(1)
+                print(25, st, c, gc, mc, mac, asc, sep="\t")
+            el38 = driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="Galaxy")
+            el38.click()
+            time.sleep(1)
 
-        if not need_new_proxy and not account_banned:
+        if not need_new_proxy:
             actions = ActionChains(driver)
             actions.w3c_actions = ActionBuilder(driver, mouse=PointerInput(interaction.POINTER_TOUCH, "touch"))
             actions.w3c_actions.pointer_action.move_to_location(515, 1740)
