@@ -58,7 +58,7 @@ for _ in range(1000):
         print(6, st, c, gc, mc, mac, asc, sep="\t")
     el14 = driver.find_element(by=AppiumBy.XPATH, value='//android.widget.TextView[@content-desc="Galaxy"]')
     el14.click()
-    while c < 4 and not need_new_proxy:
+    while c < 2 and not need_new_proxy:
         # так же проверить driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/dialog_confirm_cancel")
         tc = 0
         st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
@@ -247,7 +247,7 @@ for _ in range(1000):
                         el29 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Search")')
                         el29.click()
 
-                        for _ in range(25):
+                        for _ in range(50):
                             st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
                             while not driver.find_elements(
                                 by=AppiumBy.XPATH, value='//android.view.View[@resource-id="search"]/android.view.View[2]/android.view.View[2]'
