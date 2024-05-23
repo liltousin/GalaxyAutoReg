@@ -313,7 +313,7 @@ for _ in range(1000):
             for _ in range(25):
                 st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
                 while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Search")'):
-                    time.sleep(1)
+                    time.sleep(0.1)
                     print(17, st, c, gc, mc, mac, asc, sep="\t")
                 el29 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Search")')
                 el29.click()
@@ -415,7 +415,7 @@ for _ in range(1000):
                     el35[0].click()
 
                 st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
-                # можно педелать так чтобы не чекалось прям меню а просто если сломалось то фиксилось для повышения скорости
+                # можно педелать так чтобы не чекалось прям меню а просто если сломалось то фиксилось для повышения скорости (в пизду и так сойдет)
                 tc = 0
                 while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Search")') or not driver.find_elements(
                     by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("MENU")'
@@ -424,10 +424,13 @@ for _ in range(1000):
                     print(24, st, c, gc, mc, mac, asc, sep="\t")
                     tc += 1
                     if tc > 100:
-                        el36 = driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Galaxy")
+                        el36 = driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/dialog_confirm_cancel")
                         if el36:
                             el36[0].click()
-                            tc = 0
+                        el37 = driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Galaxy")
+                        if el37:
+                            el37[0].click()
+                        tc = 0
 
         if not need_new_proxy:
             actions = ActionChains(driver)
