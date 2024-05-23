@@ -147,6 +147,20 @@ for _ in range(1000):
                 print(11, st, c, gc, mc, mac, asc, sep="\t")
             if driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Confirm registration")'):
                 need_new_proxy = True
+                actions = ActionChains(driver)
+                actions.w3c_actions = ActionBuilder(driver, mouse=PointerInput(interaction.POINTER_TOUCH, "touch"))
+                actions.w3c_actions.pointer_action.move_to_location(515, 1740)
+                actions.w3c_actions.pointer_action.pointer_down()
+                actions.w3c_actions.pointer_action.move_to_location(515, 147)
+                actions.w3c_actions.pointer_action.release()
+                actions.perform()
+                st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
+                while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Exit")'):
+                    time.sleep(1)
+                    print(12, st, c, gc, mc, mac, asc, sep="\t")
+                el23 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Exit")')
+                el23.click()
+                time.sleep(1)
 
         if not need_new_proxy:
             el23 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Friends")')
