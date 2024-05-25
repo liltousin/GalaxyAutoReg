@@ -59,7 +59,6 @@ for _ in range(1000):
     el14 = driver.find_element(by=AppiumBy.XPATH, value='//android.widget.TextView[@content-desc="Galaxy"]')
     el14.click()
     while c < 4 and not need_new_proxy:
-        # так же проверить driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/dialog_confirm_cancel")
         tc = 0
         st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
         while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Female")') or driver.find_elements(
@@ -73,6 +72,7 @@ for _ in range(1000):
                 tc = 0
             tc += 1
             if tc > 10:
+                # может хуйня выйти просто потому что не вышел с акка (однако может быть залупная загрузка поэтому все правильно)
                 need_new_proxy = True
                 break
 
@@ -167,7 +167,6 @@ for _ in range(1000):
             el23 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Friends")')
             el23.click()
             st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
-            # пофиксить выход из такой хуйни
             while not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="your location") and not driver.find_elements(
                 by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("My Location")'
             ):
@@ -283,24 +282,34 @@ for _ in range(1000):
             ]
             cities_by_probability = [cities[j][0] for j in range(len(cities)) for _ in range(cities[j][1] // 10)]
             city = random.choice(cities_by_probability)
-            st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
-            while not driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.widget.EditText"):
-                time.sleep(1)
-                print(13, st, c, gc, mc, mac, asc, sep="\t")
-            el26 = driver.find_element(by=AppiumBy.CLASS_NAME, value="android.widget.EditText")
-            el26.click()
-            el26.send_keys(city)
-            actions = ActionChains(driver)
-            actions.w3c_actions = ActionBuilder(driver, mouse=PointerInput(interaction.POINTER_TOUCH, "touch"))
-            actions.w3c_actions.pointer_action.move_to_location(1000, 1700)
-            actions.w3c_actions.pointer_action.pointer_down()
-            actions.w3c_actions.pointer_action.pause(0.1)
-            actions.w3c_actions.pointer_action.release()
-            actions.perform()
-            st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
-            while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("RU").instance(0)'):
-                time.sleep(1)
-                print(14, st, c, gc, mc, mac, asc, sep="\t")
+            print(f"NEW CHOSEN CITY: {city}", time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, mc, mac, asc, sep="\t")
+            city_is_entered = False
+            while not city_is_entered:
+                st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
+                while not driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.widget.EditText"):
+                    time.sleep(1)
+                    print(13, st, c, gc, mc, mac, asc, sep="\t")
+                el26 = driver.find_element(by=AppiumBy.CLASS_NAME, value="android.widget.EditText")
+                el26.click()
+                el26.send_keys(city)
+                actions = ActionChains(driver)
+                actions.w3c_actions = ActionBuilder(driver, mouse=PointerInput(interaction.POINTER_TOUCH, "touch"))
+                actions.w3c_actions.pointer_action.move_to_location(1000, 1700)
+                actions.w3c_actions.pointer_action.pointer_down()
+                actions.w3c_actions.pointer_action.pause(0.1)
+                actions.w3c_actions.pointer_action.release()
+                actions.perform()
+                st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
+                tc = 0
+                city_is_entered = True
+                while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("RU").instance(0)'):
+                    time.sleep(1)
+                    print(14, st, c, gc, mc, mac, asc, sep="\t")
+                    # может тут стопнуться и нихуя не введя город и хуй вообще зает как это фиксить вообще и чтоб не криво все было (вроде пофиксил)
+                    tc += 1
+                    if tc > 20 and driver.find_element(by=AppiumBy.CLASS_NAME, value="android.widget.EditText").get_attribute("text") == "":
+                        city_is_entered = False
+                        break
             el27 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("RU").instance(0)')
             el27.click()
 
