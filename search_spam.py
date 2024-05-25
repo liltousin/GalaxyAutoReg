@@ -7,7 +7,6 @@
 # Then you can paste this into a file and simply run with Python
 
 import random
-from re import T
 import string
 import time
 
@@ -420,9 +419,29 @@ for _ in range(1000):
                             if el34:
                                 el34[0].click()
                                 app_crashed = True
-                            el35 = 
-                    el36 = driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="MESSAGE")
-                    el36.click()
+                            el35 = driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]')
+                            if app_crashed and el35:
+                                el35[0].click()
+                                time.sleep(1)
+                                need_new_proxy = True
+                                actions = ActionChains(driver)
+                                actions.w3c_actions = ActionBuilder(driver, mouse=PointerInput(interaction.POINTER_TOUCH, "touch"))
+                                actions.w3c_actions.pointer_action.move_to_location(515, 1740)
+                                actions.w3c_actions.pointer_action.pointer_down()
+                                actions.w3c_actions.pointer_action.move_to_location(515, 147)
+                                actions.w3c_actions.pointer_action.release()
+                                actions.perform()
+                                st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
+                                while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Exit")'):
+                                    time.sleep(1)
+                                    print(21, st, c, gc, mc, mac, asc, sep="\t")
+                                el36 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Exit")')
+                                el36.click()
+                                break
+
+                if not need_new_proxy:
+                    el37 = driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="MESSAGE")
+                    el37.click()
                     mac += 1
 
                     st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
@@ -441,58 +460,58 @@ for _ in range(1000):
                         )
                     ):
                         time.sleep(0.1)
-                        print(21, st, c, gc, mc, mac, asc, sep="\t")
+                        print(22, st, c, gc, mc, mac, asc, sep="\t")
                     if driver.find_elements(
                         by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="text_input"]/../android.widget.TextView'
                     ):
                         st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
                         while not driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.widget.EditText"):
                             time.sleep(0.1)
-                            print(22, st, c, gc, mc, mac, asc, sep="\t")
-                        el35 = driver.find_element(by=AppiumBy.CLASS_NAME, value="android.widget.EditText")
-                        el35.send_keys(get_text())
+                            print(23, st, c, gc, mc, mac, asc, sep="\t")
+                        el38 = driver.find_element(by=AppiumBy.CLASS_NAME, value="android.widget.EditText")
+                        el38.send_keys(get_text())
                         mc += 1
-                        el36 = driver.find_element(
+                        el39 = driver.find_element(
                             by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="text_input"]/../android.widget.TextView'
                         )
                         # тут может нихуя не кликнуться и крашнуться
-                        el36.click()
+                        el39.click()
                     # ru.mobstudio.andgalaxy:id/dialog_confirm_cancel подарили авторитет (вообще можно просто чекать эту ебанную кнопку везде)
                     # но провда с текстом будет напряженка. Если бан то просто смотрим куда попали после нажатия кнопки
                     st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
                     tc = 0
                     while not driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]'):
                         time.sleep(0.1)
-                        print(23, st, c, gc, mc, mac, asc, sep="\t")
+                        print(24, st, c, gc, mc, mac, asc, sep="\t")
                         tc += 1
                         if tc > 50:
                             tc = 0
-                            el37 = driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/dialog_confirm_cancel")
-                            if el37:
-                                el37[0].click()
-                    el38 = driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]')
-                    if el38:
-                        el38[0].click()
+                            el40 = driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/dialog_confirm_cancel")
+                            if el40:
+                                el40[0].click()
+                    el41 = driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]')
+                    if el41:
+                        el41[0].click()
 
-                st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
-                tc = 0
-                while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Search")') or not driver.find_elements(
-                    by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("MENU")'
-                ):
-                    time.sleep(0.1)
-                    print(24, st, c, gc, mc, mac, asc, sep="\t")
-                    tc += 1
-                    if tc > 50:
-                        tc = 0
-                        el39 = driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/dialog_confirm_cancel")
-                        if el39:
-                            el39[0].click()
-                        if driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/login_new_character"):
-                            need_new_proxy = True
-                            break
-                        el41 = driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]')
-                        if el41:
-                            el41[0].click()
+                    st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
+                    tc = 0
+                    while not driver.find_elements(
+                        by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Search")'
+                    ) or not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("MENU")'):
+                        time.sleep(0.1)
+                        print(25, st, c, gc, mc, mac, asc, sep="\t")
+                        tc += 1
+                        if tc > 50:
+                            tc = 0
+                            el42 = driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/dialog_confirm_cancel")
+                            if el42:
+                                el42[0].click()
+                            if driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/login_new_character"):
+                                need_new_proxy = True
+                                break
+                            el43 = driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]')
+                            if el43:
+                                el43[0].click()
 
                 if need_new_proxy:
                     break
@@ -501,7 +520,6 @@ for _ in range(1000):
         # хотя блять нахуй мозги себе ебать когда всего 2 раза такая залупа
         # похуй пусть для надежнрсоти будет епта
         if not need_new_proxy:
-            # а здесь можно дополниетльно проверят нажата ли кнопка хотя нахуй надо она и так блять нажата полюбому
             actions = ActionChains(driver)
             actions.w3c_actions = ActionBuilder(driver, mouse=PointerInput(interaction.POINTER_TOUCH, "touch"))
             actions.w3c_actions.pointer_action.move_to_location(515, 1740)
@@ -513,8 +531,8 @@ for _ in range(1000):
             while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Exit")'):
                 time.sleep(1)
                 print(26, st, c, gc, mc, mac, asc, sep="\t")
-            el42 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Exit")')
-            el42.click()
+            el44 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Exit")')
+            el44.click()
             time.sleep(1)
             if not need_new_proxy:
                 c += 1
