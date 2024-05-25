@@ -371,6 +371,11 @@ for _ in range(1000):
                             el33 = driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/dialog_confirm_cancel")
                             if el33:
                                 el33[0].click()
+                            if driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/login_new_character"):
+                                need_new_proxy = True
+                                break
+                    if need_new_proxy:
+                        break
                     els1 = driver.find_elements(
                         by=AppiumBy.XPATH,
                         value='//android.view.View[@resource-id="people_near_content"]/android.view.View/android.widget.TextView',
@@ -397,62 +402,63 @@ for _ in range(1000):
                         actions.w3c_actions.pointer_action.release()
                         actions.perform()
 
-                # Error while loading да и похуй ща починим
-                # может вылетететь нахуй прилодение
-                st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
-                while not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="MESSAGE"):
-                    time.sleep(0.1)
-                    print(20, st, c, gc, mc, mac, asc, sep="\t")
-                el34 = driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="MESSAGE")
-                el34.click()
-                mac += 1
-
-                st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
-                while (
-                    not driver.find_elements(
-                        by=AppiumBy.ANDROID_UIAUTOMATOR,
-                        value='new UiSelector().text("This user receives private messages only from Friends. '
-                        + 'You can send a request to private message")',
-                    )
-                    and not driver.find_elements(
-                        by=AppiumBy.ANDROID_UIAUTOMATOR,
-                        value='new UiSelector().text("You can\'t private message this user because they have punishment")',
-                    )
-                    and not driver.find_elements(
-                        by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="text_input"]/../android.widget.TextView'
-                    )
-                ):
-                    time.sleep(0.1)
-                    print(21, st, c, gc, mc, mac, asc, sep="\t")
-                if driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="text_input"]/../android.widget.TextView'):
+                if not need_new_proxy:
+                    # Error while loading да и похуй ща починим
+                    # может вылетететь нахуй прилодение
                     st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
-                    while not driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.widget.EditText"):
+                    while not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="MESSAGE"):
                         time.sleep(0.1)
-                        print(22, st, c, gc, mc, mac, asc, sep="\t")
-                    el35 = driver.find_element(by=AppiumBy.CLASS_NAME, value="android.widget.EditText")
-                    el35.send_keys(get_text())
-                    mc += 1
-                    el36 = driver.find_element(
-                        by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="text_input"]/../android.widget.TextView'
-                    )
-                    # тут может нихуя не кликнуться и крашнуться
-                    el36.click()
-                # ru.mobstudio.andgalaxy:id/dialog_confirm_cancel подарили авторитет (вообще можно просто чекать эту ебанную кнопку везде)
-                # но провда с текстом будет напряженка. Если бан то просто смотрим куда попали после нажатия кнопки
-                st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
-                tc = 0
-                while not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Galaxy"):
-                    time.sleep(0.1)
-                    print(23, st, c, gc, mc, mac, asc, sep="\t")
-                    tc += 1
-                    if tc > 50:
-                        tc = 0
-                        el37 = driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/dialog_confirm_cancel")
-                        if el37:
-                            el37[0].click()
-                el38 = driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Galaxy")
-                if el38:
-                    el38[0].click()
+                        print(20, st, c, gc, mc, mac, asc, sep="\t")
+                    el34 = driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="MESSAGE")
+                    el34.click()
+                    mac += 1
+
+                    st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
+                    while (
+                        not driver.find_elements(
+                            by=AppiumBy.ANDROID_UIAUTOMATOR,
+                            value='new UiSelector().text("This user receives private messages only from Friends. '
+                            + 'You can send a request to private message")',
+                        )
+                        and not driver.find_elements(
+                            by=AppiumBy.ANDROID_UIAUTOMATOR,
+                            value='new UiSelector().text("You can\'t private message this user because they have punishment")',
+                        )
+                        and not driver.find_elements(
+                            by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="text_input"]/../android.widget.TextView'
+                        )
+                    ):
+                        time.sleep(0.1)
+                        print(21, st, c, gc, mc, mac, asc, sep="\t")
+                    if driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="text_input"]/../android.widget.TextView'):
+                        st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
+                        while not driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.widget.EditText"):
+                            time.sleep(0.1)
+                            print(22, st, c, gc, mc, mac, asc, sep="\t")
+                        el35 = driver.find_element(by=AppiumBy.CLASS_NAME, value="android.widget.EditText")
+                        el35.send_keys(get_text())
+                        mc += 1
+                        el36 = driver.find_element(
+                            by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="text_input"]/../android.widget.TextView'
+                        )
+                        # тут может нихуя не кликнуться и крашнуться
+                        el36.click()
+                    # ru.mobstudio.andgalaxy:id/dialog_confirm_cancel подарили авторитет (вообще можно просто чекать эту ебанную кнопку везде)
+                    # но провда с текстом будет напряженка. Если бан то просто смотрим куда попали после нажатия кнопки
+                    st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
+                    tc = 0
+                    while not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Galaxy"):
+                        time.sleep(0.1)
+                        print(23, st, c, gc, mc, mac, asc, sep="\t")
+                        tc += 1
+                        if tc > 50:
+                            tc = 0
+                            el37 = driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/dialog_confirm_cancel")
+                            if el37:
+                                el37[0].click()
+                    el38 = driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Galaxy")
+                    if el38:
+                        el38[0].click()
 
                 st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
                 tc = 0
