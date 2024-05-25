@@ -345,6 +345,7 @@ for _ in range(1000):
                         el30 = driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/dialog_confirm_cancel")
                         if el30:
                             el30[0].click()
+                        # теперь надо проверку на то вышел ли скрипт на страницу с акками
                 el31 = driver.find_element(
                     by=AppiumBy.XPATH, value='//android.view.View[@resource-id="search"]/android.view.View[2]/android.view.View[2]'
                 )
@@ -434,6 +435,7 @@ for _ in range(1000):
                     el36 = driver.find_element(
                         by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="text_input"]/../android.widget.TextView'
                     )
+                    # тут может нихуя не кликнуться и крашнуться
                     el36.click()
                 # ru.mobstudio.andgalaxy:id/dialog_confirm_cancel подарили авторитет (вообще можно просто чекать эту ебанную кнопку везде)
                 # но провда с текстом будет напряженка. Если бан то просто смотрим куда попали после нажатия кнопки
@@ -465,12 +467,21 @@ for _ in range(1000):
                         el39 = driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/dialog_confirm_cancel")
                         if el39:
                             el39[0].click()
-                        # тут надо чекать не вылетело ли после этого на старницу с акками
-                        el40 = driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Galaxy")
-                        if el40:
-                            el40[0].click()
+                        if driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/login_new_character"):
+                            need_new_proxy = True
+                            break
+                        el41 = driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Galaxy")
+                        if el41:
+                            el41[0].click()
 
+                if need_new_proxy:
+                    break
+
+        # if need_to_exit:
+        # хотя блять нахуй мозги себе ебать когда всего 2 раза такая залупа
+        # похуй пусть для надежнрсоти будет епта
         if not need_new_proxy:
+            # а здесь можно дополниетльно проверят нажата ли кнопка хотя нахуй надо она и так блять нажата полюбому
             actions = ActionChains(driver)
             actions.w3c_actions = ActionBuilder(driver, mouse=PointerInput(interaction.POINTER_TOUCH, "touch"))
             actions.w3c_actions.pointer_action.move_to_location(515, 1740)
@@ -482,11 +493,12 @@ for _ in range(1000):
             while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Exit")'):
                 time.sleep(1)
                 print(26, st, c, gc, mc, mac, asc, sep="\t")
-            el41 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Exit")')
-            el41.click()
+            el42 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Exit")')
+            el42.click()
             time.sleep(1)
-            c += 1
-            gc += 1
+            if not need_new_proxy:
+                c += 1
+                gc += 1
 
     print(f"Акков зарегано на проксю: {c}")
     print(f"Акков зарегано всего: {gc}")
