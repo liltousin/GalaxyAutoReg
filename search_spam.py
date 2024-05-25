@@ -7,6 +7,7 @@
 # Then you can paste this into a file and simply run with Python
 
 import random
+from re import T
 import string
 import time
 
@@ -127,7 +128,7 @@ for _ in range(1000):
             el20.click()
 
             st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
-            while not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Galaxy"):
+            while not driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]'):
                 time.sleep(1)
                 print(10, st, c, gc, mc, mac, asc, sep="\t")
                 if driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/dialog_confirm_cancel"):
@@ -137,7 +138,7 @@ for _ in range(1000):
                     break
 
         if not need_new_proxy:
-            el22 = driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="Galaxy")
+            el22 = driver.find_element(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]')
             el22.click()
             time.sleep(1)
             st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
@@ -311,10 +312,10 @@ for _ in range(1000):
                 time.sleep(1)
                 print(15, st, c, gc, mc, mac, asc, sep="\t")
             st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
-            while not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Galaxy"):
+            while not driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]'):
                 time.sleep(1)
                 print(16, st, c, gc, mc, mac, asc, sep="\t")
-            el28 = driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="Galaxy")
+            el28 = driver.find_element(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]')
             el28.click()
             time.sleep(1)
             actions = ActionChains(driver)
@@ -405,12 +406,23 @@ for _ in range(1000):
                 if not need_new_proxy:
                     # Error while loading да и похуй ща починим
                     # может вылетететь нахуй прилодение
+                    # опять сука вылетело
                     st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
+                    tc = 0
+                    app_crashed = False
                     while not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="MESSAGE"):
                         time.sleep(0.1)
                         print(20, st, c, gc, mc, mac, asc, sep="\t")
-                    el34 = driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="MESSAGE")
-                    el34.click()
+                        tc += 1
+                        if tc > 50:
+                            tc = 0
+                            el34 = driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.TextView[@content-desc="Galaxy"]')
+                            if el34:
+                                el34[0].click()
+                                app_crashed = True
+                            el35 = 
+                    el36 = driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="MESSAGE")
+                    el36.click()
                     mac += 1
 
                     st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
@@ -430,7 +442,9 @@ for _ in range(1000):
                     ):
                         time.sleep(0.1)
                         print(21, st, c, gc, mc, mac, asc, sep="\t")
-                    if driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="text_input"]/../android.widget.TextView'):
+                    if driver.find_elements(
+                        by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="text_input"]/../android.widget.TextView'
+                    ):
                         st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
                         while not driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.widget.EditText"):
                             time.sleep(0.1)
@@ -447,7 +461,7 @@ for _ in range(1000):
                     # но провда с текстом будет напряженка. Если бан то просто смотрим куда попали после нажатия кнопки
                     st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
                     tc = 0
-                    while not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Galaxy"):
+                    while not driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]'):
                         time.sleep(0.1)
                         print(23, st, c, gc, mc, mac, asc, sep="\t")
                         tc += 1
@@ -456,7 +470,7 @@ for _ in range(1000):
                             el37 = driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/dialog_confirm_cancel")
                             if el37:
                                 el37[0].click()
-                    el38 = driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Galaxy")
+                    el38 = driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]')
                     if el38:
                         el38[0].click()
 
@@ -476,7 +490,7 @@ for _ in range(1000):
                         if driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/login_new_character"):
                             need_new_proxy = True
                             break
-                        el41 = driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Galaxy")
+                        el41 = driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]')
                         if el41:
                             el41[0].click()
 
