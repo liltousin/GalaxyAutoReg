@@ -390,7 +390,13 @@ for _ in range(1000):
                         value='//android.view.View[@resource-id="people_near_content"]/android.view.View/android.widget.TextView',
                     )
                     for el in els1:
-                        nickname = el.get_attribute("text")
+                        # может наебнуться если дарят авторитет надо try except (вроде пофиксил но не точно)
+                        try:
+                            nickname = el.get_attribute("text")
+                        except Exception:
+                            time.sleep(5)
+                            driver.find_element(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/dialog_confirm_cancel").click()
+                            nickname = el.get_attribute("text")
                         with open("already_spammed.txt") as file:
                             already_spammed = file.readlines()
                         if nickname + "\n" in already_spammed:
