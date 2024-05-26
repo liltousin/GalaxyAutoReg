@@ -511,7 +511,7 @@ for _ in range(1000):
                         time.sleep(0.1)
                         print(24, st, c, gc, mc, mac, asc, sep="\t")
                         tc += 1
-                        if tc > 50:
+                        if tc > 10:
                             tc = 0
                             el40 = driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/dialog_confirm_cancel")
                             if el40:
