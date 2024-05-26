@@ -73,6 +73,7 @@ for _ in range(1000):
             tc += 1
             if tc > 10:
                 # может хуйня выйти просто потому что не вышел с акка (однако может быть залупная загрузка поэтому все правильно)
+                # если залупная загрузка то лучше просто назад нажать и все пройдет
                 need_new_proxy = True
                 break
 
@@ -504,10 +505,14 @@ for _ in range(1000):
                             el40 = driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/dialog_confirm_cancel")
                             if el40:
                                 el40[0].click()
+                            if driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/login_new_character"):
+                                need_new_proxy = True
+                                break
+                
+                if not need_new_proxy:
                     el41 = driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]')
                     if el41:
                         el41[0].click()
-
                     st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
                     tc = 0
                     while not driver.find_elements(

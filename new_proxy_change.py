@@ -27,6 +27,8 @@ def change_proxy(driver: webdriver.Remote, c: int, gc: int, mc=0, mac=0, asc=0):
         el3.click()
     else:
         if not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Start"):
+            # можно нахуй заменить на просто клик по коордам а то переодически залупа творится (ебнул таймер и так сойдет)
+            time.sleep(1)
             el4 = driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="Stop")
             el4.click()
         el5 = driver.find_element(
