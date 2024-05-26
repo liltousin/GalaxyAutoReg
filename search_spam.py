@@ -355,68 +355,71 @@ for _ in range(1000):
                         el30 = driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/dialog_confirm_cancel")
                         if el30:
                             el30[0].click()
-                        # теперь надо проверку на то вышел ли скрипт на страницу с акками
-                el31 = driver.find_element(
-                    by=AppiumBy.XPATH, value='//android.view.View[@resource-id="search"]/android.view.View[2]/android.view.View[2]'
-                )
-                el31.click()
-
-                found_new_user = False
-                while not found_new_user:
-                    # может зависнуть тут если кончится прокся в процессе
-                    if driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().resourceId("people_near_loader")'):
-                        el32 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().resourceId("people_near_loader")')
-                        el32.click()
-                    st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
-                    tc = 0
-                    while not driver.find_elements(
-                        by=AppiumBy.XPATH,
-                        value='//android.view.View[@resource-id="people_near_content"]/android.view.View/android.widget.TextView',
-                    ):
-                        time.sleep(0.1)
-                        print(19, st, c, gc, mc, mac, asc, sep="\t")
-                        tc += 1
-                        if tc > 50:
-                            tc = 0
-                            el33 = driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/dialog_confirm_cancel")
-                            if el33:
-                                el33[0].click()
-                            if driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/login_new_character"):
-                                need_new_proxy = True
-                                break
-                    if need_new_proxy:
-                        break
-                    els1 = driver.find_elements(
-                        by=AppiumBy.XPATH,
-                        value='//android.view.View[@resource-id="people_near_content"]/android.view.View/android.widget.TextView',
-                    )
-                    for el in els1:
-                        # может наебнуться если дарят авторитет надо try except (вроде пофиксил но не точно)
-                        try:
-                            nickname = el.get_attribute("text")
-                        except Exception:
-                            time.sleep(5)
-                            driver.find_element(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/dialog_confirm_cancel").click()
-                            nickname = el.get_attribute("text")
-                        with open("already_spammed.txt") as file:
-                            already_spammed = file.readlines()
-                        if nickname + "\n" in already_spammed:
-                            continue
-                        else:
-                            with open("already_spammed.txt", "a") as file:
-                                file.write(nickname + "\n")
-                                asc += 1
-                            el.click()
-                            found_new_user = True
+                        if driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/login_new_character"):
+                            need_new_proxy = True
                             break
-                    if not found_new_user:
-                        actions = ActionChains(driver)
-                        actions.w3c_actions = ActionBuilder(driver, mouse=PointerInput(interaction.POINTER_TOUCH, "touch"))
-                        actions.w3c_actions.pointer_action.move_to_location(1000, 1700)
-                        actions.w3c_actions.pointer_action.pointer_down()
-                        actions.w3c_actions.pointer_action.move_to_location(1000, 900)
-                        actions.w3c_actions.pointer_action.release()
-                        actions.perform()
+
+                if not need_new_proxy:
+                    el31 = driver.find_element(
+                        by=AppiumBy.XPATH, value='//android.view.View[@resource-id="search"]/android.view.View[2]/android.view.View[2]'
+                    )
+                    el31.click()
+                    found_new_user = False
+                    while not found_new_user:
+                        # может зависнуть тут если кончится прокся в процессе
+                        if driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().resourceId("people_near_loader")'):
+                            el32 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().resourceId("people_near_loader")')
+                            el32.click()
+                        st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
+                        tc = 0
+                        while not driver.find_elements(
+                            by=AppiumBy.XPATH,
+                            value='//android.view.View[@resource-id="people_near_content"]/android.view.View/android.widget.TextView',
+                        ):
+                            time.sleep(0.1)
+                            print(19, st, c, gc, mc, mac, asc, sep="\t")
+                            tc += 1
+                            if tc > 50:
+                                tc = 0
+                                el33 = driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/dialog_confirm_cancel")
+                                if el33:
+                                    el33[0].click()
+                                if driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/login_new_character"):
+                                    need_new_proxy = True
+                                    break
+                        if need_new_proxy:
+                            break
+                        els1 = driver.find_elements(
+                            by=AppiumBy.XPATH,
+                            value='//android.view.View[@resource-id="people_near_content"]/android.view.View/android.widget.TextView',
+                        )
+                        for el in els1:
+                            # может наебнуться если дарят авторитет надо try except (вроде пофиксил но не точно)
+                            try:
+                                nickname = el.get_attribute("text")
+                            except Exception:
+                                time.sleep(5)
+                                driver.find_element(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/dialog_confirm_cancel").click()
+                                nickname = el.get_attribute("text")
+                            with open("already_spammed.txt") as file:
+                                already_spammed = file.readlines()
+                            if nickname + "\n" in already_spammed:
+                                continue
+                            else:
+                                with open("already_spammed.txt", "a") as file:
+                                    file.write(nickname + "\n")
+                                    asc += 1
+                                el.click()
+                                found_new_user = True
+                                break
+                        if not found_new_user:
+                            actions = ActionChains(driver)
+                            actions.w3c_actions = ActionBuilder(driver, mouse=PointerInput(interaction.POINTER_TOUCH, "touch"))
+                            actions.w3c_actions.pointer_action.move_to_location(1000, 1700)
+                            actions.w3c_actions.pointer_action.pointer_down()
+                            actions.w3c_actions.pointer_action.move_to_location(1000, 900)
+                            actions.w3c_actions.pointer_action.release()
+                            actions.perform()
 
                 if not need_new_proxy:
                     # Error while loading да и похуй ща починим
@@ -492,8 +495,6 @@ for _ in range(1000):
                         )
                         # тут может нихуя не кликнуться и крашнуться
                         el39.click()
-                    # ru.mobstudio.andgalaxy:id/dialog_confirm_cancel подарили авторитет (вообще можно просто чекать эту ебанную кнопку везде)
-                    # но провда с текстом будет напряженка. Если бан то просто смотрим куда попали после нажатия кнопки
                     st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
                     tc = 0
                     while not driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]'):
@@ -508,7 +509,7 @@ for _ in range(1000):
                             if driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/login_new_character"):
                                 need_new_proxy = True
                                 break
-                
+
                 if not need_new_proxy:
                     el41 = driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]')
                     if el41:
