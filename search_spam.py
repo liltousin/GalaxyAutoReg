@@ -489,12 +489,22 @@ for _ in range(1000):
                             print(23, st, c, gc, mc, mac, asc, sep="\t")
                         el38 = driver.find_element(by=AppiumBy.CLASS_NAME, value="android.widget.EditText")
                         el38.send_keys(get_text())
-                        mc += 1
                         el39 = driver.find_element(
                             by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="text_input"]/../android.widget.TextView'
                         )
-                        # тут может нихуя не кликнуться и крашнуться
-                        el39.click()
+                        # тут может нихуя не кликнуться и крашнуться (уже 2 раз такое)
+                        try:
+                            el39.click()
+                        except Exception:
+                            time.sleep(5)
+                            driver.find_element(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/dialog_confirm_cancel").click()
+                            time.sleep(5)
+                            if driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/login_new_character"):
+                                need_new_proxy = True
+                                break
+                        mc += 1
+
+                if not need_new_proxy:
                     st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
                     tc = 0
                     while not driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]'):
