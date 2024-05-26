@@ -73,7 +73,7 @@ for _ in range(1000):
             tc += 1
             if tc > 10:
                 # может хуйня выйти просто потому что не вышел с акка (однако может быть залупная загрузка поэтому все правильно)
-                # если залупная загрузка то лучше просто назад нажать и все пройдет
+                # если залупная загрузка то лучше просто назад нажать и все пройдет (только хуй знает как ее вычислить)
                 need_new_proxy = True
                 break
 
@@ -86,6 +86,7 @@ for _ in range(1000):
                 print(8, st, c, gc, mc, mac, asc, sep="\t")
             el17 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("NEXT")')
             el17.click()
+            # может ебануться хуевая загрузка и краш
             el18 = driver.find_element(by=AppiumBy.CLASS_NAME, value="android.widget.EditText")
             el18.click()
             el18.send_keys("".join(random.choice(string.ascii_letters + string.digits) for _ in range(12)))
@@ -464,6 +465,7 @@ for _ in range(1000):
                     mac += 1
 
                     st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
+                    tc = 0
                     while (
                         not driver.find_elements(
                             by=AppiumBy.ANDROID_UIAUTOMATOR,
@@ -480,6 +482,12 @@ for _ in range(1000):
                     ):
                         time.sleep(0.1)
                         print(22, st, c, gc, mc, mac, asc, sep="\t")
+                        tc += 1
+                        if tc > 50:
+                            tc = 0
+                            el38 = driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/dialog_confirm_cancel")
+                            if el38:
+                                el38[0].click()
                     if driver.find_elements(
                         by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="text_input"]/../android.widget.TextView'
                     ):
@@ -487,14 +495,14 @@ for _ in range(1000):
                         while not driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.widget.EditText"):
                             time.sleep(0.1)
                             print(23, st, c, gc, mc, mac, asc, sep="\t")
-                        el38 = driver.find_element(by=AppiumBy.CLASS_NAME, value="android.widget.EditText")
-                        el38.send_keys(get_text())
-                        el39 = driver.find_element(
+                        el39 = driver.find_element(by=AppiumBy.CLASS_NAME, value="android.widget.EditText")
+                        el39.send_keys(get_text())
+                        el40 = driver.find_element(
                             by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="text_input"]/../android.widget.TextView'
                         )
                         # тут может нихуя не кликнуться и крашнуться (уже 2 раз такое)
                         try:
-                            el39.click()
+                            el40.click()
                         except Exception:
                             time.sleep(5)
                             driver.find_element(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/dialog_confirm_cancel").click()
@@ -513,17 +521,17 @@ for _ in range(1000):
                         tc += 1
                         if tc > 10:
                             tc = 0
-                            el40 = driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/dialog_confirm_cancel")
-                            if el40:
-                                el40[0].click()
+                            el41 = driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/dialog_confirm_cancel")
+                            if el41:
+                                el41[0].click()
                             if driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/login_new_character"):
                                 need_new_proxy = True
                                 break
 
                 if not need_new_proxy:
-                    el41 = driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]')
-                    if el41:
-                        el41[0].click()
+                    el42 = driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]')
+                    if el42:
+                        el42[0].click()
                     st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
                     tc = 0
                     while not driver.find_elements(
@@ -534,15 +542,15 @@ for _ in range(1000):
                         tc += 1
                         if tc > 50:
                             tc = 0
-                            el42 = driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/dialog_confirm_cancel")
-                            if el42:
-                                el42[0].click()
+                            el43 = driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/dialog_confirm_cancel")
+                            if el43:
+                                el43[0].click()
                             if driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/login_new_character"):
                                 need_new_proxy = True
                                 break
-                            el43 = driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]')
-                            if el43:
-                                el43[0].click()
+                            el44 = driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]')
+                            if el44:
+                                el44[0].click()
 
                 if need_new_proxy:
                     break
@@ -562,8 +570,8 @@ for _ in range(1000):
             while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Exit")'):
                 time.sleep(1)
                 print(26, st, c, gc, mc, mac, asc, sep="\t")
-            el44 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Exit")')
-            el44.click()
+            el45 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Exit")')
+            el45.click()
             time.sleep(1)
             if not need_new_proxy:
                 c += 1
