@@ -141,6 +141,7 @@ for _ in range(1000):
         if not need_new_proxy:
             el22 = driver.find_element(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]')
             el22.click()
+            # может не нажаться какогото хуя хз почему
             time.sleep(1)
             st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
             while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Friends")') or driver.find_elements(
@@ -325,8 +326,10 @@ for _ in range(1000):
             while not driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]'):
                 time.sleep(1)
                 print(16, st, c, gc, mc, mac, asc, sep="\t")
-            el28 = driver.find_element(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]')
-            el28.click()
+            el28 = driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]')
+            if el28:
+                el28[0].click()
+            # может не нажаться если пидорасы и тогда с экзитом траблы будут (надо убедиться что до экзита пролистнул)
             time.sleep(1)
             actions = ActionChains(driver)
             actions.w3c_actions = ActionBuilder(driver, mouse=PointerInput(interaction.POINTER_TOUCH, "touch"))
@@ -458,6 +461,7 @@ for _ in range(1000):
                                 el36 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Exit")')
                                 el36.click()
                                 break
+                            # надо dialog_confirm_cancel сюда
 
                 if not need_new_proxy:
                     el37 = driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="MESSAGE")
@@ -481,6 +485,7 @@ for _ in range(1000):
                         )
                     ):
                         time.sleep(0.1)
+                        # нахуй вылетело прилодение хуй знает почему
                         print(22, st, c, gc, mc, mac, asc, sep="\t")
                         tc += 1
                         if tc > 50:

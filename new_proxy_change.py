@@ -47,7 +47,11 @@ def change_proxy(driver: webdriver.Remote, c: int, gc: int, mc=0, mac=0, asc=0):
             bad_proxies = [i.rstrip() for i in file.readlines()]
 
         with open("proxylist.txt") as file:
-            proxies_data = [i.rstrip() for i in file.readlines() if i.rstrip() not in used_proxies and i.rstrip() not in bad_proxies]
+            proxies_data = [
+                i.rstrip()
+                for i in file.readlines()
+                if i.rstrip() not in used_proxies and i.rstrip() not in bad_proxies and len(i.rstrip().split(":")) == 2
+            ]
 
         if proxies_data:
             proxy_data = proxies_data[0]
