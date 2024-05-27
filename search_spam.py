@@ -563,7 +563,7 @@ for _ in range(1000):
                     break
 
             with open("swipe_count_by_city.txt", "a") as file:
-                file.write(f"{city}\t{swipe_counter}\n")
+                file.write(f"{city}\t{swipe_counter}\t{time.strftime('%Y.%m.%d %H:%M', time.localtime())}\n")
 
         # if need_to_exit:
         # хотя блять нахуй мозги себе ебать когда всего 2 раза такая залупа
