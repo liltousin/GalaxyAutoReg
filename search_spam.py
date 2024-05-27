@@ -565,7 +565,7 @@ for _ in range(1000):
             if not need_new_proxy:
                 with open("statistics.txt", "a") as file:
                     messages_per_minute = "{:.2f}".format(25 / ((city_end - city_start) / 60))
-                    file.write(f"{city}\t{messages_per_minute:..f}\t{time.strftime('%Y.%m.%d %H:%M', time.localtime())}\n")
+                    file.write(f"{city}\t{messages_per_minute}\t{time.strftime('%Y.%m.%d %H:%M', time.localtime())}\n")
 
         # if need_to_exit:
         # хотя блять нахуй мозги себе ебать когда всего 2 раза такая залупа
