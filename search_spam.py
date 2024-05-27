@@ -286,7 +286,6 @@ for _ in range(1000):
             cities_by_probability = [cities[j][0] for j in range(len(cities)) for _ in range(cities[j][1] // 10)]
             city = random.choice(cities_by_probability)
             print(f"NEW CHOSEN CITY: {city}", time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, mc, mac, asc, sep="\t")
-            swipe_counter = 0
             city_is_entered = False
             while not city_is_entered:
                 st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
@@ -340,6 +339,7 @@ for _ in range(1000):
             actions.w3c_actions.pointer_action.release()
             actions.perform()
 
+            city_start = time.time()
             for _ in range(25):
                 st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
                 while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Search")'):
@@ -425,7 +425,6 @@ for _ in range(1000):
                             actions.w3c_actions.pointer_action.move_to_location(1000, 900)
                             actions.w3c_actions.pointer_action.release()
                             actions.perform()
-                            swipe_counter += 1
 
                 if not need_new_proxy:
                     # Error while loading да и похуй ща починим
@@ -561,10 +560,12 @@ for _ in range(1000):
 
                 if need_new_proxy:
                     break
+            city_end = time.time()
 
             if not need_new_proxy:
-                with open("swipe_count_by_city.txt", "a") as file:
-                    file.write(f"{city}\t{swipe_counter}\t{time.strftime('%Y.%m.%d %H:%M', time.localtime())}\n")
+                with open("statistics.txt", "a") as file:
+                    messages_per_minute = "{:.2f}".format(25 / ((city_end - city_start) / 60))
+                    file.write(f"{city}\t{messages_per_minute:..f}\t{time.strftime('%Y.%m.%d %H:%M', time.localtime())}\n")
 
         # if need_to_exit:
         # хотя блять нахуй мозги себе ебать когда всего 2 раза такая залупа
