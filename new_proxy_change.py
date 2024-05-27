@@ -8,6 +8,8 @@ from selenium.webdriver.common.actions import interaction
 from selenium.webdriver.common.actions.action_builder import ActionBuilder
 from selenium.webdriver.common.actions.pointer_input import PointerInput
 
+from get_proxylist_by_api import get_proxies
+
 
 def change_proxy(driver: webdriver.Remote, c: int, gc: int, mc=0, mac=0, asc=0):
     st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
@@ -58,7 +60,8 @@ def change_proxy(driver: webdriver.Remote, c: int, gc: int, mc=0, mac=0, asc=0):
             proxy_ip, proxy_port = proxy_data.split(":")
         else:
             print("NEED NEW PROXIES!!!", time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, mc, mac, asc, sep="\t")
-            time.sleep(10)
+            get_proxies()
+            time.sleep(5)
             continue
         el6 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().className("android.widget.Button").instance(2)')
         el6.click()
