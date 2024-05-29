@@ -174,7 +174,7 @@ for _ in range(1000):
                 by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("My Location")'
             ):
                 time.sleep(1)
-                print(12, st, c, gc, mc, mac, asc, sep="\t")
+                print(13, st, c, gc, mc, mac, asc, sep="\t")
             if driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="your location"):
                 el24 = driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="your location")
                 el24.click()
@@ -291,7 +291,7 @@ for _ in range(1000):
                 st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
                 while not driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.widget.EditText"):
                     time.sleep(1)
-                    print(13, st, c, gc, mc, mac, asc, sep="\t")
+                    print(14, st, c, gc, mc, mac, asc, sep="\t")
                 el26 = driver.find_element(by=AppiumBy.CLASS_NAME, value="android.widget.EditText")
                 el26.click()
                 el26.send_keys(city)
@@ -307,7 +307,7 @@ for _ in range(1000):
                 city_is_entered = True
                 while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("RU").instance(0)'):
                     time.sleep(1)
-                    print(14, st, c, gc, mc, mac, asc, sep="\t")
+                    print(15, st, c, gc, mc, mac, asc, sep="\t")
                     # может тут стопнуться и нихуя не введя город и хуй вообще зает как это фиксить вообще и чтоб не криво все было (вроде пофиксил)
                     tc += 1
                     if tc > 20 and driver.find_element(by=AppiumBy.CLASS_NAME, value="android.widget.EditText").get_attribute("text") == "":
