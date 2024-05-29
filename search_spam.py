@@ -370,7 +370,7 @@ for _ in range(1000):
                     )
                     el31.click()
                     found_new_user = False
-                    while not found_new_user:
+                    while not found_new_user and not need_new_proxy:
                         # может зависнуть тут если кончится прокся в процессе
                         if driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().resourceId("people_near_loader")'):
                             el32 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().resourceId("people_near_loader")')
@@ -399,12 +399,16 @@ for _ in range(1000):
                             value='//android.view.View[@resource-id="people_near_content"]/android.view.View/android.widget.TextView',
                         )
                         for el in els1:
-                            # может наебнуться если дарят авторитет надо try except (вроде пофиксил но не точно)
+                            # может наебнуться если дарят авторитет надо try except (вроде пофиксил но не точно) (теперь вроде точно)
                             try:
                                 nickname = el.get_attribute("text")
                             except Exception:
                                 time.sleep(5)
                                 driver.find_element(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/dialog_confirm_cancel").click()
+                                time.sleep(5)
+                                if driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/login_new_character"):
+                                    need_new_proxy = True
+                                    break
                                 nickname = el.get_attribute("text")
                             with open("already_spammed.txt") as file:
                                 already_spammed = file.readlines()
@@ -417,7 +421,8 @@ for _ in range(1000):
                                 el.click()
                                 found_new_user = True
                                 break
-                        if not found_new_user:
+                        if not found_new_user and not need_new_proxy:
+                            # надо какой то таймаут еьануть чтоб было понятно что проксе пизда
                             actions = ActionChains(driver)
                             actions.w3c_actions = ActionBuilder(driver, mouse=PointerInput(interaction.POINTER_TOUCH, "touch"))
                             actions.w3c_actions.pointer_action.move_to_location(1000, 1700)
@@ -462,7 +467,7 @@ for _ in range(1000):
                                 el36 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Exit")')
                                 el36.click()
                                 break
-                            # надо dialog_confirm_cancel сюда
+                            # надо dialog_confirm_cancel сюда и эррор вайл лоадинг
 
                 if not need_new_proxy:
                     el37 = driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="MESSAGE")
@@ -494,6 +499,7 @@ for _ in range(1000):
                             el38 = driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/dialog_confirm_cancel")
                             if el38:
                                 el38[0].click()
+                            # login new character
                     if driver.find_elements(
                         by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="text_input"]/../android.widget.TextView'
                     ):
