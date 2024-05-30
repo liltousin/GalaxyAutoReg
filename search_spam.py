@@ -316,6 +316,7 @@ for _ in range(1000):
                     print(15, st, c, gc, mc, mac, asc, sep="\t")
                     # может тут стопнуться и нихуя не введя город и хуй вообще зает как это фиксить вообще и чтоб не криво все было (вроде пофиксил)
                     tc += 1
+                    # может конекшн эррор еабнуться
                     if tc > 20 and driver.find_element(by=AppiumBy.CLASS_NAME, value="android.widget.EditText").get_attribute("text") == "":
                         city_is_entered = False
                         break
@@ -470,10 +471,14 @@ for _ in range(1000):
                                 while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Exit")'):
                                     time.sleep(1)
                                     print(21, st, c, gc, mc, mac, asc, sep="\t")
-                                el36 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Exit")')
-                                el36.click()
+                                driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Exit")').click()
                                 break
-                            # надо dialog_confirm_cancel сюда и эррор вайл лоадинг
+                            el36 = driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/dialog_confirm_cancel")
+                            if el36:
+                                el36[0].click()
+                            if driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/login_new_character"):
+                                need_new_proxy = True
+                                break
 
                 if not need_new_proxy:
                     el37 = driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="MESSAGE")
@@ -497,7 +502,7 @@ for _ in range(1000):
                         )
                     ):
                         time.sleep(0.1)
-                        # нахуй вылетело прилодение хуй знает почему
+                        # нахуй вылетело приложение хуй знает почему
                         print(22, st, c, gc, mc, mac, asc, sep="\t")
                         tc += 1
                         if tc > 50:
@@ -505,7 +510,9 @@ for _ in range(1000):
                             el38 = driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/dialog_confirm_cancel")
                             if el38:
                                 el38[0].click()
-                            # login new character
+                            if driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/login_new_character"):
+                                need_new_proxy = True
+                                break
                     if driver.find_elements(
                         by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="text_input"]/../android.widget.TextView'
                     ):
