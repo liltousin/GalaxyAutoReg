@@ -38,8 +38,13 @@ def change_proxy(driver: webdriver.Remote, c: int, gc: int, mc=0, mac=0, asc=0):
         if not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Start"):
             # можно нахуй заменить на просто клик по коордам а то переодически залупа творится (ебнул таймер и так сойдет)
             time.sleep(1)
-            el4 = driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="Stop")
-            el4.click()
+            actions = ActionChains(driver)
+            actions.w3c_actions = ActionBuilder(driver, mouse=PointerInput(interaction.POINTER_TOUCH, "touch"))
+            actions.w3c_actions.pointer_action.move_to_location(544, 1405)
+            actions.w3c_actions.pointer_action.pointer_down()
+            actions.w3c_actions.pointer_action.pause(0.1)
+            actions.w3c_actions.pointer_action.release()
+            actions.perform()
         el5 = driver.find_element(
             by=AppiumBy.XPATH,
             value='//android.widget.FrameLayout[@resource-id="android:id/content"]/android.widget.FrameLayout/android.view.View/'
