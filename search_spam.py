@@ -6,6 +6,7 @@
 # pip install Appium-Python-Client
 # Then you can paste this into a file and simply run with Python
 
+import os
 import random
 import string
 import time
@@ -13,6 +14,7 @@ import time
 from appium import webdriver
 from appium.options.common.base import AppiumOptions
 from appium.webdriver.common.appiumby import AppiumBy
+from dotenv import load_dotenv
 
 # For W3C actions
 from selenium.webdriver.common.action_chains import ActionChains
@@ -22,6 +24,8 @@ from selenium.webdriver.common.actions.pointer_input import PointerInput
 
 from new_proxy_change import change_proxy
 from text_generator import get_text
+
+load_dotenv()
 
 options = AppiumOptions()
 options.load_capabilities(
@@ -43,7 +47,9 @@ gc = 0
 mc = 0
 mac = 0
 asc = 0
-with open("already_spammed.txt") as file:
+
+TG_USERNAME = os.getenv("TG_USERNAME")
+with open(f"{TG_USERNAME}/already_spammed.txt") as file:
     asc = len(file.readlines())
 
 
@@ -410,12 +416,12 @@ for _ in range(1000):
                                     need_new_proxy = True
                                     break
                                 nickname = el.get_attribute("text")
-                            with open("already_spammed.txt") as file:
+                            with open(f"{TG_USERNAME}/already_spammed.txt") as file:
                                 already_spammed = file.readlines()
                             if nickname + "\n" in already_spammed:
                                 continue
                             else:
-                                with open("already_spammed.txt", "a") as file:
+                                with open(f"{TG_USERNAME}/already_spammed.txt", "a") as file:
                                     file.write(nickname + "\n")
                                     asc += 1
                                 el.click()
@@ -569,7 +575,7 @@ for _ in range(1000):
             city_end = time.time()
 
             if not need_new_proxy:
-                with open("statistics.txt", "a") as file:
+                with open(f"{TG_USERNAME}/statistics.txt", "a") as file:
                     messages_per_minute = 25 / ((city_end - city_start) / 60)
                     file.write(f"{city}\t{messages_per_minute:.2f}\t{time.strftime('%Y.%m.%d %H:%M', time.localtime())}\n")
 
@@ -610,5 +616,5 @@ for _ in range(1000):
     actions.perform()
     time.sleep(1)
 
-    with open("used_proxies.txt", "a") as file:
+    with open(f"{TG_USERNAME}/used_proxies.txt", "a") as file:
         file.write(proxy_data + "\n")
