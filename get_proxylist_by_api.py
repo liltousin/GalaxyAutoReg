@@ -7,6 +7,7 @@ load_dotenv()
 
 
 BESTPROXIES_APIKEY = os.getenv("BESTPROXIES_APIKEY")
+TG_USERNAME = os.getenv("TG_USERNAME")
 
 
 def get_proxies():
@@ -14,13 +15,13 @@ def get_proxies():
 
     data = "\n".join(filter(lambda x: ":4444" not in x, result.text.split())) + "\n"
 
-    with open("proxylist.txt", "a") as file:
+    with open(f"{TG_USERNAME}/proxylist.txt", "a") as file:
         file.write(data)
 
-    with open("proxylist.txt") as file:
+    with open(f"{TG_USERNAME}/proxylist.txt") as file:
         newdata = "".join(set(file.readlines()))
 
-    with open("proxylist.txt", "w") as file:
+    with open(f"{TG_USERNAME}/proxylist.txt", "w") as file:
         file.write(newdata)
 
     return data, newdata
