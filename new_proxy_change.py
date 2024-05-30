@@ -163,9 +163,15 @@ def change_proxy(driver: webdriver.Remote, c: int, gc: int, mc=0, mac=0, asc=0):
 
             # добавить код который если че стопает все driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="An unknown error occured.")
             st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
+            tc = 0
             while not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Stop"):
                 time.sleep(1)
                 print(5, st, c, gc, mc, mac, asc, sep="\t")
+                tc += 1
+                if tc > 10:
+                    el14 = driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Start")
+                    if el14:
+                        el14[0].click()
             if driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Stop"):
                 print(f"NEW PROXY ADDRESS: {proxy_data}", time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, mc, mac, asc, sep="\t")
 
