@@ -584,10 +584,17 @@ for _ in range(1000):
 
             if not need_new_proxy:
                 with open(f"{TG_USERNAME}/statistics.txt", "a") as file:
-                    messages_per_minute = 25 / ((city_end - city_start) / 60)
-                    file.write(
-                        f"{city}\t{str(round(messages_per_minute, 2)).replace('.', ',')}\t{time.strftime('%Y.%m.%d %H:%M', time.localtime())}\n"
-                    )
+                    messages_per_minute = str(round(25 / ((city_end - city_start) / 60), 2)).replace(".", ",")
+                    hour = int(time.strftime("%H", time.localtime()))
+                    if 6 <= hour < 12:
+                        time_of_day = "Утро"
+                    elif 12 <= hour < 18:
+                        time_of_day = "День"
+                    elif 18 <= hour < 24:
+                        time_of_day = "Вечер"
+                    else:
+                        time_of_day = "Ночь"
+                    file.write(f"{city}\t{messages_per_minute}\t{time.strftime('%Y.%m.%d %H:%M', time.localtime())}\t{time_of_day}\n")
 
         # if need_to_exit:
         # хотя блять нахуй мозги себе ебать когда всего 2 раза такая залупа
