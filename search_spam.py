@@ -41,7 +41,7 @@ options.load_capabilities(
 )
 
 
-driver = webdriver.Remote("http://127.0.0.1:4723/wd/hub", options=options)
+driver = webdriver.Remote("http://127.0.0.1:4723", options=options)
 c = 0
 gc = 0
 mc = 0
