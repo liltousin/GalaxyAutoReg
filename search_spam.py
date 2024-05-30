@@ -298,6 +298,7 @@ for _ in range(1000):
                 while not driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.widget.EditText"):
                     time.sleep(1)
                     print(14, st, c, gc, mc, mac, asc, sep="\t")
+                    # могут прогрузиться люди и кликнуться на чела
                 el26 = driver.find_element(by=AppiumBy.CLASS_NAME, value="android.widget.EditText")
                 el26.click()
                 el26.send_keys(city)
@@ -439,9 +440,9 @@ for _ in range(1000):
                             actions.perform()
 
                 if not need_new_proxy:
-                    # Error while loading да и похуй ща починим
                     # может вылетететь нахуй прилодение
                     # опять сука вылетело
+                    # может наебнуться так что не нажмется почему-то
                     st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
                     tc = 0
                     app_crashed = False
@@ -584,7 +585,9 @@ for _ in range(1000):
             if not need_new_proxy:
                 with open(f"{TG_USERNAME}/statistics.txt", "a") as file:
                     messages_per_minute = 25 / ((city_end - city_start) / 60)
-                    file.write(f"{city}\t{messages_per_minute:.2f}\t{time.strftime('%Y.%m.%d %H:%M', time.localtime())}\n")
+                    file.write(
+                        f"{city}\t{str(round(messages_per_minute, 2)).replace('.', ',')}\t{time.strftime('%Y.%m.%d %H:%M', time.localtime())}\n"
+                    )
 
         # if need_to_exit:
         # хотя блять нахуй мозги себе ебать когда всего 2 раза такая залупа
