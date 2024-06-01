@@ -454,6 +454,8 @@ for _ in range(1000):
                     while not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="MESSAGE"):
                         time.sleep(0.1)
                         print(21, st, c, gc, mc, mac, asc, sep="\t")
+                        # может нахуй не кликунтсья на чела надо фиксить
+                        # (это все изза Error while loading но по чему то он не выбрасывает на login_new_character)
                         tc += 1
                         if tc > 50:
                             tc = 0
