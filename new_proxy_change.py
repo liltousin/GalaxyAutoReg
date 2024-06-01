@@ -28,9 +28,12 @@ def change_proxy(driver: webdriver.Remote, TG_USERNAME: str, c: int, gc: int, mc
         el3 = driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="Add proxy")
         el3.click()
     else:
-        if not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Start"):
-            # можно нахуй заменить на просто клик по коордам а то переодически залупа творится (вроде нормально пофиксил)
+        while not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Start") and not driver.find_elements(
+            by=AppiumBy.ACCESSIBILITY_ID, value="Stop"
+        ):
             time.sleep(1)
+            print(2, st, c, gc, mc, mac, asc, sep="\t")
+        if driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Stop") or not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Start"):
             actions = ActionChains(driver)
             actions.w3c_actions = ActionBuilder(driver, mouse=PointerInput(interaction.POINTER_TOUCH, "touch"))
             actions.w3c_actions.pointer_action.move_to_location(544, 1405)
@@ -120,13 +123,13 @@ def change_proxy(driver: webdriver.Remote, TG_USERNAME: str, c: int, gc: int, mc
             and not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Authentication required")
         ):
             time.sleep(1)
-            print(2, st, c, gc, mc, mac, asc, sep="\t")
+            print(3, st, c, gc, mc, mac, asc, sep="\t")
         if not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="No authentication required"):
             el10 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().className("android.widget.Button").instance(2)')
             el10.click()
             while not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="HTTP"):
                 time.sleep(1)
-                print(3, st, c, gc, mc, mac, asc, sep="\t")
+                print(4, st, c, gc, mc, mac, asc, sep="\t")
             el11 = driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="HTTP")
             el11.click()
         time.sleep(1)
@@ -142,7 +145,7 @@ def change_proxy(driver: webdriver.Remote, TG_USERNAME: str, c: int, gc: int, mc
             and not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Authentication required")
         ):
             time.sleep(1)
-            print(4, st, c, gc, mc, mac, asc, sep="\t")
+            print(5, st, c, gc, mc, mac, asc, sep="\t")
         if driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="No authentication required"):
             found_good_proxy = True
         else:
@@ -163,13 +166,13 @@ def change_proxy(driver: webdriver.Remote, TG_USERNAME: str, c: int, gc: int, mc
             tc = 0
             while not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Stop"):
                 time.sleep(1)
-                print(5, st, c, gc, mc, mac, asc, sep="\t")
+                print(6, st, c, gc, mc, mac, asc, sep="\t")
                 tc += 1
                 if tc % 50 == 0:
                     found_good_proxy = False
                     while driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Start"):
                         time.sleep(1)
-                        print(6, st, c, gc, mc, mac, asc, sep="\t")
+                        print(7, st, c, gc, mc, mac, asc, sep="\t")
                         el14 = driver.find_element(
                             by=AppiumBy.XPATH,
                             value='//android.widget.FrameLayout[@resource-id="android:id/content"]/android.widget.FrameLayout/android.view.View/'
