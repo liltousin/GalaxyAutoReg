@@ -1,10 +1,8 @@
-import os
 import time
 
 from appium import webdriver
 from appium.options.common.base import AppiumOptions
 from appium.webdriver.common.appiumby import AppiumBy
-from dotenv import load_dotenv
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.actions import interaction
 from selenium.webdriver.common.actions.action_builder import ActionBuilder
@@ -12,13 +10,8 @@ from selenium.webdriver.common.actions.pointer_input import PointerInput
 
 from get_proxylist_by_api import get_proxies
 
-load_dotenv()
 
-
-TG_USERNAME = os.getenv("TG_USERNAME")
-
-
-def change_proxy(driver: webdriver.Remote, c: int, gc: int, mc=0, mac=0, asc=0):
+def change_proxy(driver: webdriver.Remote, TG_USERNAME: str, c: int, gc: int, mc=0, mac=0, asc=0):
     st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
     while not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Super Proxy"):
         time.sleep(1)
@@ -72,7 +65,7 @@ def change_proxy(driver: webdriver.Remote, c: int, gc: int, mc=0, mac=0, asc=0):
             proxy_ip, proxy_port = proxy_data.split(":")
         else:
             print("NEED NEW PROXIES!!!", time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, mc, mac, asc, sep="\t")
-            get_proxies()
+            get_proxies(TG_USERNAME)
             time.sleep(5)
             continue
         el6 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().className("android.widget.Button").instance(2)')

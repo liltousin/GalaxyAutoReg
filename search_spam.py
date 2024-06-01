@@ -6,7 +6,7 @@
 # pip install Appium-Python-Client
 # Then you can paste this into a file and simply run with Python
 
-import os
+import argparse
 import random
 import string
 import time
@@ -14,7 +14,6 @@ import time
 from appium import webdriver
 from appium.options.common.base import AppiumOptions
 from appium.webdriver.common.appiumby import AppiumBy
-from dotenv import load_dotenv
 
 # For W3C actions
 from selenium.webdriver.common.action_chains import ActionChains
@@ -25,12 +24,16 @@ from selenium.webdriver.common.actions.pointer_input import PointerInput
 from new_proxy_change import change_proxy
 from text_generator import get_text
 
-load_dotenv()
+parser = argparse.ArgumentParser()
+parser.add_argument("--device-name", required=True, help="Name of the device.")  # Google_Pixel_2
+parser.add_argument("--appium-port", type=int, required=True, help="Appium server port.")
+parser.add_argument("--tg-username", required=True, help="Telegram username where traffic will go.")
+args = parser.parse_args()
 
 options = AppiumOptions()
 options.load_capabilities(
     {
-        "appium:deviceName": "Google_Pixel_2",
+        "appium:deviceName": args.device_name,
         "platformName": "Android",
         "appium:automationName": "UiAutomator2",
         "appium:ensureWebviewsHavePages": True,
@@ -40,21 +43,20 @@ options.load_capabilities(
     }
 )
 
-
-driver = webdriver.Remote("http://127.0.0.1:4723", options=options)
+driver = webdriver.Remote(f"http://127.0.0.1:{args.appium_port}", options=options)  # 4723
 c = 0
 gc = 0
 mc = 0
 mac = 0
 asc = 0
 
-TG_USERNAME = os.getenv("TG_USERNAME")
+TG_USERNAME = args.tg_username
 with open(f"{TG_USERNAME}/already_spammed.txt") as file:
     asc = len(file.readlines())
 
 
 for _ in range(1000):
-    proxy_data = change_proxy(driver, c, gc, mc, mac, asc)
+    proxy_data = change_proxy(driver, TG_USERNAME, c, gc, mc, mac, asc)
 
     c = 0
     need_new_proxy = False
@@ -525,7 +527,7 @@ for _ in range(1000):
                             time.sleep(0.1)
                             print(24, st, c, gc, mc, mac, asc, sep="\t")
                         el39 = driver.find_element(by=AppiumBy.CLASS_NAME, value="android.widget.EditText")
-                        el39.send_keys(get_text())
+                        el39.send_keys(get_text(TG_USERNAME))
                         el40 = driver.find_element(
                             by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="text_input"]/../android.widget.TextView'
                         )
