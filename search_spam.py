@@ -25,7 +25,7 @@ from new_proxy_change import change_proxy
 from text_generator import get_text
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--udid', required=True, help='UDID of the device.')
+parser.add_argument("--udid", required=True, help="UDID of the device.")
 parser.add_argument("--appium-port", type=int, required=True, help="Appium server port.")
 parser.add_argument("--tg-username", required=True, help="Telegram username where traffic will go.")
 args = parser.parse_args()
@@ -38,7 +38,7 @@ options.load_capabilities(
         "appium:ensureWebviewsHavePages": True,
         "appium:nativeWebScreenshot": True,
         "appium:newCommandTimeout": 3600,
-        "udid": args.udid,
+        "udid": args.udid,  # 127.0.0.1:6555
     }
 )
 
