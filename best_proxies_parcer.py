@@ -17,7 +17,8 @@ for i in soup.find_all("tbody")[1].find_all("tr"):
     if i.find_all("td")[1].find_all("i"):
         data_ip = i.find_all("td")[0].find_all("div")[0].find_all("a")[1].get("data-ip")
         data_port = i.find_all("td")[0].find_all("div")[0].find_all("a")[1].get("data-port")
-        data += data_ip + ":" + data_port + "\n"
+        if data_ip and data_port:
+            data += data_ip + ":" + data_port + "\n"
 
 with open("proxylist.txt", "a") as file:
     file.write(data)
