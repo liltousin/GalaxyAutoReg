@@ -28,12 +28,11 @@ def change_proxy(driver: webdriver.Remote, TG_USERNAME: str, c: int, gc: int, mc
         el3 = driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="Add proxy")
         el3.click()
     else:
-        while not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Start") and not driver.find_elements(
-            by=AppiumBy.ACCESSIBILITY_ID, value="Stop"
+        while driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Stop") or not driver.find_elements(
+            by=AppiumBy.ACCESSIBILITY_ID, value="Start"
         ):
             time.sleep(1)
             print(2, st, c, gc, mc, mac, asc, sep="\t")
-        if driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Stop") or not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Start"):
             actions = ActionChains(driver)
             actions.w3c_actions = ActionBuilder(driver, mouse=PointerInput(interaction.POINTER_TOUCH, "touch"))
             actions.w3c_actions.pointer_action.move_to_location(544, 1405)

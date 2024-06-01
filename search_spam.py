@@ -300,6 +300,7 @@ for _ in range(1000):
                     time.sleep(1)
                     print(14, st, c, gc, mc, mac, asc, sep="\t")
                     # могут прогрузиться люди и кликнуться на чела (надо проверку сделать если вдруг будет видно message то это все гг)
+                    # может быть error while loading
                 el26 = driver.find_element(by=AppiumBy.CLASS_NAME, value="android.widget.EditText")
                 el26.click()
                 el26.send_keys(city)
