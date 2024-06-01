@@ -25,7 +25,7 @@ from new_proxy_change import change_proxy
 from text_generator import get_text
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--device-name", required=True, help="Name of the device.")  # Google_Pixel_2
+parser.add_argument('--udid', required=True, help='UDID of the device.')
 parser.add_argument("--appium-port", type=int, required=True, help="Appium server port.")
 parser.add_argument("--tg-username", required=True, help="Telegram username where traffic will go.")
 args = parser.parse_args()
@@ -33,13 +33,12 @@ args = parser.parse_args()
 options = AppiumOptions()
 options.load_capabilities(
     {
-        "appium:deviceName": args.device_name,
         "platformName": "Android",
         "appium:automationName": "UiAutomator2",
         "appium:ensureWebviewsHavePages": True,
         "appium:nativeWebScreenshot": True,
         "appium:newCommandTimeout": 3600,
-        "appium:connectHardwareKeyboard": True,
+        "udid": args.udid,
     }
 )
 
