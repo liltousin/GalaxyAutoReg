@@ -36,7 +36,7 @@ def change_proxy(driver: webdriver.Remote, c: int, gc: int, mc=0, mac=0, asc=0):
         el3.click()
     else:
         if not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Start"):
-            # можно нахуй заменить на просто клик по коордам а то переодически залупа творится (ебнул таймер и так сойдет)
+            # можно нахуй заменить на просто клик по коордам а то переодически залупа творится (вроде нормально пофиксил)
             time.sleep(1)
             actions = ActionChains(driver)
             actions.w3c_actions = ActionBuilder(driver, mouse=PointerInput(interaction.POINTER_TOUCH, "touch"))
@@ -166,17 +166,35 @@ def change_proxy(driver: webdriver.Remote, c: int, gc: int, mc=0, mac=0, asc=0):
             el13 = driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="Start")
             el13.click()
 
-            # добавить код который если че стопает все driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="An unknown error occured.")
             st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
             tc = 0
             while not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Stop"):
                 time.sleep(1)
                 print(5, st, c, gc, mc, mac, asc, sep="\t")
                 tc += 1
-                if tc > 10:
-                    el14 = driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Start")
-                    if el14:
-                        el14[0].click()
+                if tc % 50 == 0:
+                    found_good_proxy = False
+                    while driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Start"):
+                        time.sleep(1)
+                        print(6, st, c, gc, mc, mac, asc, sep="\t")
+                        el14 = driver.find_element(
+                            by=AppiumBy.XPATH,
+                            value='//android.widget.FrameLayout[@resource-id="android:id/content"]/android.widget.FrameLayout/android.view.View/'
+                            + "android.view.View/android.view.View/android.view.View[1]/"
+                            + "android.view.View/android.view.View[1]/android.widget.Button[2]",
+                        )
+                        el14.click()
+                    with open(f"{TG_USERNAME}/bad_proxies.txt", "a") as file:
+                        file.write(proxy_data + "\n")
+                    with open(f"{TG_USERNAME}/proxylist.txt", "w") as file:
+                        proxies_data = proxies_data[1:]
+                        file.write("\n".join(proxies_data) + "\n")
+                    break
+                if tc % 10 == 0:
+                    el15 = driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Start")
+                    if el15:
+                        el15[0].click()
+
             if driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Stop"):
                 print(f"NEW PROXY ADDRESS: {proxy_data}", time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, mc, mac, asc, sep="\t")
 
@@ -206,7 +224,7 @@ if __name__ == "__main__":
         }
     )
 
-    driver = webdriver.Remote("http://127.0.0.1:4723/wd/hub", options=options)
+    driver = webdriver.Remote("http://127.0.0.1:4723", options=options)
     c = 0
     gc = 0
     change_proxy(driver, c, gc)

@@ -298,7 +298,7 @@ for _ in range(1000):
                 while not driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.widget.EditText"):
                     time.sleep(1)
                     print(14, st, c, gc, mc, mac, asc, sep="\t")
-                    # могут прогрузиться люди и кликнуться на чела
+                    # могут прогрузиться люди и кликнуться на чела (надо проверку сделать если вдруг будет видно message то это все гг)
                 el26 = driver.find_element(by=AppiumBy.CLASS_NAME, value="android.widget.EditText")
                 el26.click()
                 el26.send_keys(city)
@@ -329,11 +329,11 @@ for _ in range(1000):
                 by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Find friends")'
             ) and not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("About me")'):
                 time.sleep(1)
-                print(15, st, c, gc, mc, mac, asc, sep="\t")
+                print(16, st, c, gc, mc, mac, asc, sep="\t")
             st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
             while not driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]'):
                 time.sleep(1)
-                print(16, st, c, gc, mc, mac, asc, sep="\t")
+                print(17, st, c, gc, mc, mac, asc, sep="\t")
             el28 = driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]')
             if el28:
                 el28[0].click()
@@ -352,8 +352,9 @@ for _ in range(1000):
                 st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
                 while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Search")'):
                     time.sleep(0.1)
-                    print(17, st, c, gc, mc, mac, asc, sep="\t")
+                    print(18, st, c, gc, mc, mac, asc, sep="\t")
                 el29 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Search")')
+                # может не кликнуться из-за авторитета (я ебал то есть он вообще в любом месте может быть ахуеть)
                 el29.click()
                 st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
                 tc = 0
@@ -361,7 +362,7 @@ for _ in range(1000):
                     by=AppiumBy.XPATH, value='//android.view.View[@resource-id="search"]/android.view.View[2]/android.view.View[2]'
                 ):
                     time.sleep(0.1)
-                    print(18, st, c, gc, mc, mac, asc, sep="\t")
+                    print(19, st, c, gc, mc, mac, asc, sep="\t")
                     tc += 1
                     if tc > 50:
                         tc = 0
@@ -390,7 +391,7 @@ for _ in range(1000):
                             value='//android.view.View[@resource-id="people_near_content"]/android.view.View/android.widget.TextView',
                         ):
                             time.sleep(0.1)
-                            print(19, st, c, gc, mc, mac, asc, sep="\t")
+                            print(20, st, c, gc, mc, mac, asc, sep="\t")
                             tc += 1
                             if tc > 50:
                                 tc = 0
@@ -431,6 +432,8 @@ for _ in range(1000):
                                 break
                         if not found_new_user and not need_new_proxy:
                             # надо какой то таймаут еьануть чтоб было понятно что проксе пизда
+                            # ну или нажать кнопку вверх
+                            # но нахуй проксю менять понадежнее будет
                             actions = ActionChains(driver)
                             actions.w3c_actions = ActionBuilder(driver, mouse=PointerInput(interaction.POINTER_TOUCH, "touch"))
                             actions.w3c_actions.pointer_action.move_to_location(1000, 1700)
@@ -448,7 +451,7 @@ for _ in range(1000):
                     app_crashed = False
                     while not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="MESSAGE"):
                         time.sleep(0.1)
-                        print(20, st, c, gc, mc, mac, asc, sep="\t")
+                        print(21, st, c, gc, mc, mac, asc, sep="\t")
                         tc += 1
                         if tc > 50:
                             tc = 0
@@ -471,7 +474,7 @@ for _ in range(1000):
                                 st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
                                 while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Exit")'):
                                     time.sleep(1)
-                                    print(21, st, c, gc, mc, mac, asc, sep="\t")
+                                    print(22, st, c, gc, mc, mac, asc, sep="\t")
                                 driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Exit")').click()
                                 break
                             el36 = driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/dialog_confirm_cancel")
@@ -504,7 +507,7 @@ for _ in range(1000):
                     ):
                         time.sleep(0.1)
                         # нахуй вылетело приложение хуй знает почему
-                        print(22, st, c, gc, mc, mac, asc, sep="\t")
+                        print(23, st, c, gc, mc, mac, asc, sep="\t")
                         tc += 1
                         if tc > 50:
                             tc = 0
@@ -520,7 +523,7 @@ for _ in range(1000):
                         st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
                         while not driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.widget.EditText"):
                             time.sleep(0.1)
-                            print(23, st, c, gc, mc, mac, asc, sep="\t")
+                            print(24, st, c, gc, mc, mac, asc, sep="\t")
                         el39 = driver.find_element(by=AppiumBy.CLASS_NAME, value="android.widget.EditText")
                         el39.send_keys(get_text())
                         el40 = driver.find_element(
@@ -543,7 +546,7 @@ for _ in range(1000):
                     tc = 0
                     while not driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]'):
                         time.sleep(0.1)
-                        print(24, st, c, gc, mc, mac, asc, sep="\t")
+                        print(25, st, c, gc, mc, mac, asc, sep="\t")
                         tc += 1
                         if tc > 10:
                             tc = 0
@@ -564,7 +567,8 @@ for _ in range(1000):
                         by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Search")'
                     ) or not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("MENU")'):
                         time.sleep(0.1)
-                        print(25, st, c, gc, mc, mac, asc, sep="\t")
+                        # вылетело приложение с нихуя
+                        print(26, st, c, gc, mc, mac, asc, sep="\t")
                         tc += 1
                         if tc > 50:
                             tc = 0
@@ -610,7 +614,7 @@ for _ in range(1000):
             st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
             while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Exit")'):
                 time.sleep(1)
-                print(26, st, c, gc, mc, mac, asc, sep="\t")
+                print(27, st, c, gc, mc, mac, asc, sep="\t")
             el45 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Exit")')
             el45.click()
             time.sleep(1)
