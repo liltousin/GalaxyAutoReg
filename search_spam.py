@@ -81,6 +81,9 @@ for _ in range(1000):
             if tc > 10:
                 # может хуйня выйти просто потому что не вышел с акка (однако может быть залупная загрузка поэтому все правильно)
                 # если залупная загрузка то лучше просто назад нажать и все пройдет (только хуй знает как ее вычислить)
+                # может меньше чем за 10 секунд нахуй послать
+                # может почему то с прошлой хуйни остаться dialog confirm cancel иззач его будет бесконечно скипать прокси
+                # надо добавить проверку
                 need_new_proxy = True
                 break
 
@@ -96,6 +99,8 @@ for _ in range(1000):
             # может ебануться хуевая загрузка и краш
             el18 = driver.find_element(by=AppiumBy.CLASS_NAME, value="android.widget.EditText")
             el18.click()
+            # может нихуя не кликнуться из-за хуевой загрузки
+            # ОПЯТЬ ТАКАЯ ХУЙНЯ
             el18.send_keys("".join(random.choice(string.ascii_letters + string.digits) for _ in range(12)))
             actions = ActionChains(driver)
             actions.w3c_actions = ActionBuilder(driver, mouse=PointerInput(interaction.POINTER_TOUCH, "touch"))
@@ -146,9 +151,21 @@ for _ in range(1000):
                     break
 
         if not need_new_proxy:
-            el22 = driver.find_element(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]')
-            el22.click()
-            # может не нажаться какогото хуя хз почему
+            time.sleep(1)
+            # вообще в идеале тут ебануть цикл
+            el22 = driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]')
+            if el22:
+                el22[0].click()
+            else:
+                driver.find_element(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/dialog_confirm_cancel").click()
+                time.sleep(5)
+                if driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/login_new_character"):
+                    need_new_proxy = True
+                    break
+
+            # бля надо фиксить уже 3 раз такая хуйня тут
+            # и файнд элемент хуево и клик хуево ошибка нахоженения элемента
+            # может не нажаться какогото хуя хз почему (изза сонекш лост)
             time.sleep(1)
             st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
             while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Friends")') or driver.find_elements(
@@ -182,6 +199,9 @@ for _ in range(1000):
             ):
                 time.sleep(1)
                 print(13, st, c, gc, mc, mac, asc, sep="\t")
+                # зависло на френдс
+                # просто нахуй белый экран вместо френдс
+                # надо диалог конфирм
             if driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="your location"):
                 el24 = driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="your location")
                 el24.click()
@@ -304,6 +324,7 @@ for _ in range(1000):
                 el26 = driver.find_element(by=AppiumBy.CLASS_NAME, value="android.widget.EditText")
                 el26.click()
                 el26.send_keys(city)
+                # пиздец теперь сенд кей крашит если хуйня вылезла
                 actions = ActionChains(driver)
                 actions.w3c_actions = ActionBuilder(driver, mouse=PointerInput(interaction.POINTER_TOUCH, "touch"))
                 actions.w3c_actions.pointer_action.move_to_location(1000, 1700)
@@ -321,6 +342,8 @@ for _ in range(1000):
                     tc += 1
                     # может конекшн эррор еабнуться
                     if tc > 20 and driver.find_element(by=AppiumBy.CLASS_NAME, value="android.widget.EditText").get_attribute("text") == "":
+                        # краш потому что find element
+                        # а еще надо ебануть dialog confirm button
                         city_is_entered = False
                         break
             el27 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("RU").instance(0)')
@@ -332,6 +355,7 @@ for _ in range(1000):
             ) and not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("About me")'):
                 time.sleep(1)
                 print(16, st, c, gc, mc, mac, asc, sep="\t")
+                # сюда тоже может прилететь конекшн лост ааааааааааааа
             st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
             while not driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]'):
                 time.sleep(1)
@@ -374,12 +398,15 @@ for _ in range(1000):
                         if driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/login_new_character"):
                             need_new_proxy = True
                             break
+                        # может на страницу с планетой выкинуть почему то видимо не прогрузилось как то или хз непонятно в общем
 
                 if not need_new_proxy:
                     el31 = driver.find_element(
                         by=AppiumBy.XPATH, value='//android.view.View[@resource-id="search"]/android.view.View[2]/android.view.View[2]'
                     )
                     el31.click()
+                    # не прокликнулось чет хз почему
+                    # может вылетететь конекшн лост надо try except
                     found_new_user = False
                     while not found_new_user and not need_new_proxy:
                         # может зависнуть тут если кончится прокся в процессе
@@ -455,6 +482,7 @@ for _ in range(1000):
                         time.sleep(0.1)
                         print(21, st, c, gc, mc, mac, asc, sep="\t")
                         # может нахуй не кликунтсья на чела надо фиксить
+                        # надо принтить чела которрого выбрало
                         # (это все изза Error while loading но по чему то он не выбрасывает на login_new_character)
                         tc += 1
                         if tc > 50:
@@ -491,6 +519,8 @@ for _ in range(1000):
                 if not need_new_proxy:
                     el37 = driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="MESSAGE")
                     el37.click()
+                    # тоже может нихуя не кликнуться из-за конекшн лост надо try except
+                    # а может просто нихуя не кликнуться пиздец
                     mac += 1
 
                     st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
@@ -572,6 +602,7 @@ for _ in range(1000):
                     ) or not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("MENU")'):
                         time.sleep(0.1)
                         # вылетело приложение с нихуя
+                        # виснит пиздец не грузт чет нихуя какогото хуя
                         print(26, st, c, gc, mc, mac, asc, sep="\t")
                         tc += 1
                         if tc > 50:
