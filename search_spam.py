@@ -76,9 +76,9 @@ for _ in range(1000):
             if driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/login_new_character"):
                 el15 = driver.find_element(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/login_new_character")
                 el15.click()
-                tc = 0
             tc += 1
-            if tc > 10:
+            # надо ебануть проверку а не на акке ли он уже
+            if tc > 20:
                 # может хуйня выйти просто потому что не вышел с акка (однако может быть залупная загрузка поэтому все правильно)
                 # если залупная загрузка то лучше просто назад нажать и все пройдет (только хуй знает как ее вычислить)
                 # может меньше чем за 10 секунд нахуй послать
@@ -102,16 +102,10 @@ for _ in range(1000):
             # может нихуя не кликнуться из-за хуевой загрузки
             # ОПЯТЬ ТАКАЯ ХУЙНЯ
             el18.send_keys("".join(random.choice(string.ascii_letters + string.digits) for _ in range(12)))
-            actions = ActionChains(driver)
-            actions.w3c_actions = ActionBuilder(driver, mouse=PointerInput(interaction.POINTER_TOUCH, "touch"))
-            actions.w3c_actions.pointer_action.move_to_location(1000, 1700)
-            actions.w3c_actions.pointer_action.pointer_down()
-            actions.w3c_actions.pointer_action.pause(0.1)
-            actions.w3c_actions.pointer_action.release()
-            actions.perform()
+            driver.execute_script('mobile: hideKeyboard')
             tc = 0
             st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
-            while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("FINISH")'):
+            while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().resourceId("registration_button")'):
                 time.sleep(1)
                 print(9, st, c, gc, mc, mac, asc, sep="\t")
                 tc += 1
@@ -135,7 +129,9 @@ for _ in range(1000):
                     break
 
         if not need_new_proxy:
-            el19 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("FINISH")')
+            # почему то модет на нажаться финиш
+            time.sleep(1)
+            el19 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().resourceId("registration_button")')
             el19.click()
             el20 = driver.find_element(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/confirm_button_ok")
             el20.click()
