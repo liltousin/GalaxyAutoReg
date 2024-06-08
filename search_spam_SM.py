@@ -69,10 +69,14 @@ class SearchSpamStateMachine:
                     (self.current_app_is_super_proxy, self.click_home_button_to_exit_superproxy_app_to_check_current_galaxy_menu),
                     (self.found_galaxy_and_super_proxy, self.click_on_galaxy_app_to_check_current_galaxy_menu),
                     (
-                        self.found_galaxy_icon_button,
+                        self.found_galaxy_image_button,
                         self.click_on_galaxy_image_button_to_display_menulist_to_log_out_of_account_while_checking_current_galaxy_menu,
                     ),
                     (self.found_login_new_character, self.сlick_home_button_to_exit_galaxy_app_after_checking_current_galaxy_menu),
+                    (
+                        self.found_galaxy_menulist,
+                        self.scroll_down_menulist_looking_for_exit_button_to_log_out_of_account_while_checking_current_galaxy_menu,
+                    ),
                 ],
             ),
             State(
@@ -85,7 +89,7 @@ class SearchSpamStateMachine:
                 1,
                 [
                     (
-                        self.found_galaxy_icon_button,
+                        self.found_galaxy_image_button,
                         self.click_on_galaxy_image_button_to_display_menulist_to_log_out_of_account_while_checking_current_galaxy_menu,
                     ),
                     (self.found_login_new_character, self.сlick_home_button_to_exit_galaxy_app_after_checking_current_galaxy_menu),
@@ -104,7 +108,7 @@ class SearchSpamStateMachine:
             State(
                 self.сlick_home_button_to_exit_galaxy_app_after_checking_current_galaxy_menu,
                 1,
-                [(lambda: False, self.сlick_home_button_to_exit_galaxy_app_after_checking_current_galaxy_menu)],
+                [(self.found_galaxy_and_super_proxy, self.сlick_on_super_proxy_app_to_change_proxy)],
             ),
             State(
                 self.scroll_down_menulist_looking_for_exit_button_to_log_out_of_account_while_checking_current_galaxy_menu,
@@ -141,7 +145,7 @@ class SearchSpamStateMachine:
             and self.driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Super Proxy")
         )
 
-    def found_galaxy_icon_button(self):
+    def found_galaxy_image_button(self):
         return bool(self.driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]'))
 
     def found_login_new_character(self):
@@ -180,3 +184,6 @@ class SearchSpamStateMachine:
 
     def сlick_exit_button_to_log_out_of_account_while_checking_current_galaxy_menu(self):
         self.driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Exit")').click()
+
+    def сlick_on_super_proxy_app_to_change_proxy(self):
+        self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.TextView[@content-desc="Super Proxy"]').click()
