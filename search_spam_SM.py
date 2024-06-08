@@ -16,17 +16,17 @@ class State:
         self,
         state_function: Callable,
         delay: float,
-        transitions: list[tuple[Callable[..., bool], str]],
+        transitions: list[tuple[Callable[[], bool], Callable[[], None]]],
     ):
         self.state_function = state_function
         self.name = state_function.__name__
-        self.transitions = transitions  # (функция, имя нового состояния
+        self.transitions = transitions  # (функция, функция нового состояния)
         self.counter = 0
         self.delay = delay
 
     def run(self):
         new_state, transition_condition = self.check_conditions()
-        while not new_state:
+        while not (new_state and transition_condition):
             self.counter += 1
             try:
                 self.state_function()
@@ -44,7 +44,7 @@ class State:
             except Exception as e:
                 print(e)
             if result:
-                return t[1], t[0].__name__
+                return t[1].__name__, t[0].__name__
         return None, None
 
     def __str__(self) -> str:
@@ -61,7 +61,10 @@ class SearchSpamStateMachine:
         with open(f"{self.tg_username}/already_spammed.txt") as file:
             self.already_spammed_counter = len(file.readlines())
         self.current_state = None
-        self.states = [State(self.initial_state, 1, [(self.found_galaxy_and_super_proxy,)])]
+        self.states = [
+            State(self.initial_state, 1, [(self.found_galaxy_and_super_proxy, self.click_on_the_gelaxy_app_to_check_it_out)]),
+            State(self.click_on_the_gelaxy_app_to_check_it_out, 1, [(lambda: False, self.click_on_the_gelaxy_app_to_check_it_out)]),
+        ]
 
     def draw_SM_diagram(self):
         pass
@@ -69,8 +72,9 @@ class SearchSpamStateMachine:
     def start(self):
         self.current_state = self.states[0]
         while True:
-            new_state_name = self.current_state.run()
-            print(f"")
+            new_state_name, transition_condition = self.current_state.run()
+            current_time = time.strftime("%H:%M:%S", time.localtime())
+            print(f"{current_time}\t{self.current_state} ---{transition_condition}--> {new_state_name}")
             self.current_state = self.states[self.states.index(new_state_name)]
 
     def initial_state(self):
@@ -80,3 +84,6 @@ class SearchSpamStateMachine:
         return self.driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Galaxy") and self.driver.find_elements(
             by=AppiumBy.ACCESSIBILITY_ID, value="Super Proxy"
         )
+
+    def click_on_the_gelaxy_app_to_check_it_out(self):
+        self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.TextView[@content-desc="Galaxy"]').click()
