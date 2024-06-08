@@ -25,7 +25,10 @@ def get_proxies(TG_USERNAME: str):
         ]
     if not data:
         result = requests.get(f"http://api.best-proxies.ru/proxylist.txt?key={BESTPROXIES_APIKEY}&uptime=1&limit=0")
-        data = list(filter(lambda x: ":4444" not in x and len(x.split(":")) == 2, result.text.split()))
+        print(result.text)
+        data = list(
+            filter(lambda x: ":4444" not in x and len(x.split(":")) == 2 and "upstream:" not in x and "read:" not in x and x, result.text.split())
+        )
 
     with open(f"{TG_USERNAME}/proxylist.txt", "w") as file:
         file.write("\n".join(data) + "\n")

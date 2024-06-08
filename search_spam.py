@@ -73,6 +73,7 @@ for _ in range(1000):
         ):
             time.sleep(1)
             print(7, st, c, gc, mc, mac, asc, sep="\t")
+            # driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/panel_chat")
             if driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/login_new_character"):
                 el15 = driver.find_element(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/login_new_character")
                 el15.click()
@@ -102,9 +103,10 @@ for _ in range(1000):
             # может нихуя не кликнуться из-за хуевой загрузки
             # ОПЯТЬ ТАКАЯ ХУЙНЯ
             el18.send_keys("".join(random.choice(string.ascii_letters + string.digits) for _ in range(12)))
-            driver.execute_script('mobile: hideKeyboard')
+            driver.execute_script("mobile: hideKeyboard")
             tc = 0
             st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
+            # и одновременно с этим username avalible
             while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().resourceId("registration_button")'):
                 time.sleep(1)
                 print(9, st, c, gc, mc, mac, asc, sep="\t")
@@ -126,6 +128,9 @@ for _ in range(1000):
                     actions.w3c_actions.pointer_action.pause(0.1)
                     actions.w3c_actions.pointer_action.release()
                     actions.perform()
+
+                    # driver.execute_script('mobile: pressKey', {"keycode": 4})
+
                     break
 
         if not need_new_proxy:
@@ -137,6 +142,10 @@ for _ in range(1000):
             el20.click()
 
             st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
+            # driver.find_elements(
+            #     by=AppiumBy.XPATH, value='//androidx.recyclerview.widget.RecyclerView[@resource-id="ru.mobstudio.andgalaxy:id/menulist"]'
+            # )
+
             while not driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]'):
                 time.sleep(1)
                 print(10, st, c, gc, mc, mac, asc, sep="\t")

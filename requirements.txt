@@ -1,5 +1,7 @@
 Appium-Python-Client==4.0.0
 bs4==0.0.2
+graphviz==0.20.3
 lxml==5.2.1
+pydot==2.0.0
 python-dotenv==1.0.1
 requests==2.31.0
