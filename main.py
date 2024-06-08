@@ -1,19 +1,9 @@
 import argparse
-import random
-import string
-import time
-from typing import Callable
 
 from appium import webdriver
 from appium.options.common.base import AppiumOptions
-from appium.webdriver.common.appiumby import AppiumBy
-from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.common.actions import interaction
-from selenium.webdriver.common.actions.action_builder import ActionBuilder
-from selenium.webdriver.common.actions.pointer_input import PointerInput
 
 from search_spam_SM import SearchSpamStateMachine
-from text_generator import get_text
 
 
 def get_driver_and_tg_username(args: argparse.Namespace):
@@ -36,6 +26,7 @@ def get_driver_and_tg_username(args: argparse.Namespace):
 def main(driver: webdriver.Remote, tg_username: str):
     sssm = SearchSpamStateMachine(driver, tg_username)
     sssm.start()
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

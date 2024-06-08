@@ -62,8 +62,60 @@ class SearchSpamStateMachine:
             self.already_spammed_counter = len(file.readlines())
         self.current_state = None
         self.states = [
-            State(self.initial_state, 1, [(self.found_galaxy_and_super_proxy, self.click_on_the_gelaxy_app_to_check_it_out)]),
-            State(self.click_on_the_gelaxy_app_to_check_it_out, 1, [(lambda: False, self.click_on_the_gelaxy_app_to_check_it_out)]),
+            State(
+                self.initial_state,
+                1,
+                [
+                    (self.current_app_is_super_proxy, self.click_home_button_to_exit_superproxy_app_to_check_current_galaxy_menu),
+                    (self.found_galaxy_and_super_proxy, self.click_on_galaxy_app_to_check_current_galaxy_menu),
+                    (
+                        self.found_galaxy_icon_button,
+                        self.click_on_galaxy_image_button_to_display_menulist_to_log_out_of_account_while_checking_current_galaxy_menu,
+                    ),
+                    (self.found_login_new_character, self.сlick_home_button_to_exit_galaxy_app_after_checking_current_galaxy_menu),
+                ],
+            ),
+            State(
+                self.click_home_button_to_exit_superproxy_app_to_check_current_galaxy_menu,
+                1,
+                [(self.found_galaxy_and_super_proxy, self.click_on_galaxy_app_to_check_current_galaxy_menu)],
+            ),
+            State(
+                self.click_on_galaxy_app_to_check_current_galaxy_menu,
+                1,
+                [
+                    (
+                        self.found_galaxy_icon_button,
+                        self.click_on_galaxy_image_button_to_display_menulist_to_log_out_of_account_while_checking_current_galaxy_menu,
+                    ),
+                    (self.found_login_new_character, self.сlick_home_button_to_exit_galaxy_app_after_checking_current_galaxy_menu),
+                ],
+            ),
+            State(
+                self.click_on_galaxy_image_button_to_display_menulist_to_log_out_of_account_while_checking_current_galaxy_menu,
+                1,
+                [
+                    (
+                        self.found_galaxy_menulist,
+                        self.scroll_down_menulist_looking_for_exit_button_to_log_out_of_account_while_checking_current_galaxy_menu,
+                    )
+                ],
+            ),
+            State(
+                self.сlick_home_button_to_exit_galaxy_app_after_checking_current_galaxy_menu,
+                1,
+                [(lambda: False, self.сlick_home_button_to_exit_galaxy_app_after_checking_current_galaxy_menu)],
+            ),
+            State(
+                self.scroll_down_menulist_looking_for_exit_button_to_log_out_of_account_while_checking_current_galaxy_menu,
+                1,
+                [(self.found_exit_button, self.сlick_exit_button_to_log_out_of_account_while_checking_current_galaxy_menu)],
+            ),
+            State(
+                self.сlick_exit_button_to_log_out_of_account_while_checking_current_galaxy_menu,
+                1,
+                [(self.found_login_new_character, self.сlick_home_button_to_exit_galaxy_app_after_checking_current_galaxy_menu)],
+            ),
         ]
 
     def draw_SM_diagram(self):
@@ -80,10 +132,51 @@ class SearchSpamStateMachine:
     def initial_state(self):
         pass
 
+    def current_app_is_super_proxy(self):
+        return self.driver.execute_script("mobile: getCurrentPackage") == "com.scheler.superproxy"
+
     def found_galaxy_and_super_proxy(self):
-        return self.driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Galaxy") and self.driver.find_elements(
-            by=AppiumBy.ACCESSIBILITY_ID, value="Super Proxy"
+        return bool(
+            self.driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Galaxy")
+            and self.driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Super Proxy")
         )
 
-    def click_on_the_gelaxy_app_to_check_it_out(self):
+    def found_galaxy_icon_button(self):
+        return bool(self.driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]'))
+
+    def found_login_new_character(self):
+        return bool(self.driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/login_new_character"))
+
+    def click_home_button_to_exit_superproxy_app_to_check_current_galaxy_menu(self):
+        self.driver.execute_script("mobile: pressKey", {"keycode": 3})
+
+    def click_on_galaxy_app_to_check_current_galaxy_menu(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.TextView[@content-desc="Galaxy"]').click()
+
+    def click_on_galaxy_image_button_to_display_menulist_to_log_out_of_account_while_checking_current_galaxy_menu(self):
+        self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]').click()
+
+    def сlick_home_button_to_exit_galaxy_app_after_checking_current_galaxy_menu(self):
+        self.driver.execute_script("mobile: pressKey", {"keycode": 3})
+
+    def found_galaxy_menulist(self):
+        return bool(
+            self.driver.find_elements(
+                by=AppiumBy.XPATH, value='//androidx.recyclerview.widget.RecyclerView[@resource-id="ru.mobstudio.andgalaxy:id/menulist"]'
+            )
+        )
+
+    def scroll_down_menulist_looking_for_exit_button_to_log_out_of_account_while_checking_current_galaxy_menu(self):
+        actions = ActionChains(self.driver)
+        actions.w3c_actions = ActionBuilder(self.driver, mouse=PointerInput(interaction.POINTER_TOUCH, "touch"))
+        actions.w3c_actions.pointer_action.move_to_location(510, 1150)
+        actions.w3c_actions.pointer_action.pointer_down()
+        actions.w3c_actions.pointer_action.move_to_location(510, 150)
+        actions.w3c_actions.pointer_action.release()
+        actions.perform()
+
+    def found_exit_button(self):
+        return bool(self.driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Exit")'))
+
+    def сlick_exit_button_to_log_out_of_account_while_checking_current_galaxy_menu(self):
+        self.driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Exit")').click()
