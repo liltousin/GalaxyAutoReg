@@ -12,6 +12,7 @@ from selenium.webdriver.common.actions import interaction
 from selenium.webdriver.common.actions.action_builder import ActionBuilder
 from selenium.webdriver.common.actions.pointer_input import PointerInput
 
+from search_spam_SM import SearchSpamStateMachine
 from text_generator import get_text
 
 
@@ -33,9 +34,8 @@ def get_driver_and_tg_username(args: argparse.Namespace):
 
 
 def main(driver: webdriver.Remote, tg_username: str):
-    with open(f"{tg_username}/already_spammed.txt") as file:
-        already_spammed_counter = len(file.readlines())
-
+    sssm = SearchSpamStateMachine(driver, tg_username)
+    sssm.start()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
