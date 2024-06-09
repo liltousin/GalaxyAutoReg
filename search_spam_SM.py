@@ -108,7 +108,7 @@ class SearchSpamStateMachine:
             State(
                 self.сlick_home_button_to_exit_galaxy_app_after_checking_current_galaxy_menu,
                 1,
-                [(self.found_galaxy_and_super_proxy, self.сlick_on_super_proxy_app_to_change_proxy)],
+                [(self.found_galaxy_and_super_proxy, self.сlick_on_super_proxy_app)],
             ),
             State(
                 self.scroll_down_menulist_looking_for_exit_button_to_log_out_of_account_while_checking_current_galaxy_menu,
@@ -120,6 +120,22 @@ class SearchSpamStateMachine:
                 1,
                 [(self.found_login_new_character, self.сlick_home_button_to_exit_galaxy_app_after_checking_current_galaxy_menu)],
             ),
+            State(
+                self.сlick_on_super_proxy_app,
+                1,
+                [
+                    (self.found_add_proxy_button_but_not_no_proxies_available, self.click_on_already_added_proxy_profile),
+                    (self.found_stop_button, self.click_on_stop_button),
+                    (self.found_no_proxies_available, self.сlick_on_add_proxy_button),
+                    (self.found_start_button, self.сlick_on_edit_proxy_profile_button),
+                    (self.found_default_profile_edit_text),
+                ],
+            ),
+            State(self.click_on_already_added_proxy_profile, 1, [()]),
+            State(self.click_on_stop_button, 1, [()]),
+            State(self.сlick_on_add_proxy_button, 1, [()]),
+            State(self.сlick_on_edit_proxy_profile_button, 1, [()]),
+            State(),
         ]
 
     def draw_SM_diagram(self):
@@ -129,7 +145,7 @@ class SearchSpamStateMachine:
         self.current_state = self.states[0]
         while True:
             new_state_name, transition_condition = self.current_state.run()
-            current_time = time.strftime("%H:%M:%S", time.localtime())
+            current_time = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
             print(f"{current_time}\t{self.current_state} ---{transition_condition}--> {new_state_name}")
             self.current_state = self.states[self.states.index(new_state_name)]
 
@@ -185,5 +201,43 @@ class SearchSpamStateMachine:
     def сlick_exit_button_to_log_out_of_account_while_checking_current_galaxy_menu(self):
         self.driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Exit")').click()
 
-    def сlick_on_super_proxy_app_to_change_proxy(self):
+    def сlick_on_super_proxy_app(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.TextView[@content-desc="Super Proxy"]').click()
+
+    def found_add_proxy_button_but_not_no_proxies_available(self):
+        return bool(
+            self.driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.Button[@content-desc="Add proxy"]')
+            and not self.driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="No proxies available.")
+        )
+
+    def found_no_proxies_available(self):
+        return bool(self.driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="No proxies available."))
+
+    def found_stop_button(self):
+        return bool(self.driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.Button[@content-desc="Stop"]'))
+
+    def found_start_button(self):
+        return bool(self.driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.Button[@content-desc="Start"]'))
+
+    def found_default_profile_edit_text(self):
+        return bool(self.driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.EditText[@text="Default Profile"]'))
+
+    def click_on_already_added_proxy_profile(self):
+        self.driver.find_element(
+            by=AppiumBy.XPATH,
+            value='//android.widget.FrameLayout[@resource-id="android:id/content"]/android.widget.FrameLayout/android.view.View/'
+            + "android.view.View/android.view.View/android.view.View[1]/android.view.View/android.view.View[2]/android.view.View[1]",
+        ).click()
+
+    def click_on_stop_button(self):
+        self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.Button[@content-desc="Stop"]').click()
+
+    def сlick_on_add_proxy_button(self):
+        self.driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="Add proxy").click()
+
+    def сlick_on_edit_proxy_profile_button(self):
+        self.driver.find_element(
+            by=AppiumBy.XPATH,
+            value='//android.widget.FrameLayout[@resource-id="android:id/content"]/android.widget.FrameLayout/android.view.View/'
+            + "android.view.View/android.view.View/android.view.View[1]/android.view.View/android.view.View[1]/android.widget.Button[2]",
+        ).click()
