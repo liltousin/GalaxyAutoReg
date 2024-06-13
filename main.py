@@ -6,7 +6,7 @@ from appium.options.common.base import AppiumOptions
 from search_spam_SM import SearchSpamStateMachine
 
 
-def get_driver_and_tg_username(args: argparse.Namespace):
+def get_driver(args: argparse.Namespace):
     options = AppiumOptions()
     options.load_capabilities(
         {
@@ -18,13 +18,11 @@ def get_driver_and_tg_username(args: argparse.Namespace):
             "udid": args.udid,  # 127.0.0.1:6555
         }
     )
-    driver = webdriver.Remote(f"http://127.0.0.1:{args.appium_port}", options=options)  # 4723
-    tg_username = args.tg_username
-    return driver, tg_username
+    return webdriver.Remote(f"http://127.0.0.1:{args.appium_port}", options=options)  # 4723
 
 
-def main(driver: webdriver.Remote, tg_username: str):
-    sssm = SearchSpamStateMachine(driver, tg_username)
+def main(driver: webdriver.Remote, tg_username: str, process_id: int):
+    sssm = SearchSpamStateMachine(driver, tg_username, process_id)
     sssm.start()
 
 
@@ -33,4 +31,6 @@ if __name__ == "__main__":
     parser.add_argument("--udid", required=True, help="UDID of the device.")
     parser.add_argument("--appium-port", type=int, required=True, help="Appium server port.")
     parser.add_argument("--tg-username", required=True, help="Telegram username where traffic will go.")
-    main(*get_driver_and_tg_username(parser.parse_args()))
+    parser.add_argument("--process-id", type=int, required=True, help="Process sequence number (starting from 0).")
+    args = parser.parse_args()
+    main(get_driver(args), args.tg_username, args.process_id)

@@ -55,11 +55,10 @@ class State:
 
 
 class SearchSpamStateMachine:
-    def __init__(self, driver: webdriver.Remote, tg_username: str):
+    def __init__(self, driver: webdriver.Remote, tg_username: str, process_id: int):
         self.driver = driver
         self.tg_username = tg_username
-        with open(f"{self.tg_username}/already_spammed.txt") as file:
-            self.already_spammed_counter = len(file.readlines())
+        self.process_id = process_id
         self.current_state = None
         self.states = [
             State(
@@ -128,14 +127,14 @@ class SearchSpamStateMachine:
                     (self.found_stop_button, self.click_on_stop_button),
                     (self.found_no_proxies_available, self.сlick_on_add_proxy_button),
                     (self.found_start_button, self.сlick_on_edit_proxy_profile_button),
-                    (self.found_default_profile_edit_text),
+                    (self.found_default_profile_edit_text,),
                 ],
             ),
-            State(self.click_on_already_added_proxy_profile, 1, [()]),
-            State(self.click_on_stop_button, 1, [()]),
-            State(self.сlick_on_add_proxy_button, 1, [()]),
-            State(self.сlick_on_edit_proxy_profile_button, 1, [()]),
-            State(),
+            State(self.click_on_already_added_proxy_profile, 1, [(self.found_start_button, self.сlick_on_edit_proxy_profile_button)]),
+            State(self.click_on_stop_button, 1, [(self.found_start_button, self.сlick_on_edit_proxy_profile_button)]),
+            State(self.сlick_on_add_proxy_button, 1, [(self.found_default_profile_edit_text,)]),
+            State(self.сlick_on_edit_proxy_profile_button, 1, [(self.found_default_profile_edit_text,)]),
+            State(1, []),
         ]
 
     def draw_SM_diagram(self):
@@ -241,3 +240,10 @@ class SearchSpamStateMachine:
             value='//android.widget.FrameLayout[@resource-id="android:id/content"]/android.widget.FrameLayout/android.view.View/'
             + "android.view.View/android.view.View/android.view.View[1]/android.view.View/android.view.View[1]/android.widget.Button[2]",
         ).click()
+
+    def update_global_proxylist_if_necessary(self):
+        pass
+    
+    
+    def found_good_unused_proxies(self):
+        pass
