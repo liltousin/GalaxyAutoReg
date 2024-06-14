@@ -42,6 +42,7 @@ class State:
 
     def check_conditions(self):
         for t in self.transitions:
+            result = None
             try:
                 result = t[0]()
             except Exception as e:
@@ -130,7 +131,7 @@ class SearchSpamStateMachine:
                     (self.found_stop_button, self.click_on_stop_button),
                     (self.found_no_proxies_available, self.сlick_on_add_proxy_button),
                     (self.found_start_button, self.сlick_on_edit_proxy_profile_button),
-                    (self.found_default_profile_edit_text,),
+                    (self.found_default_profile_edit_text, self.replace_local_proxies_with_new_ones_and_update_global_proxlist_if_necessary),
                 ],
             ),
             State(self.click_on_already_added_proxy_profile, 1, [(self.found_start_button, self.сlick_on_edit_proxy_profile_button)]),
@@ -145,7 +146,11 @@ class SearchSpamStateMachine:
                 1,
                 [(self.found_default_profile_edit_text, self.replace_local_proxies_with_new_ones_and_update_global_proxlist_if_necessary)],
             ),
-            State(self.replace_local_proxies_with_new_ones_and_update_global_proxlist_if_necessary, 1, [(self.found_good_unused_local_proxies,)]),
+            State(
+                self.replace_local_proxies_with_new_ones_and_update_global_proxlist_if_necessary,
+                1,
+                [(self.found_unused_local_proxies, self.initial_state)],
+            ),
         ]
 
     def draw_SM_diagram(self):
@@ -288,6 +293,6 @@ class SearchSpamStateMachine:
         with open(f"processes/{self.process_id}/used_proxies.txt", "w") as file:
             file.write("")
 
-    def found_good_unused_local_proxies(self):
+    def found_unused_local_proxies(self):
         with open(f"processes/{self.process_id}/proxylist.txt") as file:
             return bool([i.rstrip() for i in file.readlines() if i.rstrip()])
