@@ -131,7 +131,7 @@ class SearchSpamStateMachine:
                     (self.found_stop_button, self.click_on_stop_button),
                     (self.found_no_proxies_available, self.click_on_add_proxy_button),
                     (self.found_start_button, self.click_on_edit_proxy_profile_button),
-                    (self.found_default_profile_edit_text, self.replace_local_proxies_with_new_ones_and_update_global_proxlist_if_necessary),
+                    (self.found_default_profile_edit_text, self.update_global_proxlist_if_necessary_and_replace_local_proxies_with_new_ones),
                 ],
             ),
             State(self.click_on_already_added_proxy_profile, 1, [(self.found_start_button, self.click_on_edit_proxy_profile_button)]),
@@ -139,19 +139,19 @@ class SearchSpamStateMachine:
             State(
                 self.click_on_add_proxy_button,
                 1,
-                [(self.found_default_profile_edit_text, self.replace_local_proxies_with_new_ones_and_update_global_proxlist_if_necessary)],
+                [(self.found_default_profile_edit_text, self.update_global_proxlist_if_necessary_and_replace_local_proxies_with_new_ones)],
             ),
             State(
                 self.click_on_edit_proxy_profile_button,
                 1,
-                [(self.found_default_profile_edit_text, self.replace_local_proxies_with_new_ones_and_update_global_proxlist_if_necessary)],
+                [(self.found_default_profile_edit_text, self.update_global_proxlist_if_necessary_and_replace_local_proxies_with_new_ones)],
             ),
             State(
-                self.replace_local_proxies_with_new_ones_and_update_global_proxlist_if_necessary,
+                self.update_global_proxlist_if_necessary_and_replace_local_proxies_with_new_ones,
                 1,
                 [(self.found_unused_local_proxies, self.click_server_edit_text)],
             ),
-            State(self.click_server_edit_text, 1, [()])
+            State(self.click_server_edit_text, 1, [(self.found_keyboard_and_server_edit_text_is_focused, self.initial_state)]),
         ]
 
     def draw_SM_diagram(self):
@@ -201,6 +201,9 @@ class SearchSpamStateMachine:
                 by=AppiumBy.XPATH, value='//androidx.recyclerview.widget.RecyclerView[@resource-id="ru.mobstudio.andgalaxy:id/menulist"]'
             )
         )
+
+    # def found_dialog_confirm_cancel(self):
+    #     return bool(self.driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/dialog_confirm_cancel"))
 
     def scroll_down_menulist_looking_for_exit_button_to_log_out_of_account_while_checking_current_galaxy_menu(self):
         actions = ActionChains(self.driver)
@@ -258,7 +261,7 @@ class SearchSpamStateMachine:
             + "android.view.View/android.view.View/android.view.View[1]/android.view.View/android.view.View[1]/android.widget.Button[2]",
         ).click()
 
-    def replace_local_proxies_with_new_ones_and_update_global_proxlist_if_necessary(self):
+    def update_global_proxlist_if_necessary_and_replace_local_proxies_with_new_ones(self):
         number_of_processes = len(os.listdir("processes"))
 
         with open(f"processes/{self.process_id}/used_proxies.txt") as file:
@@ -300,3 +303,8 @@ class SearchSpamStateMachine:
 
     def click_server_edit_text(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Server"]').click()
+
+    def found_keyboard_and_server_edit_text_is_focused(self):
+        return self.driver.is_keyboard_shown() and bool(
+            self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Server"]').get_attribute("focused") == "true"
+        )
