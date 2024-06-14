@@ -154,14 +154,23 @@ class SearchSpamStateMachine:
             State(
                 self.click_server_edit_text,
                 1,
-                [(self.found_keyboard_and_server_edit_text_is_focused, self.remove_all_characters_from_server_edit_text)],
+                [(self.server_edit_text_is_focused, self.remove_all_characters_from_server_edit_text)],
             ),
             State(
                 self.remove_all_characters_from_server_edit_text,
                 0.01,
                 [(self.server_edit_text_is_empty, self.paste_proxy_ip_address_into_server_edit_text)],
             ),
-            State(self.paste_proxy_ip_address_into_server_edit_text, 1, [(self.found_proxy_ip_address_in_server_edit_text, self.initial_state)]),
+            State(
+                self.paste_proxy_ip_address_into_server_edit_text, 1, [(self.found_proxy_ip_address_in_server_edit_text, self.click_port_edit_text)]
+            ),
+            State(
+                self.click_port_edit_text,
+                1,
+                [(self.port_edit_text_is_focused, self.remove_all_characters_from_port_edit_text)],
+            ),
+            State(self.remove_all_characters_from_port_edit_text, 0.01, [(self.port_edit_text_is_empty, self.paste_proxy_port_into_port_edit_text)]),
+            State(self.paste_proxy_port_into_port_edit_text, 1, [(self.found_proxy_port_in_port_edit_text, self.initial_state)]),
         ]
 
     def draw_SM_diagram(self):
@@ -314,11 +323,8 @@ class SearchSpamStateMachine:
     def click_server_edit_text(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Server"]').click()
 
-    def found_keyboard_and_server_edit_text_is_focused(self):
-        return (
-            self.driver.is_keyboard_shown()
-            and self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Server"]').get_attribute("focused") == "true"
-        )
+    def server_edit_text_is_focused(self):
+        return self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Server"]').get_attribute("focused") == "true"
 
     def remove_all_characters_from_server_edit_text(self):
         self.driver.execute_script("mobile: pressKey", {"keycode": 67, "isLongPress": True})
@@ -335,3 +341,25 @@ class SearchSpamStateMachine:
         with open(f"processes/{self.process_id}/proxylist.txt") as file:
             proxy_adress = file.readlines()[0].split(":")[0]
         return self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Server"]').get_attribute("text") == proxy_adress
+
+    def click_port_edit_text(self):
+        self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Port"]').click()
+
+    def port_edit_text_is_focused(self):
+        return self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Port"]').get_attribute("focused") == "true"
+
+    def remove_all_characters_from_port_edit_text(self):
+        self.driver.execute_script("mobile: pressKey", {"keycode": 67, "isLongPress": True})
+
+    def port_edit_text_is_empty(self):
+        return not self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Port"]').get_attribute("text")
+
+    def paste_proxy_port_into_port_edit_text(self):
+        with open(f"processes/{self.process_id}/proxylist.txt") as file:
+            proxy_port = file.readlines()[0].rstrip().split(":")[1]
+        self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Port"]').send_keys(proxy_port)
+
+    def found_proxy_port_in_port_edit_text(self):
+        with open(f"processes/{self.process_id}/proxylist.txt") as file:
+            proxy_port = file.readlines()[0].rstrip().split(":")[1]
+        return self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Port"]').get_attribute("text") == proxy_port
