@@ -270,7 +270,7 @@ class SearchSpamStateMachine:
         ]
         process_proxies = split_precise_proxies[self.process_id - 1] + split_precise_proxies[self.process_id % number_of_processes]
 
-        if used_proxies != process_proxies:
+        if used_proxies == process_proxies:
             proxies = get_proxies()
 
             with open("proxylist.txt", "w") as file:
