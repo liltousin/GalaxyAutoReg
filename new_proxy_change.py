@@ -8,7 +8,7 @@ from selenium.webdriver.common.actions import interaction
 from selenium.webdriver.common.actions.action_builder import ActionBuilder
 from selenium.webdriver.common.actions.pointer_input import PointerInput
 
-from get_proxylist_by_api import get_proxies
+from get_proxylist_by_api import get_new_unused_proxies
 
 
 def change_proxy(driver: webdriver.Remote, TG_USERNAME: str, c: int, gc: int, mc=0, mac=0, asc=0):
@@ -80,7 +80,7 @@ def change_proxy(driver: webdriver.Remote, TG_USERNAME: str, c: int, gc: int, mc
                     if i.rstrip() not in used_proxies and i.rstrip() not in bad_proxies and len(i.rstrip().split(":")) == 2
                 ]
             if not data:
-                data = get_proxies()
+                data = get_new_unused_proxies()
 
             with open(f"{TG_USERNAME}/proxylist.txt", "w") as file:
                 file.write("\n".join(data) + "\n")

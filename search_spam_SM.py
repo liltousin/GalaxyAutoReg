@@ -11,7 +11,7 @@ from selenium.webdriver.common.actions import interaction
 from selenium.webdriver.common.actions.action_builder import ActionBuilder
 from selenium.webdriver.common.actions.pointer_input import PointerInput
 
-from get_proxylist_by_api import get_proxies
+from get_proxylist_by_api import get_new_unused_proxies
 
 
 class State:
@@ -149,8 +149,9 @@ class SearchSpamStateMachine:
             State(
                 self.replace_local_proxies_with_new_ones_and_update_global_proxlist_if_necessary,
                 1,
-                [(self.found_unused_local_proxies, self.initial_state)],
+                [(self.found_unused_local_proxies, self.click_server_edit_text)],
             ),
+            State(self.click_server_edit_text, 1, [()])
         ]
 
     def draw_SM_diagram(self):
@@ -276,7 +277,7 @@ class SearchSpamStateMachine:
         process_proxies = split_precise_proxies[self.process_id - 1] + split_precise_proxies[self.process_id % number_of_processes]
 
         if used_proxies == process_proxies:
-            proxies = get_proxies()
+            proxies = get_new_unused_proxies()
 
             with open("proxylist.txt", "w") as file:
                 file.write("\n".join(proxies) + "\n")
@@ -296,3 +297,6 @@ class SearchSpamStateMachine:
     def found_unused_local_proxies(self):
         with open(f"processes/{self.process_id}/proxylist.txt") as file:
             return bool([i.rstrip() for i in file.readlines() if i.rstrip()])
+
+    def click_server_edit_text(self):
+        self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Server"]').click()
