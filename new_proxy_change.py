@@ -67,7 +67,32 @@ def change_proxy(driver: webdriver.Remote, TG_USERNAME: str, c: int, gc: int, mc
             proxy_ip, proxy_port = proxy_data.split(":")
         else:
             print("NEED NEW PROXIES!!!", time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, mc, mac, asc, sep="\t")
-            get_proxies(TG_USERNAME)
+            with open(f"{TG_USERNAME}/used_proxies.txt") as file:
+                used_proxies = [i.rstrip() for i in file.readlines()]
+
+            with open(f"{TG_USERNAME}/bad_proxies.txt") as file:
+                bad_proxies = [i.rstrip() for i in file.readlines()]
+
+            with open("proxylist.txt") as file:
+                data = [
+                    i.rstrip()
+                    for i in file.readlines()
+                    if i.rstrip() not in used_proxies and i.rstrip() not in bad_proxies and len(i.rstrip().split(":")) == 2
+                ]
+            if not data:
+                data = get_proxies()
+
+            with open(f"{TG_USERNAME}/proxylist.txt", "w") as file:
+                file.write("\n".join(data) + "\n")
+
+            with open("proxylist.txt", "a") as file:
+                file.write("\n".join(data) + "\n")
+
+            with open("proxylist.txt") as file:
+                newdata = "".join(set(file.readlines()))
+
+            with open("proxylist.txt", "w") as file:
+                file.write(newdata)
             time.sleep(5)
             continue
         el6 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().className("android.widget.Button").instance(2)')

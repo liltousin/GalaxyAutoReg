@@ -22,6 +22,7 @@ def get_driver(args: argparse.Namespace):
 
 
 def main(driver: webdriver.Remote, tg_username: str, process_id: int):
+    # надо добавть проверку и создание всех необходимых файлов и директорий для корректной работы
     sssm = SearchSpamStateMachine(driver, tg_username, process_id)
     sssm.start()
 
@@ -31,6 +32,6 @@ if __name__ == "__main__":
     parser.add_argument("--udid", required=True, help="UDID of the device.")
     parser.add_argument("--appium-port", type=int, required=True, help="Appium server port.")
     parser.add_argument("--tg-username", required=True, help="Telegram username where traffic will go.")
-    parser.add_argument("--process-id", type=int, required=True, help="Process sequence number (starting from 0).")
+    parser.add_argument("--process-id", type=int, required=True, help="Process sequence number (starting from 1).")
     args = parser.parse_args()
     main(get_driver(args), args.tg_username, args.process_id)

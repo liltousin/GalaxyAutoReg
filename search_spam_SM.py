@@ -1,3 +1,4 @@
+import os
 import random
 import string
 import time
@@ -9,6 +10,8 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.actions import interaction
 from selenium.webdriver.common.actions.action_builder import ActionBuilder
 from selenium.webdriver.common.actions.pointer_input import PointerInput
+
+from get_proxylist_by_api import get_proxies
 
 
 class State:
@@ -132,9 +135,17 @@ class SearchSpamStateMachine:
             ),
             State(self.click_on_already_added_proxy_profile, 1, [(self.found_start_button, self.сlick_on_edit_proxy_profile_button)]),
             State(self.click_on_stop_button, 1, [(self.found_start_button, self.сlick_on_edit_proxy_profile_button)]),
-            State(self.сlick_on_add_proxy_button, 1, [(self.found_default_profile_edit_text,)]),
-            State(self.сlick_on_edit_proxy_profile_button, 1, [(self.found_default_profile_edit_text,)]),
-            State(1, []),
+            State(
+                self.сlick_on_add_proxy_button,
+                1,
+                [(self.found_default_profile_edit_text, self.replace_local_proxies_with_new_ones_and_update_global_proxlist_if_necessary)],
+            ),
+            State(
+                self.сlick_on_edit_proxy_profile_button,
+                1,
+                [(self.found_default_profile_edit_text, self.replace_local_proxies_with_new_ones_and_update_global_proxlist_if_necessary)],
+            ),
+            State(self.replace_local_proxies_with_new_ones_and_update_global_proxlist_if_necessary, 1, [(self.found_good_unused_local_proxies,)]),
         ]
 
     def draw_SM_diagram(self):
@@ -241,9 +252,42 @@ class SearchSpamStateMachine:
             + "android.view.View/android.view.View/android.view.View[1]/android.view.View/android.view.View[1]/android.widget.Button[2]",
         ).click()
 
-    def update_global_proxylist_if_necessary(self):
-        pass
-    
-    
-    def found_good_unused_proxies(self):
-        pass
+    def replace_local_proxies_with_new_ones_and_update_global_proxlist_if_necessary(self):
+        number_of_processes = len(os.listdir("processes"))
+
+        with open(f"processes/{self.process_id}/used_proxies.txt") as file:
+            used_proxies = [i.rstrip() for i in file.readlines()]
+
+        with open("used_proxies.txt", "a") as file:
+            file.write("\n".join(used_proxies) + "\n")
+
+        with open("proxylist.txt") as file:
+            proxies = [i.rstrip() for i in file.readlines()]
+
+        split_precise_proxies = [
+            proxies[round(i * len(proxies) / number_of_processes) : round((i + 1) * len(proxies) / number_of_processes)]
+            for i in range(number_of_processes)
+        ]
+        process_proxies = split_precise_proxies[self.process_id - 1] + split_precise_proxies[self.process_id % number_of_processes]
+
+        if used_proxies != process_proxies:
+            proxies = get_proxies()
+
+            with open("proxylist.txt", "w") as file:
+                file.write("\n".join(proxies) + "\n")
+
+            split_precise_proxies = [
+                proxies[round(i * len(proxies) / number_of_processes) : round((i + 1) * len(proxies) / number_of_processes)]
+                for i in range(number_of_processes)
+            ]
+            process_proxies = split_precise_proxies[self.process_id - 1] + split_precise_proxies[self.process_id % number_of_processes]
+
+        with open(f"processes/{self.process_id}/proxylist.txt", "w") as file:
+            file.write("\n".join(process_proxies) + "\n")
+
+        with open(f"processes/{self.process_id}/used_proxies.txt", "w") as file:
+            file.write("")
+
+    def found_good_unused_local_proxies(self):
+        with open(f"processes/{self.process_id}/proxylist.txt") as file:
+            return bool([i.rstrip() for i in file.readlines() if i.rstrip()])
