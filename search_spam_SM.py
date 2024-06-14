@@ -75,7 +75,7 @@ class SearchSpamStateMachine:
                         self.found_galaxy_image_button,
                         self.click_on_galaxy_image_button_to_display_menulist_to_log_out_of_account_while_checking_current_galaxy_menu,
                     ),
-                    (self.found_login_new_character, self.сlick_home_button_to_exit_galaxy_app_after_checking_current_galaxy_menu),
+                    (self.found_login_new_character, self.click_home_button_to_exit_galaxy_app_after_checking_current_galaxy_menu),
                     (
                         self.found_galaxy_menulist,
                         self.scroll_down_menulist_looking_for_exit_button_to_log_out_of_account_while_checking_current_galaxy_menu,
@@ -95,7 +95,7 @@ class SearchSpamStateMachine:
                         self.found_galaxy_image_button,
                         self.click_on_galaxy_image_button_to_display_menulist_to_log_out_of_account_while_checking_current_galaxy_menu,
                     ),
-                    (self.found_login_new_character, self.сlick_home_button_to_exit_galaxy_app_after_checking_current_galaxy_menu),
+                    (self.found_login_new_character, self.click_home_button_to_exit_galaxy_app_after_checking_current_galaxy_menu),
                 ],
             ),
             State(
@@ -109,40 +109,40 @@ class SearchSpamStateMachine:
                 ],
             ),
             State(
-                self.сlick_home_button_to_exit_galaxy_app_after_checking_current_galaxy_menu,
+                self.click_home_button_to_exit_galaxy_app_after_checking_current_galaxy_menu,
                 1,
-                [(self.found_galaxy_and_super_proxy, self.сlick_on_super_proxy_app)],
+                [(self.found_galaxy_and_super_proxy, self.click_on_super_proxy_app)],
             ),
             State(
                 self.scroll_down_menulist_looking_for_exit_button_to_log_out_of_account_while_checking_current_galaxy_menu,
                 1,
-                [(self.found_exit_button, self.сlick_exit_button_to_log_out_of_account_while_checking_current_galaxy_menu)],
+                [(self.found_exit_button, self.click_exit_button_to_log_out_of_account_while_checking_current_galaxy_menu)],
             ),
             State(
-                self.сlick_exit_button_to_log_out_of_account_while_checking_current_galaxy_menu,
+                self.click_exit_button_to_log_out_of_account_while_checking_current_galaxy_menu,
                 1,
-                [(self.found_login_new_character, self.сlick_home_button_to_exit_galaxy_app_after_checking_current_galaxy_menu)],
+                [(self.found_login_new_character, self.click_home_button_to_exit_galaxy_app_after_checking_current_galaxy_menu)],
             ),
             State(
-                self.сlick_on_super_proxy_app,
+                self.click_on_super_proxy_app,
                 1,
                 [
                     (self.found_add_proxy_button_but_not_no_proxies_available, self.click_on_already_added_proxy_profile),
                     (self.found_stop_button, self.click_on_stop_button),
-                    (self.found_no_proxies_available, self.сlick_on_add_proxy_button),
-                    (self.found_start_button, self.сlick_on_edit_proxy_profile_button),
+                    (self.found_no_proxies_available, self.click_on_add_proxy_button),
+                    (self.found_start_button, self.click_on_edit_proxy_profile_button),
                     (self.found_default_profile_edit_text, self.replace_local_proxies_with_new_ones_and_update_global_proxlist_if_necessary),
                 ],
             ),
-            State(self.click_on_already_added_proxy_profile, 1, [(self.found_start_button, self.сlick_on_edit_proxy_profile_button)]),
-            State(self.click_on_stop_button, 1, [(self.found_start_button, self.сlick_on_edit_proxy_profile_button)]),
+            State(self.click_on_already_added_proxy_profile, 1, [(self.found_start_button, self.click_on_edit_proxy_profile_button)]),
+            State(self.click_on_stop_button, 1, [(self.found_start_button, self.click_on_edit_proxy_profile_button)]),
             State(
-                self.сlick_on_add_proxy_button,
+                self.click_on_add_proxy_button,
                 1,
                 [(self.found_default_profile_edit_text, self.replace_local_proxies_with_new_ones_and_update_global_proxlist_if_necessary)],
             ),
             State(
-                self.сlick_on_edit_proxy_profile_button,
+                self.click_on_edit_proxy_profile_button,
                 1,
                 [(self.found_default_profile_edit_text, self.replace_local_proxies_with_new_ones_and_update_global_proxlist_if_necessary)],
             ),
@@ -192,7 +192,7 @@ class SearchSpamStateMachine:
     def click_on_galaxy_image_button_to_display_menulist_to_log_out_of_account_while_checking_current_galaxy_menu(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]').click()
 
-    def сlick_home_button_to_exit_galaxy_app_after_checking_current_galaxy_menu(self):
+    def click_home_button_to_exit_galaxy_app_after_checking_current_galaxy_menu(self):
         self.driver.execute_script("mobile: pressKey", {"keycode": 3})
 
     def found_galaxy_menulist(self):
@@ -214,10 +214,10 @@ class SearchSpamStateMachine:
     def found_exit_button(self):
         return bool(self.driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Exit")'))
 
-    def сlick_exit_button_to_log_out_of_account_while_checking_current_galaxy_menu(self):
+    def click_exit_button_to_log_out_of_account_while_checking_current_galaxy_menu(self):
         self.driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Exit")').click()
 
-    def сlick_on_super_proxy_app(self):
+    def click_on_super_proxy_app(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.TextView[@content-desc="Super Proxy"]').click()
 
     def found_add_proxy_button_but_not_no_proxies_available(self):
@@ -248,10 +248,10 @@ class SearchSpamStateMachine:
     def click_on_stop_button(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.Button[@content-desc="Stop"]').click()
 
-    def сlick_on_add_proxy_button(self):
+    def click_on_add_proxy_button(self):
         self.driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="Add proxy").click()
 
-    def сlick_on_edit_proxy_profile_button(self):
+    def click_on_edit_proxy_profile_button(self):
         self.driver.find_element(
             by=AppiumBy.XPATH,
             value='//android.widget.FrameLayout[@resource-id="android:id/content"]/android.widget.FrameLayout/android.view.View/'
