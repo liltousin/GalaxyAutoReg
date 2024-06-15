@@ -77,7 +77,12 @@ def change_proxy(driver: webdriver.Remote, TG_USERNAME: str, c: int, gc: int, mc
                 data = [
                     i.rstrip()
                     for i in file.readlines()
-                    if i.rstrip() not in used_proxies and i.rstrip() not in bad_proxies and len(i.rstrip().split(":")) == 2
+                    if i.rstrip() not in used_proxies
+                    and i.rstrip() not in bad_proxies
+                    and len(i.rstrip().split(":")) == 2
+                    and i.rstrip().split(":")[1]
+                    and "(" not in i
+                    and ")" not in i
                 ]
             if not data:
                 data = get_new_unused_proxies()

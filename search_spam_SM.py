@@ -69,13 +69,13 @@ class SearchSpamStateMachine:
                 self.initial_state,
                 1,
                 [
-                    (self.current_app_is_super_proxy, self.click_home_button_to_exit_superproxy_app_to_check_current_galaxy_menu),
+                    (self.current_app_is_super_proxy, self.click_on_home_button_to_exit_superproxy_app_to_check_current_galaxy_menu),
                     (self.found_galaxy_and_super_proxy, self.click_on_galaxy_app_to_check_current_galaxy_menu),
                     (
                         self.found_galaxy_image_button,
                         self.click_on_galaxy_image_button_to_display_menulist_to_log_out_of_account_while_checking_current_galaxy_menu,
                     ),
-                    (self.found_login_new_character, self.click_home_button_to_exit_galaxy_app_after_checking_current_galaxy_menu),
+                    (self.found_login_new_character, self.click_on_home_button_to_exit_galaxy_app_after_checking_current_galaxy_menu),
                     (
                         self.found_galaxy_menulist,
                         self.scroll_down_menulist_looking_for_exit_button_to_log_out_of_account_while_checking_current_galaxy_menu,
@@ -83,7 +83,7 @@ class SearchSpamStateMachine:
                 ],
             ),
             State(
-                self.click_home_button_to_exit_superproxy_app_to_check_current_galaxy_menu,
+                self.click_on_home_button_to_exit_superproxy_app_to_check_current_galaxy_menu,
                 1,
                 [(self.found_galaxy_and_super_proxy, self.click_on_galaxy_app_to_check_current_galaxy_menu)],
             ),
@@ -95,7 +95,7 @@ class SearchSpamStateMachine:
                         self.found_galaxy_image_button,
                         self.click_on_galaxy_image_button_to_display_menulist_to_log_out_of_account_while_checking_current_galaxy_menu,
                     ),
-                    (self.found_login_new_character, self.click_home_button_to_exit_galaxy_app_after_checking_current_galaxy_menu),
+                    (self.found_login_new_character, self.click_on_home_button_to_exit_galaxy_app_after_checking_current_galaxy_menu),
                 ],
             ),
             State(
@@ -109,19 +109,19 @@ class SearchSpamStateMachine:
                 ],
             ),
             State(
-                self.click_home_button_to_exit_galaxy_app_after_checking_current_galaxy_menu,
+                self.click_on_home_button_to_exit_galaxy_app_after_checking_current_galaxy_menu,
                 1,
                 [(self.found_galaxy_and_super_proxy, self.click_on_super_proxy_app)],
             ),
             State(
                 self.scroll_down_menulist_looking_for_exit_button_to_log_out_of_account_while_checking_current_galaxy_menu,
                 1,
-                [(self.found_exit_button, self.click_exit_button_to_log_out_of_account_while_checking_current_galaxy_menu)],
+                [(self.found_exit_button, self.click_on_exit_button_to_log_out_of_account_while_checking_current_galaxy_menu)],
             ),
             State(
-                self.click_exit_button_to_log_out_of_account_while_checking_current_galaxy_menu,
+                self.click_on_exit_button_to_log_out_of_account_while_checking_current_galaxy_menu,
                 1,
-                [(self.found_login_new_character, self.click_home_button_to_exit_galaxy_app_after_checking_current_galaxy_menu)],
+                [(self.found_login_new_character, self.click_on_home_button_to_exit_galaxy_app_after_checking_current_galaxy_menu)],
             ),
             State(
                 self.click_on_super_proxy_app,
@@ -149,28 +149,40 @@ class SearchSpamStateMachine:
             State(
                 self.update_global_proxlist_if_necessary_and_replace_local_proxies_with_new_ones,
                 1,
-                [(self.found_unused_local_proxies, self.click_server_edit_text)],
+                [(self.found_unused_local_proxies, self.click_on_server_edit_text)],
             ),
             State(
-                self.click_server_edit_text,
+                self.click_on_server_edit_text,
                 1,
                 [(self.server_edit_text_is_focused, self.remove_all_characters_from_server_edit_text)],
             ),
             State(
                 self.remove_all_characters_from_server_edit_text,
-                0.01,
+                0,
                 [(self.server_edit_text_is_empty, self.paste_proxy_ip_address_into_server_edit_text)],
             ),
             State(
-                self.paste_proxy_ip_address_into_server_edit_text, 1, [(self.found_proxy_ip_address_in_server_edit_text, self.click_port_edit_text)]
+                self.paste_proxy_ip_address_into_server_edit_text,
+                1,
+                [(self.found_proxy_ip_address_in_server_edit_text, self.click_on_port_edit_text)],
             ),
             State(
-                self.click_port_edit_text,
+                self.click_on_port_edit_text,
                 1,
                 [(self.port_edit_text_is_focused, self.remove_all_characters_from_port_edit_text)],
             ),
-            State(self.remove_all_characters_from_port_edit_text, 0.01, [(self.port_edit_text_is_empty, self.paste_proxy_port_into_port_edit_text)]),
-            State(self.paste_proxy_port_into_port_edit_text, 1, [(self.found_proxy_port_in_port_edit_text, self.initial_state)]),
+            State(self.remove_all_characters_from_port_edit_text, 0, [(self.port_edit_text_is_empty, self.paste_proxy_port_into_port_edit_text)]),
+            State(
+                self.paste_proxy_port_into_port_edit_text,
+                1,
+                [(self.found_proxy_port_in_port_edit_text, self.hide_keyboard_after_entering_proxy_fields)],
+            ),
+            State(
+                self.hide_keyboard_after_entering_proxy_fields,
+                1,
+                [(self.found_proxy_connection_error,), (self.found_no_authentication_required, self.click_on_protocol_edit_text)],
+            ),
+            State(self.click_on_protocol_edit_text, 1, (self.found_http)),
         ]
 
     def draw_SM_diagram(self):
@@ -202,7 +214,7 @@ class SearchSpamStateMachine:
     def found_login_new_character(self):
         return bool(self.driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/login_new_character"))
 
-    def click_home_button_to_exit_superproxy_app_to_check_current_galaxy_menu(self):
+    def click_on_home_button_to_exit_superproxy_app_to_check_current_galaxy_menu(self):
         self.driver.execute_script("mobile: pressKey", {"keycode": 3})
 
     def click_on_galaxy_app_to_check_current_galaxy_menu(self):
@@ -211,7 +223,7 @@ class SearchSpamStateMachine:
     def click_on_galaxy_image_button_to_display_menulist_to_log_out_of_account_while_checking_current_galaxy_menu(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]').click()
 
-    def click_home_button_to_exit_galaxy_app_after_checking_current_galaxy_menu(self):
+    def click_on_home_button_to_exit_galaxy_app_after_checking_current_galaxy_menu(self):
         self.driver.execute_script("mobile: pressKey", {"keycode": 3})
 
     def found_galaxy_menulist(self):
@@ -236,7 +248,7 @@ class SearchSpamStateMachine:
     def found_exit_button(self):
         return bool(self.driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Exit")'))
 
-    def click_exit_button_to_log_out_of_account_while_checking_current_galaxy_menu(self):
+    def click_on_exit_button_to_log_out_of_account_while_checking_current_galaxy_menu(self):
         self.driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Exit")').click()
 
     def click_on_super_proxy_app(self):
@@ -320,7 +332,7 @@ class SearchSpamStateMachine:
         with open(f"processes/{self.process_id}/proxylist.txt") as file:
             return bool([i.rstrip() for i in file.readlines() if i.rstrip()])
 
-    def click_server_edit_text(self):
+    def click_on_server_edit_text(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Server"]').click()
 
     def server_edit_text_is_focused(self):
@@ -342,7 +354,7 @@ class SearchSpamStateMachine:
             proxy_adress = file.readlines()[0].split(":")[0]
         return self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Server"]').get_attribute("text") == proxy_adress
 
-    def click_port_edit_text(self):
+    def click_on_port_edit_text(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Port"]').click()
 
     def port_edit_text_is_focused(self):
@@ -363,3 +375,26 @@ class SearchSpamStateMachine:
         with open(f"processes/{self.process_id}/proxylist.txt") as file:
             proxy_port = file.readlines()[0].rstrip().split(":")[1]
         return self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Port"]').get_attribute("text") == proxy_port
+
+    def hide_keyboard_after_entering_proxy_fields(self):
+        self.driver.execute_script("mobile: hideKeyboard")
+
+    def found_proxy_connection_error(self):
+        return bool(
+            self.driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="SOCKS5 protocol error (E7)")
+            or self.driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Protocol error (E3)")
+            or self.driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Connection unexpectedly closed (E2)")
+            or self.driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Timeout connecting to the specified port. (E1)")
+            or self.driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Timeout connecting to the specified port.")
+            or self.driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Connection to the specified port was refused.")
+            or self.driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Authentication required")
+        )
+
+    def found_no_authentication_required(self):
+        return bool(self.driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="No authentication required"))
+
+    def click_on_protocol_edit_text(self):
+        self.driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("SOCKS5")').click()
+
+    def found_http(self):
+        return bool(self.driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="HTTP"))

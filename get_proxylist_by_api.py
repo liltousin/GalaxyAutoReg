@@ -17,7 +17,12 @@ def get_new_unused_proxies():
         used_proxies = [i.rstrip() for i in file.readlines()]
     data = list(
         filter(
-            lambda x: ":4444" not in x and len(x.split(":")) == 2 and "upstream:" not in x and "read:" not in x and x and x not in used_proxies,
+            lambda x: ":4444" not in x
+            and len(x.split(":")) == 2
+            and x.rstrip().split(":")[1]
+            and ")" not in x
+            and "(" not in x
+            and x not in used_proxies,
             result.text.split(),
         )
     )
