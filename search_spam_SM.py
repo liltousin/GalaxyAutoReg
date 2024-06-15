@@ -131,7 +131,7 @@ class SearchSpamStateMachine:
                     (self.found_stop_button, self.click_on_stop_button),
                     (self.found_no_proxies_available, self.click_on_add_proxy_button),
                     (self.found_start_button, self.click_on_edit_proxy_profile_button),
-                    (self.found_default_profile_edit_text, self.update_global_proxlist_if_necessary_and_replace_local_proxies_with_new_ones),
+                    (self.found_protocol_edit_text, self.update_global_proxlist_if_necessary_and_replace_local_proxies_with_new_ones),
                 ],
             ),
             State(self.click_on_already_added_proxy_profile, 1, [(self.found_start_button, self.click_on_edit_proxy_profile_button)]),
@@ -139,18 +139,20 @@ class SearchSpamStateMachine:
             State(
                 self.click_on_add_proxy_button,
                 1,
-                [(self.found_default_profile_edit_text, self.update_global_proxlist_if_necessary_and_replace_local_proxies_with_new_ones)],
+                [(self.found_protocol_edit_text, self.update_global_proxlist_if_necessary_and_replace_local_proxies_with_new_ones)],
             ),
             State(
                 self.click_on_edit_proxy_profile_button,
                 1,
-                [(self.found_default_profile_edit_text, self.update_global_proxlist_if_necessary_and_replace_local_proxies_with_new_ones)],
+                [(self.found_protocol_edit_text, self.update_global_proxlist_if_necessary_and_replace_local_proxies_with_new_ones)],
             ),
             State(
                 self.update_global_proxlist_if_necessary_and_replace_local_proxies_with_new_ones,
                 1,
-                [(self.found_unused_local_proxies, self.click_on_server_edit_text)],
+                [(self.found_unused_local_proxies, self.click_on_protocol_edit_text_to_select_socks5)],
             ),
+            State(self.click_on_protocol_edit_text_to_select_socks5, 1, [(self.found_socks5_in_dropdown_list, self.click_on_socks5)]),
+            State(self.click_on_socks5, 1, [(self.found_socks5_in_protocol_edit_text, self.click_on_server_edit_text)]),
             State(
                 self.click_on_server_edit_text,
                 1,
@@ -180,9 +182,11 @@ class SearchSpamStateMachine:
             State(
                 self.hide_keyboard_after_entering_proxy_fields,
                 1,
-                [(self.found_proxy_connection_error,), (self.found_no_authentication_required, self.click_on_protocol_edit_text)],
+                [(self.found_proxy_connection_error, self.click_on_protocol_edit_text_to_select_http), (self.found_no_authentication_required,)],
             ),
-            State(self.click_on_protocol_edit_text, 1, (self.found_http)),
+            State(self.click_on_protocol_edit_text_to_select_http, 1, [(self.found_http_in_dropdown_list, self.click_on_http)]),
+            State(self.click_on_http, 1, [(self.found_http_in_protocol_edit_text, self.wait_for_proxy_connection_result)]),
+            State(self.wait_for_proxy_connection_result, 1[(self.found_proxy_connection_error,), [(self.found_no_authentication_required)]]),
         ]
 
     def draw_SM_diagram(self):
@@ -235,7 +239,6 @@ class SearchSpamStateMachine:
 
     # def found_dialog_confirm_cancel(self):
     #     return bool(self.driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/dialog_confirm_cancel"))
-
     def scroll_down_menulist_looking_for_exit_button_to_log_out_of_account_while_checking_current_galaxy_menu(self):
         actions = ActionChains(self.driver)
         actions.w3c_actions = ActionBuilder(self.driver, mouse=PointerInput(interaction.POINTER_TOUCH, "touch"))
@@ -269,8 +272,8 @@ class SearchSpamStateMachine:
     def found_start_button(self):
         return bool(self.driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.Button[@content-desc="Start"]'))
 
-    def found_default_profile_edit_text(self):
-        return bool(self.driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.EditText[@text="Default Profile"]'))
+    def found_protocol_edit_text(self):
+        return bool(self.driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Protocol"]'))
 
     def click_on_already_added_proxy_profile(self):
         self.driver.find_element(
@@ -294,43 +297,46 @@ class SearchSpamStateMachine:
 
     def update_global_proxlist_if_necessary_and_replace_local_proxies_with_new_ones(self):
         number_of_processes = len(os.listdir("processes"))
-
         with open(f"processes/{self.process_id}/used_proxies.txt") as file:
             used_proxies = [i.rstrip() for i in file.readlines()]
-
         with open("used_proxies.txt", "a") as file:
             file.write("\n".join(used_proxies) + "\n")
-
         with open("proxylist.txt") as file:
             proxies = [i.rstrip() for i in file.readlines()]
-
         split_precise_proxies = [
             proxies[round(i * len(proxies) / number_of_processes) : round((i + 1) * len(proxies) / number_of_processes)]
             for i in range(number_of_processes)
         ]
         process_proxies = split_precise_proxies[self.process_id - 1] + split_precise_proxies[self.process_id % number_of_processes]
-
         if used_proxies == process_proxies:
             proxies = get_new_unused_proxies()
-
             with open("proxylist.txt", "w") as file:
                 file.write("\n".join(proxies) + "\n")
-
             split_precise_proxies = [
                 proxies[round(i * len(proxies) / number_of_processes) : round((i + 1) * len(proxies) / number_of_processes)]
                 for i in range(number_of_processes)
             ]
             process_proxies = split_precise_proxies[self.process_id - 1] + split_precise_proxies[self.process_id % number_of_processes]
-
         with open(f"processes/{self.process_id}/proxylist.txt", "w") as file:
             file.write("\n".join(process_proxies) + "\n")
-
         with open(f"processes/{self.process_id}/used_proxies.txt", "w") as file:
             file.write("")
 
     def found_unused_local_proxies(self):
         with open(f"processes/{self.process_id}/proxylist.txt") as file:
             return bool([i.rstrip() for i in file.readlines() if i.rstrip()])
+
+    def click_on_protocol_edit_text_to_select_socks5(self):
+        self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Protocol"]').click()
+
+    def found_socks5_in_dropdown_list(self):
+        return bool(self.driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="SOCKS5"))
+
+    def click_on_socks5(self):
+        self.driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="SOCKS5").click()
+
+    def found_socks5_in_protocol_edit_text(self):
+        return self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Protocol"]').get_attribute("text") == "SOCKS5"
 
     def click_on_server_edit_text(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Server"]').click()
@@ -377,6 +383,7 @@ class SearchSpamStateMachine:
         return self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Port"]').get_attribute("text") == proxy_port
 
     def hide_keyboard_after_entering_proxy_fields(self):
+        # надо будет добавить сюда перенос из проксилиста в использованные
         self.driver.execute_script("mobile: hideKeyboard")
 
     def found_proxy_connection_error(self):
@@ -393,8 +400,17 @@ class SearchSpamStateMachine:
     def found_no_authentication_required(self):
         return bool(self.driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="No authentication required"))
 
-    def click_on_protocol_edit_text(self):
-        self.driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("SOCKS5")').click()
+    def click_on_protocol_edit_text_to_select_http(self):
+        self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Protocol"]').click()
 
-    def found_http(self):
+    def found_http_in_dropdown_list(self):
         return bool(self.driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="HTTP"))
+
+    def click_on_http(self):
+        self.driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="HTTP").click()
+
+    def found_http_in_protocol_edit_text(self):
+        return self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Protocol"]').get_attribute("text") == "HTTP"
+
+    def wait_for_proxy_connection_result(self):
+        pass
