@@ -148,50 +148,61 @@ class SearchSpamStateMachine:
             ),
             State(
                 self.update_global_proxlist_if_necessary_and_replace_local_proxies_with_new_ones,
-                1,
+                0,
                 [(self.found_unused_local_proxies, self.click_on_protocol_edit_text_to_select_socks5)],
             ),
-            State(self.click_on_protocol_edit_text_to_select_socks5, 1, [(self.found_socks5_in_dropdown_list, self.click_on_socks5)]),
-            State(self.click_on_socks5, 1, [(self.found_socks5_in_protocol_edit_text, self.click_on_server_edit_text)]),
+            State(self.click_on_protocol_edit_text_to_select_socks5, 0, [(self.found_socks5_in_dropdown_list, self.click_on_socks5)]),
+            State(self.click_on_socks5, 0, [(self.found_socks5_in_protocol_edit_text, self.click_on_server_edit_text)]),
             State(
                 self.click_on_server_edit_text,
-                1,
-                [(self.server_edit_text_is_focused, self.remove_all_characters_from_server_edit_text)],
+                0,
+                [(self.server_edit_text_is_focused, self.clear_server_edit_text)],
             ),
             State(
-                self.remove_all_characters_from_server_edit_text,
+                self.clear_server_edit_text,
                 0,
                 [(self.server_edit_text_is_empty, self.paste_proxy_ip_address_into_server_edit_text)],
             ),
             State(
                 self.paste_proxy_ip_address_into_server_edit_text,
-                1,
+                0,
                 [(self.found_proxy_ip_address_in_server_edit_text, self.click_on_port_edit_text)],
             ),
             State(
                 self.click_on_port_edit_text,
-                1,
-                [(self.port_edit_text_is_focused, self.remove_all_characters_from_port_edit_text)],
+                0,
+                [(self.port_edit_text_is_focused, self.clear_port_edit_text)],
             ),
-            State(self.remove_all_characters_from_port_edit_text, 0, [(self.port_edit_text_is_empty, self.paste_proxy_port_into_port_edit_text)]),
+            State(self.clear_port_edit_text, 0, [(self.port_edit_text_is_empty, self.paste_proxy_port_into_port_edit_text)]),
             State(
                 self.paste_proxy_port_into_port_edit_text,
-                1,
+                0,
                 [(self.found_proxy_port_in_port_edit_text, self.move_local_proxy_from_proxylist_to_used_proxies)],
             ),
             State(
                 self.move_local_proxy_from_proxylist_to_used_proxies,
-                1,
+                0,
                 [(self.found_proxy_in_used_proxies_and_not_found_in_proxylist, self.hide_keyboard_after_entering_proxy_fields)],
             ),
             State(
                 self.hide_keyboard_after_entering_proxy_fields,
-                1,
-                [(self.found_proxy_connection_error, self.click_on_protocol_edit_text_to_select_http), (self.found_no_authentication_required,)],
+                0,
+                [
+                    (self.found_proxy_connection_error, self.click_on_protocol_edit_text_to_select_http),
+                    (self.found_no_authentication_required, self.click_on_save_proxy_profile_button),
+                ],
             ),
-            State(self.click_on_protocol_edit_text_to_select_http, 1, [(self.found_http_in_dropdown_list, self.click_on_http)]),
-            State(self.click_on_http, 1, [(self.found_http_in_protocol_edit_text, self.wait_for_proxy_connection_result)]),
-            State(self.wait_for_proxy_connection_result, 1, [(self.found_proxy_connection_error,), [(self.found_no_authentication_required)]]),
+            State(self.click_on_protocol_edit_text_to_select_http, 0, [(self.found_http_in_dropdown_list, self.click_on_http)]),
+            State(self.click_on_http, 0, [(self.found_http_in_protocol_edit_text, self.wait_for_proxy_connection_result)]),
+            State(
+                self.wait_for_proxy_connection_result,
+                0,
+                [
+                    (self.found_proxy_connection_error, self.update_global_proxlist_if_necessary_and_replace_local_proxies_with_new_ones),
+                    (self.found_no_authentication_required, self.click_on_save_proxy_profile_button),
+                ],
+            ),
+            State(self.click_on_save_proxy_profile_button, 1, [(self.found_start_button, self.click_on_start_button)]),
         ]
 
     def draw_SM_diagram(self):
@@ -349,8 +360,8 @@ class SearchSpamStateMachine:
     def server_edit_text_is_focused(self):
         return self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Server"]').get_attribute("focused") == "true"
 
-    def remove_all_characters_from_server_edit_text(self):
-        self.driver.execute_script("mobile: pressKey", {"keycode": 67, "isLongPress": True})
+    def clear_server_edit_text(self):
+        self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Server"]').clear()
 
     def server_edit_text_is_empty(self):
         return not self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Server"]').get_attribute("text")
@@ -371,8 +382,8 @@ class SearchSpamStateMachine:
     def port_edit_text_is_focused(self):
         return self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Port"]').get_attribute("focused") == "true"
 
-    def remove_all_characters_from_port_edit_text(self):
-        self.driver.execute_script("mobile: pressKey", {"keycode": 67, "isLongPress": True})
+    def clear_port_edit_text(self):
+        self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Port"]').clear()
 
     def port_edit_text_is_empty(self):
         return not self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Port"]').get_attribute("text")
@@ -437,3 +448,13 @@ class SearchSpamStateMachine:
 
     def wait_for_proxy_connection_result(self):
         pass
+
+    def click_on_save_proxy_profile_button(self):
+        self.driver.find_element(
+            by=AppiumBy.XPATH,
+            value='//android.widget.FrameLayout[@resource-id="android:id/content"]/android.widget.FrameLayout/android.view.View/'
+            + "android.view.View/android.view.View/android.view.View[1]/android.view.View/android.view.View[1]/android.widget.Button[2]",
+        ).click()
+
+    def click_on_start_button(self):
+        self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.Button[@content-desc="Start"]').click()
