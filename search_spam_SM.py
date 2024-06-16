@@ -37,8 +37,9 @@ class State:
                 print(e)
             time.sleep(self.delay)
             new_state, transition_condition = self.check_conditions()
+        iteration_counter = self.counter
         self.counter = 0
-        return new_state, transition_condition
+        return new_state, transition_condition, iteration_counter
 
     def check_conditions(self):
         for t in self.transitions:
@@ -203,6 +204,7 @@ class SearchSpamStateMachine:
                 ],
             ),
             State(self.click_on_save_proxy_profile_button, 1, [(self.found_start_button, self.click_on_start_button)]),
+            State(self.click_on_start_button, 1, [()])
         ]
 
     def draw_SM_diagram(self):
@@ -211,9 +213,9 @@ class SearchSpamStateMachine:
     def start(self):
         self.current_state = self.states[0]
         while True:
-            new_state_name, transition_condition = self.current_state.run()
-            current_time = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
-            print(f"{current_time}\t{self.current_state} ---{transition_condition}--> {new_state_name}")
+            new_state_name, transition_condition, iteration_counter = self.current_state.run()
+            current_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+            print(f"{current_time}\t{iteration_counter}\t{self.current_state} ---{transition_condition}--> {new_state_name}")
             self.current_state = self.states[self.states.index(new_state_name)]
 
     def initial_state(self):
