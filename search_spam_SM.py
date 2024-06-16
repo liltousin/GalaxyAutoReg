@@ -177,7 +177,12 @@ class SearchSpamStateMachine:
             State(
                 self.paste_proxy_port_into_port_edit_text,
                 1,
-                [(self.found_proxy_port_in_port_edit_text, self.hide_keyboard_after_entering_proxy_fields)],
+                [(self.found_proxy_port_in_port_edit_text, self.move_local_proxy_from_proxylist_to_used_proxies)],
+            ),
+            State(
+                self.move_local_proxy_from_proxylist_to_used_proxies,
+                1,
+                [(self.found_proxy_in_used_proxies_and_not_found_in_proxylist, self.hide_keyboard_after_entering_proxy_fields)],
             ),
             State(
                 self.hide_keyboard_after_entering_proxy_fields,
@@ -186,7 +191,7 @@ class SearchSpamStateMachine:
             ),
             State(self.click_on_protocol_edit_text_to_select_http, 1, [(self.found_http_in_dropdown_list, self.click_on_http)]),
             State(self.click_on_http, 1, [(self.found_http_in_protocol_edit_text, self.wait_for_proxy_connection_result)]),
-            State(self.wait_for_proxy_connection_result, 1[(self.found_proxy_connection_error,), [(self.found_no_authentication_required)]]),
+            State(self.wait_for_proxy_connection_result, 1, [(self.found_proxy_connection_error,), [(self.found_no_authentication_required)]]),
         ]
 
     def draw_SM_diagram(self):
@@ -382,8 +387,26 @@ class SearchSpamStateMachine:
             proxy_port = file.readlines()[0].rstrip().split(":")[1]
         return self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Port"]').get_attribute("text") == proxy_port
 
+    def move_local_proxy_from_proxylist_to_used_proxies(self):
+        with open(f"processes/{self.process_id}/proxylist.txt") as file:
+            proxies = file.readlines()
+        proxy = proxies[0]
+        with open(f"processes/{self.process_id}/used_proxies.txt", "a") as file:
+            file.write(proxy)
+        with open(f"processes/{self.process_id}/proxylist.txt", "w") as file:
+            file.write("".join(proxies[1:]))
+
+    def found_proxy_in_used_proxies_and_not_found_in_proxylist(self):
+        proxy_adress = self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Server"]').get_attribute("text")
+        proxy_port = self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Port"]').get_attribute("text")
+        with open(f"processes/{self.process_id}/used_proxies.txt") as file:
+            used_proxies = file.readlines()
+        with open(f"processes/{self.process_id}/proxylist.txt") as file:
+            proxies = file.readlines()
+        proxy = proxy_adress + ":" + proxy_port + "\n"
+        return proxy in used_proxies and proxy not in proxies
+
     def hide_keyboard_after_entering_proxy_fields(self):
-        # надо будет добавить сюда перенос из проксилиста в использованные
         self.driver.execute_script("mobile: hideKeyboard")
 
     def found_proxy_connection_error(self):
