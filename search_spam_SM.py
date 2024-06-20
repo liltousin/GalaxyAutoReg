@@ -203,8 +203,13 @@ class SearchSpamStateMachine:
                     (self.found_no_authentication_required, self.click_on_save_proxy_profile_button),
                 ],
             ),
-            State(self.click_on_save_proxy_profile_button, 1, [(self.found_start_button, self.click_on_start_button)]),
-            State(self.click_on_start_button, 1, [()])
+            State(self.click_on_save_proxy_profile_button, 0, [(self.found_start_button, self.click_on_start_button)]),
+            State(
+                self.click_on_start_button,
+                1,
+                [(self.found_stop_button, self.click_on_home_button_to_exit_superproxy_app_to_after_enabling_proxy_profile), ()],
+            ),
+            State(self.click_on_home_button_to_exit_superproxy_app_to_after_enabling_proxy_profile, 1, [(self.found_galaxy_and_super_proxy)])
         ]
 
     def draw_SM_diagram(self):
@@ -316,11 +321,11 @@ class SearchSpamStateMachine:
     def update_global_proxlist_if_necessary_and_replace_local_proxies_with_new_ones(self):
         number_of_processes = len(os.listdir("processes"))
         with open(f"processes/{self.process_id}/used_proxies.txt") as file:
-            used_proxies = [i.rstrip() for i in file.readlines()]
+            used_proxies = [i.rstrip() for i in file.readlines() if i.rstrip()]
         with open("used_proxies.txt", "a") as file:
             file.write("\n".join(used_proxies) + "\n")
         with open("proxylist.txt") as file:
-            proxies = [i.rstrip() for i in file.readlines()]
+            proxies = [i.rstrip() for i in file.readlines() if i.rstrip()]
         split_precise_proxies = [
             proxies[round(i * len(proxies) / number_of_processes) : round((i + 1) * len(proxies) / number_of_processes)]
             for i in range(number_of_processes)
@@ -460,3 +465,6 @@ class SearchSpamStateMachine:
 
     def click_on_start_button(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.Button[@content-desc="Start"]').click()
+
+    def click_on_home_button_to_exit_superproxy_app_to_after_enabling_proxy_profile(self):
+        self.driver.execute_script("mobile: pressKey", {"keycode": 3})

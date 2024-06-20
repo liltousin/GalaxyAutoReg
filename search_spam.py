@@ -357,7 +357,7 @@ for _ in range(1000):
             st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
             while not driver.find_elements(
                 by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Find friends")'
-            ) and not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("About me")'):
+            ) and not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("No friends yet")'):
                 time.sleep(1)
                 print(16, st, c, gc, mc, mac, asc, sep="\t")
                 # сюда тоже может прилететь конекшн лост ааааааааааааа
