@@ -207,9 +207,21 @@ class SearchSpamStateMachine:
             State(
                 self.click_on_start_button,
                 1,
-                [(self.found_stop_button, self.click_on_home_button_to_exit_superproxy_app_to_after_enabling_proxy_profile), ()],
+                [(self.found_stop_button, self.click_on_home_button_to_exit_superproxy_app_after_enabling_proxy_profile), ()],
             ),
-            State(self.click_on_home_button_to_exit_superproxy_app_to_after_enabling_proxy_profile, 1, [(self.found_galaxy_and_super_proxy)])
+            State(
+                self.click_on_home_button_to_exit_superproxy_app_after_enabling_proxy_profile,
+                1,
+                [(self.found_galaxy_and_super_proxy, self.click_on_galaxy_app_after_enabling_proxy_profile)],
+            ),
+            State(
+                self.click_on_galaxy_app_after_enabling_proxy_profile,
+                1,
+                [
+                    (self.found_login_new_character, self.click_on_login_new_character),
+                ],
+            ),
+            State(self.click_on_login_new_character, 1, [()])
         ]
 
     def draw_SM_diagram(self):
@@ -466,5 +478,11 @@ class SearchSpamStateMachine:
     def click_on_start_button(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.Button[@content-desc="Start"]').click()
 
-    def click_on_home_button_to_exit_superproxy_app_to_after_enabling_proxy_profile(self):
+    def click_on_home_button_to_exit_superproxy_app_after_enabling_proxy_profile(self):
         self.driver.execute_script("mobile: pressKey", {"keycode": 3})
+
+    def click_on_galaxy_app_after_enabling_proxy_profile(self):
+        self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.TextView[@content-desc="Galaxy"]').click()
+
+    def click_on_login_new_character(sefl):
+        sefl.driver.find_element(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/login_new_character").click()
