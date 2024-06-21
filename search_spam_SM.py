@@ -28,13 +28,14 @@ class State:
         self.delay = delay
 
     def run(self):
+        # TODO: Переписать нахуй состояния и переходы чтоб состояние выполнялось хотяб 1 раз
         new_state, transition_condition = self.check_conditions()
         while not (new_state and transition_condition):
             self.counter += 1
             try:
                 self.state_function()
-            except Exception as e:
-                print(e)
+            except Exception:
+                pass
             time.sleep(self.delay)
             new_state, transition_condition = self.check_conditions()
         iteration_counter = self.counter
@@ -46,8 +47,8 @@ class State:
             result = None
             try:
                 result = t[0]()
-            except Exception as e:
-                print(e)
+            except Exception:
+                pass
             if result:
                 return t[1].__name__, t[0].__name__
         return None, None
@@ -149,61 +150,71 @@ class SearchSpamStateMachine:
             ),
             State(
                 self.update_global_proxlist_if_necessary_and_replace_local_proxies_with_new_ones,
-                0,
+                1,
                 [(self.found_unused_local_proxies, self.click_on_protocol_edit_text_to_select_socks5)],
             ),
-            State(self.click_on_protocol_edit_text_to_select_socks5, 0, [(self.found_socks5_in_dropdown_list, self.click_on_socks5)]),
-            State(self.click_on_socks5, 0, [(self.found_socks5_in_protocol_edit_text, self.click_on_server_edit_text)]),
+            State(
+                self.click_on_protocol_edit_text_to_select_socks5,
+                1,
+                [
+                    (self.found_socks5_in_dropdown_list, self.click_on_socks5),
+                    (self.found_socks5_in_protocol_edit_text, self.click_on_server_edit_text),
+                ],
+            ),
+            State(self.click_on_socks5, 1, [(self.found_socks5_in_protocol_edit_text, self.click_on_server_edit_text)]),
             State(
                 self.click_on_server_edit_text,
-                0,
+                1,
                 [(self.server_edit_text_is_focused, self.clear_server_edit_text)],
             ),
             State(
                 self.clear_server_edit_text,
-                0,
+                1,
                 [(self.server_edit_text_is_empty, self.paste_proxy_ip_address_into_server_edit_text)],
             ),
             State(
                 self.paste_proxy_ip_address_into_server_edit_text,
-                0,
+                1,
                 [(self.found_proxy_ip_address_in_server_edit_text, self.click_on_port_edit_text)],
             ),
             State(
                 self.click_on_port_edit_text,
-                0,
+                1,
                 [(self.port_edit_text_is_focused, self.clear_port_edit_text)],
             ),
-            State(self.clear_port_edit_text, 0, [(self.port_edit_text_is_empty, self.paste_proxy_port_into_port_edit_text)]),
+            State(self.clear_port_edit_text, 1, [(self.port_edit_text_is_empty, self.paste_proxy_port_into_port_edit_text)]),
             State(
                 self.paste_proxy_port_into_port_edit_text,
-                0,
+                1,
                 [(self.found_proxy_port_in_port_edit_text, self.move_local_proxy_from_proxylist_to_used_proxies)],
             ),
             State(
                 self.move_local_proxy_from_proxylist_to_used_proxies,
-                0,
+                1,
                 [(self.found_proxy_in_used_proxies_and_not_found_in_proxylist, self.hide_keyboard_after_entering_proxy_fields)],
             ),
             State(
                 self.hide_keyboard_after_entering_proxy_fields,
-                0,
+                1,
                 [
-                    (self.found_proxy_connection_error, self.click_on_protocol_edit_text_to_select_http),
+                    (self.found_proxy_connection_error_after_waiting, self.click_on_protocol_edit_text_to_select_http),
                     (self.found_no_authentication_required, self.click_on_save_proxy_profile_button),
                 ],
             ),
-            State(self.click_on_protocol_edit_text_to_select_http, 0, [(self.found_http_in_dropdown_list, self.click_on_http)]),
-            State(self.click_on_http, 0, [(self.found_http_in_protocol_edit_text, self.wait_for_proxy_connection_result)]),
+            State(self.click_on_protocol_edit_text_to_select_http, 1, [(self.found_http_in_dropdown_list, self.click_on_http)]),
+            State(self.click_on_http, 1, [(self.found_http_in_protocol_edit_text, self.wait_for_proxy_connection_result)]),
             State(
                 self.wait_for_proxy_connection_result,
-                0,
+                1,
                 [
-                    (self.found_proxy_connection_error, self.update_global_proxlist_if_necessary_and_replace_local_proxies_with_new_ones),
+                    (
+                        self.found_proxy_connection_error_after_waiting,
+                        self.update_global_proxlist_if_necessary_and_replace_local_proxies_with_new_ones,
+                    ),
                     (self.found_no_authentication_required, self.click_on_save_proxy_profile_button),
                 ],
             ),
-            State(self.click_on_save_proxy_profile_button, 0, [(self.found_start_button, self.click_on_start_button)]),
+            State(self.click_on_save_proxy_profile_button, 1, [(self.found_start_button, self.click_on_start_button)]),
             State(
                 self.click_on_start_button,
                 1,
@@ -221,7 +232,9 @@ class SearchSpamStateMachine:
                     (self.found_login_new_character, self.click_on_login_new_character),
                 ],
             ),
-            State(self.click_on_login_new_character, 1, [()])
+            State(self.click_on_login_new_character, 1, [(self.found_female_radio_button, self.click_on_female_radio_button)]),
+            State(self.click_on_female_radio_button, 1, [(self.female_radio_button_is_checked, self.click_next_button_in_choose_your_caracter_menu)]),
+            State(self.click_next_button_in_choose_your_caracter_menu, 1, [()]),
         ]
 
     def draw_SM_diagram(self):
@@ -272,6 +285,7 @@ class SearchSpamStateMachine:
             )
         )
 
+    # Это будет как декоратор
     # def found_dialog_confirm_cancel(self):
     #     return bool(self.driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/dialog_confirm_cancel"))
     def scroll_down_menulist_looking_for_exit_button_to_log_out_of_account_while_checking_current_galaxy_menu(self):
@@ -387,12 +401,12 @@ class SearchSpamStateMachine:
 
     def paste_proxy_ip_address_into_server_edit_text(self):
         with open(f"processes/{self.process_id}/proxylist.txt") as file:
-            proxy_adress = file.readlines()[0].split(":")[0]
+            proxy_adress = file.readlines()[0].rstrip().split(":")[0]
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Server"]').send_keys(proxy_adress)
 
     def found_proxy_ip_address_in_server_edit_text(self):
         with open(f"processes/{self.process_id}/proxylist.txt") as file:
-            proxy_adress = file.readlines()[0].split(":")[0]
+            proxy_adress = file.readlines()[0].rstrip().split(":")[0]
         return self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Server"]').get_attribute("text") == proxy_adress
 
     def click_on_port_edit_text(self):
@@ -439,15 +453,18 @@ class SearchSpamStateMachine:
     def hide_keyboard_after_entering_proxy_fields(self):
         self.driver.execute_script("mobile: hideKeyboard")
 
-    def found_proxy_connection_error(self):
-        return bool(
-            self.driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="SOCKS5 protocol error (E7)")
-            or self.driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Protocol error (E3)")
-            or self.driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Connection unexpectedly closed (E2)")
-            or self.driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Timeout connecting to the specified port. (E1)")
-            or self.driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Timeout connecting to the specified port.")
-            or self.driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Connection to the specified port was refused.")
-            or self.driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Authentication required")
+    def found_proxy_connection_error_after_waiting(self):
+        return (
+            bool(
+                self.driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="SOCKS5 protocol error (E7)")
+                or self.driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Protocol error (E3)")
+                or self.driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Connection unexpectedly closed (E2)")
+                or self.driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Timeout connecting to the specified port. (E1)")
+                or self.driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Timeout connecting to the specified port.")
+                or self.driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Connection to the specified port was refused.")
+                or self.driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="Authentication required")
+            )
+            and self.current_state.counter > 0
         )
 
     def found_no_authentication_required(self):
@@ -486,3 +503,15 @@ class SearchSpamStateMachine:
 
     def click_on_login_new_character(sefl):
         sefl.driver.find_element(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/login_new_character").click()
+
+    def found_female_radio_button(self):
+        return bool(self.driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.RadioButton[@text="Female"]'))
+
+    def click_on_female_radio_button(self):
+        self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.RadioButton[@text="Female"]').click()
+
+    def female_radio_button_is_checked(self):
+        return self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.RadioButton[@text="Female"]').get_attribute("checked") == "true"
+
+    def click_next_button_in_choose_your_caracter_menu(self):
+        self.driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("NEXT")').click()
