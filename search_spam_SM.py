@@ -284,7 +284,19 @@ class SearchSpamStateMachine:
             ),
             State(self.hide_keyboard_after_entering_nickname, 1, [(([self.found_username_available], []), self.click_on_finish_button)]),
             State(self.click_on_finish_button, 1, [(([self.found_confirm_button_ok], []), self.click_on_confirm_button_ok)]),
-            State(self.click_on_confirm_button_ok, 1, []),
+            State(
+                self.click_on_confirm_button_ok, 1, [(([self.found_galaxy_image_button], []), self.click_on_galaxy_image_button_before_entering_city)]
+            ),
+            # вот тут надо бы провер очку на login_new_character а еще надо бы ебнуть декоратор
+            State(
+                self.click_on_galaxy_image_button_before_entering_city,
+                1,
+                [
+                    (([self.found_confirm_registration], []), self.scroll_down_menulist_looking_for_exit_button_while_checking_current_galaxy_menu),
+                    (([self.found_friends_button], [self.found_browser_loader]), self.click_on_friends_button_button_before_entering_city),
+                ],
+            ),
+            State(self.click_on_friends_button_button_before_entering_city, 1, []),
         ]
 
     def draw_SM_diagram(self):
@@ -489,6 +501,7 @@ class SearchSpamStateMachine:
         return self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Port"]').get_attribute("text") == proxy_port
 
     def move_local_proxy_from_proxylist_to_used_proxies(self):
+        # можно так же записывать в атрибут экземпляра current_proxy
         with open(f"processes/{self.process_id}/proxylist.txt") as file:
             proxies = file.readlines()
         proxy = proxies[0]
@@ -592,6 +605,7 @@ class SearchSpamStateMachine:
         )
 
     def paste_nickname_into_nick_input_edit_text(self):
+        # можно так же записывать в атрибут экземляра current_nick
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="nick_input-text"]').send_keys(
             "".join(random.choice(string.ascii_letters + string.digits) for _ in range(12))
         )
@@ -615,3 +629,18 @@ class SearchSpamStateMachine:
 
     def click_on_confirm_button_ok(self):
         self.driver.find_element(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/confirm_button_ok").click()
+
+    def click_on_galaxy_image_button_before_entering_city(self):
+        self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]').click()
+
+    def found_confirm_registration(self):
+        return bool(self.driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Confirm registration")'))
+
+    def found_friends_button(self):
+        return bool(self.driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Friends")'))
+
+    def found_browser_loader(self):
+        return bool(self.driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/browser_loader"))
+
+    def click_on_friends_button_button_before_entering_city(self):
+        self.driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Friends")').click()
