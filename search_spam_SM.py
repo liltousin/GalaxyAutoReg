@@ -274,7 +274,17 @@ class SearchSpamStateMachine:
                 1,
                 [(([self.found_nick_input_edit_text], []), self.click_on_nick_input_edit_text)],
             ),
-            State(self.click_on_nick_input_edit_text, 1, [()]),
+            State(
+                self.click_on_nick_input_edit_text, 1, [(([self.nick_input_edit_text_is_focused], []), self.paste_nickname_into_nick_input_edit_text)]
+            ),
+            State(
+                self.paste_nickname_into_nick_input_edit_text,
+                1,
+                [(([self.found_nickname_in_nick_input_edit_text], []), self.hide_keyboard_after_entering_nickname)],
+            ),
+            State(self.hide_keyboard_after_entering_nickname, 1, [(([self.found_username_available], []), self.click_on_finish_button)]),
+            State(self.click_on_finish_button, 1, [(([self.found_confirm_button_ok], []), self.click_on_confirm_button_ok)]),
+            State(self.click_on_confirm_button_ok, 1, []),
         ]
 
     def draw_SM_diagram(self):
@@ -574,3 +584,34 @@ class SearchSpamStateMachine:
 
     def click_on_nick_input_edit_text(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="nick_input-text"]').click()
+
+    def nick_input_edit_text_is_focused(self):
+        return (
+            self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="nick_input-text"]').get_attribute("focused")
+            == "true"
+        )
+
+    def paste_nickname_into_nick_input_edit_text(self):
+        self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="nick_input-text"]').send_keys(
+            "".join(random.choice(string.ascii_letters + string.digits) for _ in range(12))
+        )
+
+    def found_nickname_in_nick_input_edit_text(self):
+        return bool(
+            self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="nick_input-text"]').get_attribute("text")
+        )
+
+    def hide_keyboard_after_entering_nickname(self):
+        self.driver.execute_script("mobile: hideKeyboard")
+
+    def found_username_available(self):
+        return bool(self.driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.TextView[@text="Username available"]'))
+
+    def click_on_finish_button(self):
+        self.driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("FINISH")').click()
+
+    def found_confirm_button_ok(self):
+        return bool(self.driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/confirm_button_ok"))
+
+    def click_on_confirm_button_ok(self):
+        self.driver.find_element(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/confirm_button_ok").click()
