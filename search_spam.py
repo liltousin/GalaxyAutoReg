@@ -650,9 +650,9 @@ for _ in range(1000):
                     else:
                         time_of_day = "Ночь"
                     ts = time.strftime("%Y.%m.%d %H:%M", time.localtime())
-                    online_percentage = f"{(online_counter/25)*100}%".replace(".", ",")
+                    profit = f"{(online_counter/25)*100}%".replace(".", ",")
                     # days_from_the_start =
-                    file.write(f"{city}\t{messages_per_minute}\t{ts}\t{time_of_day}\t{online_percentage}\n")
+                    file.write(f"{city}\t{profit}\t{ts}\t{time_of_day}\n")
 
         # if need_to_exit:
         # хотя блять нахуй мозги себе ебать когда всего 2 раза такая залупа
