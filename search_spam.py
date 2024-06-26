@@ -379,6 +379,7 @@ for _ in range(1000):
             actions.perform()
 
             city_start = time.time()
+            online_counter = 0
             for _ in range(25):
                 st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
                 while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Search")'):
@@ -565,6 +566,11 @@ for _ in range(1000):
                             print(24, st, c, gc, mc, mac, asc, sep="\t")
                         el39 = driver.find_element(by=AppiumBy.CLASS_NAME, value="android.widget.EditText")
                         el39.send_keys(get_text(TG_USERNAME))
+                        if (
+                            driver.find_element(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/ab_galaxy_subtitle").get_attribute("text")
+                            == "Online"
+                        ):
+                            online_counter += 1
                         el40 = driver.find_element(
                             by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="text_input"]/../android.widget.TextView'
                         )
@@ -638,7 +644,9 @@ for _ in range(1000):
                         time_of_day = "Вечер"
                     else:
                         time_of_day = "Ночь"
-                    file.write(f"{city}\t{messages_per_minute}\t{time.strftime('%Y.%m.%d %H:%M', time.localtime())}\t{time_of_day}\n")
+                    ts = time.strftime("%Y.%m.%d %H:%M", time.localtime())
+                    online_percentage = f"{(online_counter/25)*100}%".replace(".", ",")
+                    file.write(f"{city}\t{messages_per_minute}\t{ts}\t{time_of_day}\t{online_percentage}\n")
 
         # if need_to_exit:
         # хотя блять нахуй мозги себе ебать когда всего 2 раза такая залупа

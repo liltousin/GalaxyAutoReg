@@ -293,7 +293,10 @@ class SearchSpamStateMachine:
                 1,
                 [
                     (([self.found_confirm_registration], []), self.scroll_down_menulist_looking_for_exit_button_while_checking_current_galaxy_menu),
-                    (([self.found_friends_button], [self.found_browser_loader]), self.click_on_friends_button_button_before_entering_city),
+                    (
+                        ([self.found_friends_button], [self.found_browser_loader, self.found_confirm_registration]),
+                        self.click_on_friends_button_button_before_entering_city,
+                    ),
                 ],
             ),
             State(self.click_on_friends_button_button_before_entering_city, 1, []),
