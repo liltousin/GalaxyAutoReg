@@ -199,6 +199,7 @@ for _ in range(1000):
             el23 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Friends")')
             el23.click()
             st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
+            # должно прогрузиться все полностью перед нажатием иначе будет клик по какому-то челу
             while not driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="your location") and not driver.find_elements(
                 by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("My Location")'
             ):
@@ -561,13 +562,17 @@ for _ in range(1000):
                         by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="text_input"]/../android.widget.TextView'
                     ):
                         st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
-                        while not driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.widget.EditText"):
+                        while not driver.find_elements(by=AppiumBy.CLASS_NAME, value="android.widget.EditText") or not driver.find_elements(
+                            by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().resourceId("ru.mobstudio.andgalaxy:id/ab_galaxy_subtitle")'
+                        ):
                             time.sleep(0.1)
                             print(24, st, c, gc, mc, mac, asc, sep="\t")
                         el39 = driver.find_element(by=AppiumBy.CLASS_NAME, value="android.widget.EditText")
                         el39.send_keys(get_text(TG_USERNAME))
                         if (
-                            driver.find_element(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/ab_galaxy_subtitle").get_attribute("text")
+                            driver.find_element(
+                                by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().resourceId("ru.mobstudio.andgalaxy:id/ab_galaxy_subtitle")'
+                            ).get_attribute("text")
                             == "Online"
                         ):
                             online_counter += 1
@@ -646,6 +651,7 @@ for _ in range(1000):
                         time_of_day = "Ночь"
                     ts = time.strftime("%Y.%m.%d %H:%M", time.localtime())
                     online_percentage = f"{(online_counter/25)*100}%".replace(".", ",")
+                    # days_from_the_start =
                     file.write(f"{city}\t{messages_per_minute}\t{ts}\t{time_of_day}\t{online_percentage}\n")
 
         # if need_to_exit:
