@@ -380,7 +380,7 @@ for _ in range(1000):
             actions.perform()
 
             city_start = time.time()
-            online_counter = 0
+            good_messages = 0
             for _ in range(25):
                 st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
                 while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Search")'):
@@ -567,15 +567,15 @@ for _ in range(1000):
                         ):
                             time.sleep(0.1)
                             print(24, st, c, gc, mc, mac, asc, sep="\t")
-                        el39 = driver.find_element(by=AppiumBy.CLASS_NAME, value="android.widget.EditText")
-                        el39.send_keys(get_text(TG_USERNAME))
                         if (
                             driver.find_element(
                                 by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().resourceId("ru.mobstudio.andgalaxy:id/ab_galaxy_subtitle")'
                             ).get_attribute("text")
                             == "Online"
                         ):
-                            online_counter += 1
+                            good_messages += 1
+                        el39 = driver.find_element(by=AppiumBy.CLASS_NAME, value="android.widget.EditText")
+                        el39.send_keys(get_text(TG_USERNAME))
                         el40 = driver.find_element(
                             by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="text_input"]/../android.widget.TextView'
                         )
@@ -638,21 +638,29 @@ for _ in range(1000):
             city_end = time.time()
 
             if not need_new_proxy:
-                with open(f"{TG_USERNAME}/statistics.txt", "a") as file:
-                    messages_per_minute = str(round(25 / ((city_end - city_start) / 60), 2)).replace(".", ",")
-                    hour = int(time.strftime("%H", time.localtime()))
-                    if 6 <= hour < 12:
-                        time_of_day = "Утро"
-                    elif 12 <= hour < 18:
-                        time_of_day = "День"
-                    elif 18 <= hour < 24:
-                        time_of_day = "Вечер"
-                    else:
-                        time_of_day = "Ночь"
-                    ts = time.strftime("%Y.%m.%d %H:%M", time.localtime())
-                    profit = f"{(online_counter/25)*100}%".replace(".", ",")
-                    # days_from_the_start =
-                    file.write(f"{city}\t{profit}\t{ts}\t{time_of_day}\n")
+                messages_per_minute = str(round(25 / ((city_end - city_start) / 60), 2)).replace(".", ",")
+                current_time = time.localtime()
+                hour = int(time.strftime("%H", current_time))
+                if 6 <= hour < 12:
+                    time_of_day = "Утро"
+                elif 12 <= hour < 18:
+                    time_of_day = "День"
+                elif 18 <= hour < 24:
+                    time_of_day = "Вечер"
+                else:
+                    time_of_day = "Ночь"
+
+                ts = time.strftime("%Y.%m.%d %H:%M", current_time)
+                profit = f"{int((good_messages/25)*100)},00%"
+                days_from_the_start = 0
+                with open("statistics.txt") as file:
+                    initial_row = file.readline().rstrip()
+                if initial_row:
+                    days_from_the_start = (time.mktime(current_time) - time.mktime(time.strptime(initial_row.split("\t")[2], "%Y.%m.%d %H:%M"))) / (
+                        60 * 60 * 24
+                    )
+                with open("statistics.txt", "a") as file:
+                    file.write(f"{city}\t{profit}\t{ts}\t{time_of_day}\t{days_from_the_start:.4f}\n")
 
         # if need_to_exit:
         # хотя блять нахуй мозги себе ебать когда всего 2 раза такая залупа
