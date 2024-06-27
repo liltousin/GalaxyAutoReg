@@ -468,7 +468,7 @@ for _ in range(1000):
                                 break
                         if not found_new_user and not need_new_proxy:
                             # надо какой то таймаут еьануть чтоб было понятно что проксе пизда
-                            # ну или нажать кнопку вверх
+                            # ну или нажать кнопку вверх (если все слишком хуево то вот так и делаем)
                             # но нахуй проксю менять понадежнее будет
                             actions = ActionChains(driver)
                             actions.w3c_actions = ActionBuilder(driver, mouse=PointerInput(interaction.POINTER_TOUCH, "touch"))
@@ -659,8 +659,9 @@ for _ in range(1000):
                     days_from_the_start = (time.mktime(current_time) - time.mktime(time.strptime(initial_row.split("\t")[2], "%Y.%m.%d %H:%M"))) / (
                         60 * 60 * 24
                     )
+                days_from_the_start_formatted = f"{days_from_the_start:.4f}".replace(".", ",")
                 with open("statistics.txt", "a") as file:
-                    file.write(f"{city}\t{profit}\t{ts}\t{time_of_day}\t{days_from_the_start:.4f}\n")
+                    file.write(f"{city}\t{profit}\t{ts}\t{time_of_day}\t{days_from_the_start_formatted}\n")
 
         # if need_to_exit:
         # хотя блять нахуй мозги себе ебать когда всего 2 раза такая залупа
