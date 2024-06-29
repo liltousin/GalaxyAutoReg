@@ -57,13 +57,18 @@ def choose_city_by_statistics():
             map(
                 lambda x: (
                     x[0],
-                    sum(map(lambda y: int(round(float(y[1].rstrip("%").replace(",", ".")))), filter(lambda y: x[0] == y[0], time_of_day_statistics)))
-                    / len(list(filter(lambda y: x[0] == y[0], time_of_day_statistics))),
+                    int(
+                        round(
+                            sum(map(lambda y: float(y[1].rstrip("%").replace(",", ".")), filter(lambda y: x[0] == y[0], time_of_day_statistics)))
+                            / len(list(filter(lambda y: x[0] == y[0], time_of_day_statistics)))
+                        )
+                    ),
                 ),
                 time_of_day_statistics,
             )
         )
     )
+
     city_names = (
         "Москва",
         "Санкт-Петербург",

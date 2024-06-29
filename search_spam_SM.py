@@ -11,7 +11,7 @@ from selenium.webdriver.common.actions import interaction
 from selenium.webdriver.common.actions.action_builder import ActionBuilder
 from selenium.webdriver.common.actions.pointer_input import PointerInput
 
-from utils import choose_city_by_statistics, get_new_unused_proxies, get_time_of_day
+from utils import choose_city_by_statistics, get_new_unused_proxies
 
 
 class State:
