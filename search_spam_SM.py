@@ -11,7 +11,7 @@ from selenium.webdriver.common.actions import interaction
 from selenium.webdriver.common.actions.action_builder import ActionBuilder
 from selenium.webdriver.common.actions.pointer_input import PointerInput
 
-from get_proxylist_by_api import get_new_unused_proxies
+from utils import choose_city_by_statistics, get_new_unused_proxies, get_time_of_day
 
 
 class State:
@@ -263,7 +263,14 @@ class SearchSpamStateMachine:
                 1,
                 [(([self.found_login_new_character], []), self.click_on_login_new_character)],
             ),
-            State(self.click_on_login_new_character, 1, [(([self.found_female_radio_button], []), self.click_on_female_radio_button)]),
+            State(
+                self.click_on_login_new_character,
+                1,
+                [
+                    (([self.found_female_radio_button], []), self.click_on_female_radio_button),
+                    (([self.reached_20_iterations_timeout], []), self.initial_state),
+                ],
+            ),
             State(
                 self.click_on_female_radio_button,
                 1,
@@ -299,7 +306,17 @@ class SearchSpamStateMachine:
                     ),
                 ],
             ),
-            State(self.click_on_friends_button_button_before_entering_city, 1, []),
+            State(
+                self.click_on_friends_button_button_before_entering_city,
+                1,
+                [(([self.found_no_firends_yet, self.found_your_location], []), self.click_on_your_location)],
+            ),
+            State(self.click_on_your_location, 1, [(([self.found_city_input_edit_text], []), self.click_on_city_input_edit_text)]),
+            State(self.click_on_city_input_edit_text, 1, [(([self.city_input_edit_text_is_focused], []), self.paste_city_into_city_input_edit_text)]),
+            State(
+                self.paste_city_into_city_input_edit_text, 1, [(([self.found_city_in_city_input_edit_text], []), self.wait_for_city_choice_result)]
+            ),
+            State(self.wait_for_city_choice_result, 1, []),
         ]
 
     def draw_SM_diagram(self):
@@ -314,7 +331,7 @@ class SearchSpamStateMachine:
             self.current_state = self.states[self.states.index(new_state_name)]
 
     def initial_state(self):
-        pass
+        self.city = ""
 
     def current_app_is_super_proxy(self):
         return self.driver.execute_script("mobile: getCurrentPackage") == "com.scheler.superproxy"
@@ -647,3 +664,36 @@ class SearchSpamStateMachine:
 
     def click_on_friends_button_button_before_entering_city(self):
         self.driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Friends")').click()
+
+    def found_no_firends_yet(self):
+        return bool(self.driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.TextView[@text="No friends yet"]'))
+
+    def found_your_location(self):
+        return bool(self.driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.TextView[@text="your location"]'))
+
+    def click_on_your_location(self):
+        self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.TextView[@text="your location"]').click()
+
+    def found_city_input_edit_text(self):
+        return bool(self.driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="city_input-text"]'))
+
+    def click_on_city_input_edit_text(self):
+        self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="city_input-text"]').click()
+
+    def city_input_edit_text_is_focused(self):
+        return bool(
+            self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="city_input-text"]').get_attribute("focused")
+            == "true"
+        )
+
+    def paste_city_into_city_input_edit_text(self):
+        self.city = choose_city_by_statistics()
+        self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="city_input-text"]').send_keys(self.city)
+
+    def found_city_in_city_input_edit_text(self):
+        return bool(
+            self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="city_input-text"]').get_attribute("text")
+        )
+
+    def wait_for_city_choice_result(self):
+        pass

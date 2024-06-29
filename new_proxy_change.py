@@ -8,7 +8,7 @@ from selenium.webdriver.common.actions import interaction
 from selenium.webdriver.common.actions.action_builder import ActionBuilder
 from selenium.webdriver.common.actions.pointer_input import PointerInput
 
-from get_proxylist_by_api import get_new_unused_proxies
+from utils import get_new_unused_proxies
 
 
 def change_proxy(driver: webdriver.Remote, TG_USERNAME: str, c: int, gc: int, mc=0, mac=0, asc=0):

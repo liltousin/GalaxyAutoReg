@@ -22,7 +22,7 @@ from selenium.webdriver.common.actions.action_builder import ActionBuilder
 from selenium.webdriver.common.actions.pointer_input import PointerInput
 
 from new_proxy_change import change_proxy
-from text_generator import get_text
+from utils import choose_city_by_statistics, get_text, get_time_of_day
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--udid", required=True, help="UDID of the device.")
@@ -318,6 +318,7 @@ for _ in range(1000):
             ]
             cities_by_probability = [cities[j][0] for j in range(len(cities)) for _ in range(cities[j][1] // 10)]
             city = random.choice(cities_by_probability)
+            city = choose_city_by_statistics()
             print(f"NEW CHOSEN CITY: {city}", time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, mc, mac, asc, sep="\t")
             city_is_entered = False
             while not city_is_entered:
@@ -640,15 +641,7 @@ for _ in range(1000):
             if not need_new_proxy:
                 messages_per_minute = str(round(25 / ((city_end - city_start) / 60), 2)).replace(".", ",")
                 current_time = time.localtime()
-                hour = int(time.strftime("%H", current_time))
-                if 6 <= hour < 12:
-                    time_of_day = "Утро"
-                elif 12 <= hour < 18:
-                    time_of_day = "День"
-                elif 18 <= hour < 24:
-                    time_of_day = "Вечер"
-                else:
-                    time_of_day = "Ночь"
+                time_of_day = get_time_of_day(current_time)
 
                 ts = time.strftime("%Y.%m.%d %H:%M", current_time)
                 profit = f"{int((good_messages/25)*100)},00%"
