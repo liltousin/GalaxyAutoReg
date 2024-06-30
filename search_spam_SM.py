@@ -314,9 +314,20 @@ class SearchSpamStateMachine:
             State(self.click_on_your_location, 1, [(([self.found_city_input_edit_text], []), self.click_on_city_input_edit_text)]),
             State(self.click_on_city_input_edit_text, 1, [(([self.city_input_edit_text_is_focused], []), self.paste_city_into_city_input_edit_text)]),
             State(
-                self.paste_city_into_city_input_edit_text, 1, [(([self.found_city_in_city_input_edit_text], []), self.wait_for_city_choice_result)]
+                self.paste_city_into_city_input_edit_text,
+                1,
+                [(([self.found_city_in_city_input_edit_text], []), self.hide_keyboard_after_entering_city)],
             ),
-            State(self.wait_for_city_choice_result, 1, []),
+            State(self.hide_keyboard_after_entering_city, 1, [(([self.found_first_ru_image_button], []), self.click_on_first_ru_image_button)]),
+            State(
+                self.click_on_first_ru_image_button, 1, [(([self.found_no_firends_yet], []), self.click_on_galaxy_image_button_after_entering_city)]
+            ),
+            State(
+                self.click_on_galaxy_image_button_after_entering_city,
+                1,
+                [(([self.found_friends_button], []), self.scroll_down_menulist_looking_for_search_and_exit_button)],
+            ),
+            State(self.scroll_down_menulist_looking_for_search_and_exit_button, 1, []),
         ]
 
     def draw_SM_diagram(self):
@@ -695,5 +706,23 @@ class SearchSpamStateMachine:
             self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="city_input-text"]').get_attribute("text")
         )
 
-    def wait_for_city_choice_result(self):
-        pass
+    def hide_keyboard_after_entering_city(self):
+        self.driver.execute_script("mobile: hideKeyboard")
+
+    def found_first_ru_image_button(self):
+        return bool(self.driver.find_elements(by=AppiumBy.XPATH, value='(//android.widget.Image[@text="RU"])[1]'))
+
+    def click_on_first_ru_image_button(self):
+        self.driver.find_element(by=AppiumBy.XPATH, value='(//android.widget.Image[@text="RU"])[1]').click()
+
+    def click_on_galaxy_image_button_after_entering_city(self):
+        self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]').click()
+
+    def scroll_down_menulist_looking_for_search_and_exit_button(self):
+        actions = ActionChains(self.driver)
+        actions.w3c_actions = ActionBuilder(self.driver, mouse=PointerInput(interaction.POINTER_TOUCH, "touch"))
+        actions.w3c_actions.pointer_action.move_to_location(510, 1150)
+        actions.w3c_actions.pointer_action.pointer_down()
+        actions.w3c_actions.pointer_action.move_to_location(510, 150)
+        actions.w3c_actions.pointer_action.release()
+        actions.perform()

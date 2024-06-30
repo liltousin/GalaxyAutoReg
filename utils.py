@@ -178,6 +178,8 @@ def choose_city_by_statistics():
             if i == j[0]:
                 t = j
                 break
+        if t[1] == 0:
+            t = (t[0], 1)
         all_city_probabilities.append(t)
     return random.choice([all_city_probabilities[j][0] for j in range(len(all_city_probabilities)) for _ in range(all_city_probabilities[j][1])])
 
