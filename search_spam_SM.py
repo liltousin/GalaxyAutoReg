@@ -325,7 +325,8 @@ class SearchSpamStateMachine:
                 1,
                 [(([self.found_search_nav_item, self.found_exit_nav_item], []), self.click_on_search_nav_item)],
             ),
-            State(self.click_on_search_nav_item, 1, []),
+            State(self.click_on_search_nav_item, 1, [(([self.found_search_people_button], []), self.click_on_search_people_button)]),
+            State(self.click_on_search_people_button, 1, [])
         ]
 
     def draw_SM_diagram(self):
@@ -616,7 +617,7 @@ class SearchSpamStateMachine:
         self.driver.find_element(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/login_new_character").click()
         self.city = ""
         self.user_counter = 0
-        self.online_message_counter = 0
+        self.online_message_sent_counter = 0
 
     def found_female_radio_button(self):
         return bool(self.driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.RadioButton[@text="Female"]'))
@@ -750,4 +751,14 @@ class SearchSpamStateMachine:
     def click_on_search_nav_item(self):
         self.driver.find_element(
             by=AppiumBy.XPATH, value='//android.widget.TextView[@resource-id="ru.mobstudio.andgalaxy:id/nav_item_text" and @text="Search"]'
+        ).click()
+
+    def found_search_people_button(self):
+        return bool(
+            self.driver.find_elements(by=AppiumBy.XPATH, value='//android.view.View[@resource-id="search"]/android.view.View[2]/android.view.View[2]')
+        )
+
+    def click_on_search_people_button(self):
+        self.driver.find_element(
+            by=AppiumBy.XPATH, value='//android.view.View[@resource-id="search"]/android.view.View[2]/android.view.View[2]'
         ).click()
