@@ -471,6 +471,7 @@ for _ in range(1000):
                             # надо какой то таймаут еьануть чтоб было понятно что проксе пизда
                             # ну или нажать кнопку вверх (если все слишком хуево то вот так и делаем)
                             # но нахуй проксю менять понадежнее будет
+                            # можно попробовать сделать пролистывание с помощью кнопки вниз
                             actions = ActionChains(driver)
                             actions.w3c_actions = ActionBuilder(driver, mouse=PointerInput(interaction.POINTER_TOUCH, "touch"))
                             actions.w3c_actions.pointer_action.move_to_location(1000, 1700)
@@ -645,16 +646,16 @@ for _ in range(1000):
 
                 ts = time.strftime("%Y.%m.%d %H:%M", current_time)
                 profit = f"{int((good_messages/25)*100)},00%"
-                days_from_the_start = 0
-                with open("statistics.txt") as file:
-                    initial_row = file.readline().rstrip()
-                if initial_row:
-                    days_from_the_start = (time.mktime(current_time) - time.mktime(time.strptime(initial_row.split("\t")[2], "%Y.%m.%d %H:%M"))) / (
-                        60 * 60 * 24
-                    )
-                days_from_the_start_formatted = f"{days_from_the_start:.4f}".replace(".", ",")
+                # days_from_the_start = 0
+                # with open("statistics.txt") as file:
+                #     initial_row = file.readline().rstrip()
+                # if initial_row:
+                #     days_from_the_start = (time.mktime(current_time) - time.mktime(time.strptime(initial_row.split("\t")[2], "%Y.%m.%d %H:%M"))) / (
+                #         60 * 60 * 24
+                #     )
+                # days_from_the_start_formatted = f"{days_from_the_start:.4f}".replace(".", ",")
                 with open("statistics.txt", "a") as file:
-                    file.write(f"{city}\t{profit}\t{ts}\t{time_of_day}\t{days_from_the_start_formatted}\n")
+                    file.write(f"{city}\t{profit}\t{ts}\t{time_of_day}\n")
 
         # if need_to_exit:
         # хотя блять нахуй мозги себе ебать когда всего 2 раза такая залупа
