@@ -459,9 +459,7 @@ for _ in range(1000):
                                 nickname = el.get_attribute("text")
                             with open(f"{TG_USERNAME}/already_spammed.txt") as file:
                                 already_spammed = file.readlines()
-                            if nickname + "\n" in already_spammed:
-                                continue
-                            else:
+                            if nickname + "\n" not in already_spammed:
                                 with open(f"{TG_USERNAME}/already_spammed.txt", "a") as file:
                                     file.write(nickname + "\n")
                                     asc += 1
