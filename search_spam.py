@@ -442,7 +442,8 @@ for _ in range(1000):
                             break
                         els1 = driver.find_elements(
                             by=AppiumBy.XPATH,
-                            value='//android.view.View[@resource-id="people_near_content"]/android.view.View/android.widget.TextView',
+                            value='//android.view.View[@resource-id="people_near_content"]/android.view.View/android.view.View/android.widget.'
+                            + 'TextView[1]|//android.view.View[@resource-id="people_near_content"]/android.view.View/android.widget.TextView',
                         )
                         for el in els1:
                             # может наебнуться если дарят авторитет надо try except (вроде пофиксил но не точно) (теперь вроде точно)
