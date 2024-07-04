@@ -21,7 +21,7 @@ from selenium.webdriver.common.actions.action_builder import ActionBuilder
 from selenium.webdriver.common.actions.pointer_input import PointerInput
 
 from new_proxy_change import change_proxy
-from text_generator import get_text
+from utils import get_text
 
 options = AppiumOptions()
 options.load_capabilities(
