@@ -18,7 +18,7 @@ def get_driver(args: argparse.Namespace):
             "udid": args.udid,  # 127.0.0.1:6555
         }
     )
-    return webdriver.Remote(f"http://127.0.0.1:{args.appium_port}", options=options)  # 4723
+    return webdriver.Remote(f"http://127.0.0.1:{args.appium_port}", options=options)  # 4723 и как выяснилось можно все на один и тот же аппиум
 
 
 def main(driver: webdriver.Remote, tg_username: str, process_id: int):
@@ -30,7 +30,7 @@ def main(driver: webdriver.Remote, tg_username: str, process_id: int):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--udid", required=True, help="UDID of the device.")
-    parser.add_argument("--appium-port", type=int, required=True, help="Appium server port.")
+    parser.add_argument("--appium-port", type=int, default=4723, help="Appium server port.")
     parser.add_argument("--tg-username", required=True, help="Telegram username where traffic will go.")
     parser.add_argument("--process-id", type=int, required=True, help="Process sequence number (starting from 1).")
     args = parser.parse_args()

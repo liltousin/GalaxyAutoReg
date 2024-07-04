@@ -26,7 +26,7 @@ from utils import choose_city_by_statistics, get_text, get_time_of_day
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--udid", required=True, help="UDID of the device.")
-parser.add_argument("--appium-port", type=int, required=True, help="Appium server port.")
+parser.add_argument("--appium-port", type=int, default=4723, help="Appium server port.")
 parser.add_argument("--tg-username", required=True, help="Telegram username where traffic will go.")
 args = parser.parse_args()
 
