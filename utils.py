@@ -51,6 +51,7 @@ def choose_city_by_statistics():
     current_time_of_day = get_time_of_day(time.localtime())
     with open("statistics.txt") as file:
         # можно потом в теории по часу делать а не по времени суток
+        # а что если сделать не по среднему значению а по последнему значению в определенный час или по среднему из трех последних в определенный час
         time_of_day_statistics = list(filter(lambda x: x[3] == current_time_of_day, map(lambda x: x.rstrip().split("\t"), file.readlines())))
     city_probabilities = list(
         set(

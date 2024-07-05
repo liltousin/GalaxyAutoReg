@@ -212,6 +212,7 @@ for _ in range(1000):
                 el24 = driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="your location")
                 el24.click()
             else:
+                # если так делать то может зависать после выбора города на меню редактирования
                 el25 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("My Location")')
                 el25.click()
             cities = [
@@ -382,6 +383,7 @@ for _ in range(1000):
 
             city_start = time.time()
             good_messages = 0
+            # надо сделать так чтобы если что блоы нихуя не 25 если утром например то там просто ограничение стоит на 15 и все гг
             for _ in range(25):
                 st = time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime())
                 while not driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Search")'):

@@ -2,6 +2,7 @@ import os
 import random
 import string
 import time
+from functools import wraps
 from typing import Callable
 
 from appium import webdriver
@@ -65,7 +66,7 @@ class SearchSpamStateMachine:
         self.tg_username = tg_username
         self.process_id = process_id
         self.current_state = None
-        self.states = [  # чем больше состояний надо пройти тем выше состояние
+        self.states = [  # чем больше состояний надо пройти тем выше состояние. Все условия переходов состояний записываюся, даже если они избыточны
             State(
                 self.initial_state,
                 1,
@@ -73,8 +74,13 @@ class SearchSpamStateMachine:
                     (([self.current_app_is_super_proxy], []), self.click_on_home_button_before_checking_current_galaxy_menu),
                     (([self.found_galaxy, self.found_super_proxy], []), self.click_on_galaxy_app_to_check_current_galaxy_menu),
                     (([self.found_galaxy_image_button], []), self.click_on_galaxy_image_button_while_checking_current_galaxy_menu),
+                    (
+                        ([self.found_galaxy_menulist], [self.found_exit_nav_item]),
+                        self.scroll_down_menulist_looking_for_exit_nav_item_while_checking_current_galaxy_menu,
+                    ),
+                    (([self.found_galaxy_menulist, self.found_exit_nav_item], []), self.click_on_exit_nav_item_while_checking_current_galaxy_menu),
+                    # (([self.found_browser_loader]))
                     (([self.found_login_new_character], []), self.click_on_home_button_after_checking_current_galaxy_menu),
-                    (([self.found_galaxy_menulist], []), self.scroll_down_menulist_looking_for_exit_nav_item_while_checking_current_galaxy_menu),
                 ],
             ),
             State(
@@ -96,14 +102,9 @@ class SearchSpamStateMachine:
                 [(([self.found_galaxy_menulist], []), self.scroll_down_menulist_looking_for_exit_nav_item_while_checking_current_galaxy_menu)],
             ),
             State(
-                self.click_on_home_button_after_checking_current_galaxy_menu,
-                1,
-                [(([self.found_galaxy, self.found_super_proxy], []), self.click_on_super_proxy_app)],
-            ),
-            State(
                 self.scroll_down_menulist_looking_for_exit_nav_item_while_checking_current_galaxy_menu,
                 1,
-                [(([self.found_exit_nav_item], []), self.click_on_exit_nav_item_while_checking_current_galaxy_menu)],
+                [(([self.found_galaxy_menulist, self.found_exit_nav_item], []), self.click_on_exit_nav_item_while_checking_current_galaxy_menu)],
             ),
             State(
                 self.click_on_exit_nav_item_while_checking_current_galaxy_menu,
@@ -111,12 +112,17 @@ class SearchSpamStateMachine:
                 [(([self.found_login_new_character], []), self.click_on_home_button_after_checking_current_galaxy_menu)],
             ),
             State(
+                self.click_on_home_button_after_checking_current_galaxy_menu,
+                1,
+                [(([self.found_galaxy, self.found_super_proxy], []), self.click_on_super_proxy_app)],
+            ),
+            State(
                 self.click_on_super_proxy_app,
                 1,
                 [
                     (([self.found_add_proxy_button], [self.found_no_proxies_available]), self.click_on_already_added_proxy_profile),
                     (([self.found_stop_button], []), self.click_on_stop_button),
-                    (([self.found_no_proxies_available], []), self.click_on_add_proxy_button),
+                    (([self.found_add_proxy_button, self.found_no_proxies_available], []), self.click_on_add_proxy_button),
                     (([self.found_start_button], []), self.click_on_edit_proxy_profile_button),
                     (
                         ([self.found_protocol_edit_text], [self.found_unused_local_proxies, self.global_proxylist_has_been_updated]),
@@ -267,13 +273,14 @@ class SearchSpamStateMachine:
                 self.click_on_login_new_character,
                 1,
                 [
-                    (([self.found_female_radio_button], []), self.click_on_female_radio_button),
+                    (([self.found_female_radio_button, self.found_next_button], []), self.click_on_female_radio_button),
                     (([self.reached_20_iterations_timeout], []), self.initial_state),
                 ],
             ),
             State(
                 self.click_on_female_radio_button,
                 1,
+                # добавить нажатие кнопки назад если появилась эта хуевая загрузка поставить таймаут просто и кнопка назад хотя возможно и не надо
                 [(([self.female_radio_button_is_checked], []), self.click_next_button_in_choose_your_caracter_menu)],
             ),
             State(
@@ -294,13 +301,22 @@ class SearchSpamStateMachine:
             State(
                 self.click_on_confirm_button_ok, 1, [(([self.found_galaxy_image_button], []), self.click_on_galaxy_image_button_before_entering_city)]
             ),
-            # вот тут надо бы провер очку на login_new_character а еще надо бы ебнуть декоратор
+            # вот тут надо бы провер очку на login_new_character а еще надо бы ебнуть декоратор на функцию который бы dialog_confirm_cancel кликал
             State(
                 self.click_on_galaxy_image_button_before_entering_city,
                 1,
                 [
-                    (([self.found_confirm_registration], []), self.scroll_down_menulist_looking_for_exit_nav_item_while_checking_current_galaxy_menu),
-                    (([self.found_friends_nav_item], [self.found_browser_loader, self.found_confirm_registration]), self.click_on_friends_nav_item),
+                    (
+                        ([self.found_galaxy_menulist, self.found_confirm_registration_nav_item], []),
+                        self.scroll_down_menulist_looking_for_exit_nav_item_while_checking_current_galaxy_menu,
+                    ),
+                    (
+                        (
+                            [self.found_galaxy_menulist, self.found_friends_nav_item],
+                            [self.found_browser_loader, self.found_confirm_registration_nav_item],
+                        ),
+                        self.click_on_friends_nav_item,
+                    ),
                 ],
             ),
             State(self.click_on_friends_nav_item, 1, [(([self.found_no_firends_yet, self.found_your_location], []), self.click_on_your_location)]),
@@ -318,19 +334,35 @@ class SearchSpamStateMachine:
             State(
                 self.click_on_galaxy_image_button_after_entering_city,
                 1,
-                [(([self.found_friends_nav_item], []), self.scroll_down_menulist_looking_for_search_and_exit_nav_item)],
+                [
+                    (([self.found_galaxy_menulist], [self.found_search_nav_item]), self.scroll_down_menulist_looking_for_search_nav_item),
+                    (([self.found_galaxy_menulist, self.found_search_nav_item], []), self.click_on_search_nav_item),
+                ],
             ),
             State(
-                self.scroll_down_menulist_looking_for_search_and_exit_nav_item,
+                self.scroll_down_menulist_looking_for_search_nav_item,
                 1,
-                [(([self.found_search_nav_item, self.found_exit_nav_item], []), self.click_on_search_nav_item)],
+                [(([self.found_galaxy_menulist, self.found_search_nav_item], []), self.click_on_search_nav_item)],
             ),
             State(self.click_on_search_nav_item, 1, [(([self.found_search_people_button], []), self.click_on_search_people_button)]),
-            State(self.click_on_search_people_button, 1, [])
+            State(self.click_on_search_people_button, 1, [(([self.found_users, self.found_new_user], []), self.click_on_new_user)]),
+            State(self.click_on_new_user, 1, []),
         ]
 
     def draw_SM_diagram(self):
         pass
+
+    @staticmethod
+    def try_to_click_on_dialog_confirm_cancel(method):
+        @wraps(method)
+        def wrapper(self, *args, **kwargs):
+            try:
+                self.driver.find_element(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/dialog_confirm_cancel").click()
+            except Exception:
+                pass
+            return method(self, *args, **kwargs)
+
+        return wrapper
 
     def start(self):
         self.current_state = self.states[0]
@@ -340,6 +372,7 @@ class SearchSpamStateMachine:
             print(f"{current_time}\t{iteration_counter}\t{self.current_state} ---{transition_condition}--> {new_state_name}")
             self.current_state = self.states[self.states.index(new_state_name)]
 
+    @try_to_click_on_dialog_confirm_cancel.__func__
     def initial_state(self):
         self.character_counter = 0
 
@@ -355,6 +388,16 @@ class SearchSpamStateMachine:
     def found_galaxy_image_button(self):
         return bool(self.driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]'))
 
+    def found_galaxy_menulist(self):
+        return bool(
+            self.driver.find_elements(
+                by=AppiumBy.XPATH, value='//androidx.recyclerview.widget.RecyclerView[@resource-id="ru.mobstudio.andgalaxy:id/menulist"]'
+            )
+        )
+
+    def found_browser_loader(self):
+        return bool(self.driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/browser_loader"))
+
     def found_login_new_character(self):
         return bool(self.driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/login_new_character"))
 
@@ -367,16 +410,6 @@ class SearchSpamStateMachine:
     def click_on_galaxy_image_button_while_checking_current_galaxy_menu(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]').click()
 
-    def click_on_home_button_after_checking_current_galaxy_menu(self):
-        self.driver.execute_script("mobile: pressKey", {"keycode": 3})
-
-    def found_galaxy_menulist(self):
-        return bool(
-            self.driver.find_elements(
-                by=AppiumBy.XPATH, value='//androidx.recyclerview.widget.RecyclerView[@resource-id="ru.mobstudio.andgalaxy:id/menulist"]'
-            )
-        )
-
     # Это будет как декоратор
     # def found_dialog_confirm_cancel(self):
     #     return bool(self.driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/dialog_confirm_cancel"))
@@ -388,6 +421,9 @@ class SearchSpamStateMachine:
         actions.w3c_actions.pointer_action.move_to_location(510, 150)
         actions.w3c_actions.pointer_action.release()
         actions.perform()
+
+    def click_on_home_button_after_checking_current_galaxy_menu(self):
+        self.driver.execute_script("mobile: pressKey", {"keycode": 3})
 
     def found_exit_nav_item(self):
         return bool(
@@ -622,6 +658,9 @@ class SearchSpamStateMachine:
     def found_female_radio_button(self):
         return bool(self.driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.RadioButton[@text="Female"]'))
 
+    def found_next_button(self):
+        return bool(self.driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("NEXT")'))
+
     def click_on_female_radio_button(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.RadioButton[@text="Female"]').click()
 
@@ -669,11 +708,17 @@ class SearchSpamStateMachine:
     def click_on_confirm_button_ok(self):
         self.driver.find_element(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/confirm_button_ok").click()
 
+    @try_to_click_on_dialog_confirm_cancel.__func__
     def click_on_galaxy_image_button_before_entering_city(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]').click()
 
-    def found_confirm_registration(self):
-        return bool(self.driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("Confirm registration")'))
+    def found_confirm_registration_nav_item(self):
+        return bool(
+            self.driver.find_elements(
+                by=AppiumBy.XPATH,
+                value='//android.widget.TextView[@resource-id="ru.mobstudio.andgalaxy:id/nav_item_text" and @text="Confirm registration"]',
+            )
+        )
 
     def found_friends_nav_item(self):
         return bool(
@@ -681,9 +726,6 @@ class SearchSpamStateMachine:
                 by=AppiumBy.XPATH, value='//android.widget.TextView[@resource-id="ru.mobstudio.andgalaxy:id/nav_item_text" and @text="Friends"]'
             )
         )
-
-    def found_browser_loader(self):
-        return bool(self.driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/browser_loader"))
 
     def click_on_friends_nav_item(self):
         self.driver.find_element(
@@ -732,7 +774,7 @@ class SearchSpamStateMachine:
     def click_on_galaxy_image_button_after_entering_city(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]').click()
 
-    def scroll_down_menulist_looking_for_search_and_exit_nav_item(self):
+    def scroll_down_menulist_looking_for_search_nav_item(self):
         actions = ActionChains(self.driver)
         actions.w3c_actions = ActionBuilder(self.driver, mouse=PointerInput(interaction.POINTER_TOUCH, "touch"))
         actions.w3c_actions.pointer_action.move_to_location(510, 1150)
@@ -762,3 +804,28 @@ class SearchSpamStateMachine:
         self.driver.find_element(
             by=AppiumBy.XPATH, value='//android.view.View[@resource-id="search"]/android.view.View[2]/android.view.View[2]'
         ).click()
+
+    def found_users(self):
+        return bool(
+            self.driver.find_elements(
+                by=AppiumBy.XPATH,
+                value='//android.view.View[@resource-id="people_near_content"]/android.view.View/android.view.View/android.widget.TextView[1]'
+                + '|//android.view.View[@resource-id="people_near_content"]/android.view.View/android.widget.TextView',
+            )
+        )
+
+    def found_new_user(self):
+        for el in self.driver.find_elements(
+            by=AppiumBy.XPATH,
+            value='//android.view.View[@resource-id="people_near_content"]/android.view.View/android.view.View/android.widget.TextView[1]'
+            + '|//android.view.View[@resource-id="people_near_content"]/android.view.View/android.widget.TextView',
+        ):
+            self.user = el.get_attribute("text")
+            with open(f"processes/{self.process_id}/already_spammed.txt") as file:
+                already_spammed = file.readlines()
+                if self.user + "\n" not in already_spammed:
+                    return True
+        return False
+
+    def click_on_new_user(self):
+        self.driver.find_element(by=AppiumBy.XPATH, value=f'//android.widget.TextView[@text="{self.user}"]').click()
