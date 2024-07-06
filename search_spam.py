@@ -644,6 +644,7 @@ for _ in range(1000):
             # if not need_new_proxy:
             if city_is_entered:
                 add_data_to_statistics(city, good_messages, mac)
+                city_is_entered = False
 
         # if need_to_exit:
         # хотя блять нахуй мозги себе ебать когда всего 2 раза такая залупа
