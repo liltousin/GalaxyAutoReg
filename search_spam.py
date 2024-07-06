@@ -642,7 +642,7 @@ for _ in range(1000):
                     break
             city_end = time.time()
             # if not need_new_proxy:
-            if city_is_entered:
+            if city_is_entered and mac:
                 add_data_to_statistics(city, good_messages, mac)
                 city_is_entered = False
 
