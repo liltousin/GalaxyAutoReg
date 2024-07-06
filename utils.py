@@ -36,36 +36,44 @@ def get_text(TG_USERNAME: str):
     return "".join([random.choice(i.split(";")) for i in data.split("\n")])
 
 
-def get_time_of_day(current_time: time.struct_time):
+def get_quarter_of_day(current_time: time.struct_time) -> int:
     hour = int(time.strftime("%H", current_time))
     if 6 <= hour < 12:
-        return "Утро"
+        return 2
     elif 12 <= hour < 18:
-        return "День"
+        return 3
     elif 18 <= hour < 24:
-        return "Вечер"
-    return "Ночь"
+        return 4
+    return 1
 
 
-def choose_city_by_statistics():
-    current_time_of_day = get_time_of_day(time.localtime())
+def add_data_to_statistics(city: str, good_messages: int, message_attempts: int):
+    # messages_per_minute = str(round((message_attempts) / ((city_end - city_start) / 60), 2)).replace(".", ",")
+    current_time = time.localtime()
+    quarter_of_day = get_quarter_of_day(current_time)
+    date_and_time = time.strftime("%Y.%m.%d %H:%M:%S", current_time)
+    profit = f"{((good_messages/message_attempts)*100):.2f}%".replace(".", ",")
+    with open("statistics.txt", "a") as file:
+        file.write(f"{city}\t{good_messages}\t{message_attempts}\t{profit}\t{date_and_time}\t{quarter_of_day}\n")
+
+
+def choose_city_by_statistics() -> str:
+    current_quarter_of_day = get_quarter_of_day(time.localtime())
     with open("statistics.txt") as file:
         # можно потом в теории по часу делать а не по времени суток
         # а что если сделать не по среднему значению а по последнему значению в определенный час или по среднему из трех последних в определенный час
-        time_of_day_statistics = list(filter(lambda x: x[3] == current_time_of_day, map(lambda x: x.rstrip().split("\t"), file.readlines())))
+        quarter_of_day_statistics = list(filter(lambda x: x[5] == current_quarter_of_day, map(lambda x: x.rstrip().split("\t"), file.readlines())))
     city_probabilities = list(
         set(
             map(
                 lambda x: (
                     x[0],
-                    int(
-                        round(
-                            sum(map(lambda y: float(y[1].rstrip("%").replace(",", ".")), filter(lambda y: x[0] == y[0], time_of_day_statistics)))
-                            / len(list(filter(lambda y: x[0] == y[0], time_of_day_statistics)))
-                        )
+                    (
+                        sum(map(lambda y: int(y[1])/int(y[2]), filter(lambda y: x[0] == y[0], quarter_of_day_statistics)))
+                        / len(list(filter(lambda y: x[0] == y[0], quarter_of_day_statistics)))
                     ),
                 ),
-                time_of_day_statistics,
+                quarter_of_day_statistics,
             )
         )
     )

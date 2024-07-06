@@ -22,7 +22,7 @@ from selenium.webdriver.common.actions.action_builder import ActionBuilder
 from selenium.webdriver.common.actions.pointer_input import PointerInput
 
 from new_proxy_change import change_proxy
-from utils import choose_city_by_statistics, get_text, get_time_of_day
+from utils import add_data_to_statistics, choose_city_by_statistics, get_text
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--udid", required=True, help="UDID of the device.")
@@ -354,6 +354,7 @@ for _ in range(1000):
                         # а еще надо ебануть dialog confirm button
                         city_is_entered = False
                         break
+            mac = 0
             el27 = driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("RU").instance(0)')
             el27.click()
 
@@ -548,6 +549,7 @@ for _ in range(1000):
                         and not driver.find_elements(
                             by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="text_input"]/../android.widget.TextView'
                         )
+                        # and //android.widget.TextView[@text="You have punishment and not allowed to private message anyone except your friends"]
                     ):
                         time.sleep(0.1)
                         # нахуй вылетело приложение хуй знает почему
@@ -639,24 +641,9 @@ for _ in range(1000):
                 if need_new_proxy:
                     break
             city_end = time.time()
-
-            if not need_new_proxy:
-                messages_per_minute = str(round(25 / ((city_end - city_start) / 60), 2)).replace(".", ",")
-                current_time = time.localtime()
-                time_of_day = get_time_of_day(current_time)
-
-                ts = time.strftime("%Y.%m.%d %H:%M", current_time)
-                profit = f"{int((good_messages/25)*100)},00%"
-                # days_from_the_start = 0
-                # with open("statistics.txt") as file:
-                #     initial_row = file.readline().rstrip()
-                # if initial_row:
-                #     days_from_the_start = (time.mktime(current_time) - time.mktime(time.strptime(initial_row.split("\t")[2], "%Y.%m.%d %H:%M"))) / (
-                #         60 * 60 * 24
-                #     )
-                # days_from_the_start_formatted = f"{days_from_the_start:.4f}".replace(".", ",")
-                with open("statistics.txt", "a") as file:
-                    file.write(f"{city}\t{profit}\t{ts}\t{time_of_day}\n")
+            # if not need_new_proxy:
+            if city_is_entered:
+                add_data_to_statistics(city, good_messages, mac)
 
         # if need_to_exit:
         # хотя блять нахуй мозги себе ебать когда всего 2 раза такая залупа
