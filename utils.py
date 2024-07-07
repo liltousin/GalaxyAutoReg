@@ -73,7 +73,8 @@ def choose_city_by_statistics() -> str:
                     (
                         sum(map(lambda y: int(y[1]), filter(lambda y: x[0] == y[0], quarter_of_day_statistics)))
                         / sum(map(lambda y: int(y[2]), filter(lambda y: x[0] == y[0], quarter_of_day_statistics)))
-                    ),
+                    )
+                    * 100,
                 ),
                 quarter_of_day_statistics,
             )
