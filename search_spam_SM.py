@@ -79,6 +79,7 @@ class SearchSpamStateMachine:
                         self.scroll_down_menulist_looking_for_exit_nav_item_while_checking_current_galaxy_menu,
                     ),
                     (([self.found_galaxy_menulist, self.found_exit_nav_item], []), self.click_on_exit_nav_item_while_checking_current_galaxy_menu),
+                    # (([self.current_app_is_galaxy])) #  кликаем назад
                     # (([self.found_browser_loader]))
                     (([self.found_login_new_character], []), self.click_on_home_button_after_checking_current_galaxy_menu),
                 ],
@@ -259,6 +260,7 @@ class SearchSpamStateMachine:
                     (([self.found_stop_button], []), self.click_on_home_button_after_enabling_proxy_profile),
                 ],
             ),
+            # новое состояние нажать кнопку ок при старте прокси в первый раз
             State(
                 self.click_on_home_button_after_enabling_proxy_profile,
                 1,
@@ -319,7 +321,17 @@ class SearchSpamStateMachine:
                     ),
                 ],
             ),
-            State(self.click_on_friends_nav_item, 1, [(([self.found_no_firends_yet, self.found_your_location], []), self.click_on_your_location)]),
+            State(
+                self.click_on_friends_nav_item,
+                1,
+                [
+                    (([self.found_no_firends_yet, self.found_your_location], []), self.click_on_your_location),
+                    (
+                        ([self.found_no_firends_yet, self.found_my_location, self.found_galaxy_image_button], [self.found_your_location]),
+                        self.click_on_galaxy_image_button_before_entering_city,
+                    ),
+                ],
+            ),
             State(self.click_on_your_location, 1, [(([self.found_city_input_edit_text], []), self.click_on_city_input_edit_text)]),
             State(self.click_on_city_input_edit_text, 1, [(([self.city_input_edit_text_is_focused], []), self.paste_city_into_city_input_edit_text)]),
             State(
@@ -346,7 +358,8 @@ class SearchSpamStateMachine:
             ),
             State(self.click_on_search_nav_item, 1, [(([self.found_search_people_button], []), self.click_on_search_people_button)]),
             State(self.click_on_search_people_button, 1, [(([self.found_users, self.found_new_user], []), self.click_on_new_user)]),
-            State(self.click_on_new_user, 1, []),
+            State(self.click_on_new_user, 1, [(([self.found_message_button], []), self.click_on_message_button)]),
+            State(self.click_on_message_button, 1, []),
         ]
 
     def draw_SM_diagram(self):
@@ -697,7 +710,7 @@ class SearchSpamStateMachine:
         self.driver.execute_script("mobile: hideKeyboard")
 
     def found_username_available(self):
-        return bool(self.driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.TextView[@text="Username available"]'))
+        return bool(self.driver.find_elements(by=AppiumBy.XPATH, value='//android.view.View[@text="Username available"]'))  # android 11
 
     def click_on_finish_button(self):
         self.driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("FINISH")').click()
@@ -733,7 +746,10 @@ class SearchSpamStateMachine:
         ).click()
 
     def found_no_firends_yet(self):
-        return bool(self.driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.TextView[@text="No friends yet"]'))
+        return bool(self.driver.find_elements(by=AppiumBy.XPATH, value='//android.view.View[@text="No friends yet"]'))
+
+    def found_my_location(self):
+        return bool(self.driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.TextView[@text="My Location"]'))
 
     def found_your_location(self):
         return bool(self.driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.TextView[@text="your location"]'))
@@ -809,18 +825,19 @@ class SearchSpamStateMachine:
         return bool(
             self.driver.find_elements(
                 by=AppiumBy.XPATH,
-                value='//android.view.View[@resource-id="people_near_content"]/android.view.View/android.view.View/android.widget.TextView[1]'
-                + '|//android.view.View[@resource-id="people_near_content"]/android.view.View/android.widget.TextView',
+                value='//android.view.View[@resource-id="people_near_content"]/android.view.View/android.view.View/android.widget.TextView[@text!=""]'
+                + '|//android.view.View[@resource-id="people_near_content"]/android.view.View/android.view.View[@text!=""]',
             )
         )
 
     def found_new_user(self):
         for el in self.driver.find_elements(
             by=AppiumBy.XPATH,
-            value='//android.view.View[@resource-id="people_near_content"]/android.view.View/android.view.View/android.widget.TextView[1]'
-            + '|//android.view.View[@resource-id="people_near_content"]/android.view.View/android.widget.TextView',
+            value='//android.view.View[@resource-id="people_near_content"]/android.view.View/android.view.View/android.widget.TextView[@text!=""]'
+            + '|//android.view.View[@resource-id="people_near_content"]/android.view.View/android.view.View[@text!=""]',
         ):
             self.user = el.get_attribute("text")
+            # сделать 3 отдельных файла онлайн, плохие и оффлайн пользоватлеи
             with open(f"processes/{self.process_id}/already_spammed.txt") as file:
                 already_spammed = file.readlines()
                 if self.user + "\n" not in already_spammed:
@@ -828,4 +845,13 @@ class SearchSpamStateMachine:
         return False
 
     def click_on_new_user(self):
-        self.driver.find_element(by=AppiumBy.XPATH, value=f'//android.widget.TextView[@text="{self.user}"]').click()
+        self.driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value=f'new UiSelector().text("{self.user}")').click()
+
+    def found_message_button(self):
+        return bool(self.driver.find_elements(by=AppiumBy.XPATH, value='//android.view.View[@content-desc="MESSAGE"]'))
+
+    def click_on_message_button(self):
+        self.driver.find_element(by=AppiumBy.XPATH, value='//android.view.View[@content-desc="MESSAGE"]').click()
+
+    def add_user_to_already_spammed(self):
+        pass
