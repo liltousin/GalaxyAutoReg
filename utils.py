@@ -17,7 +17,7 @@ def get_new_unused_proxies():
     headers.update({"User-Agent": "My User Agent 1.0"})
 
     result = requests.get(f"https://api.best-proxies.ru/proxylist.txt?key={BESTPROXIES_APIKEY}&uptime=1&limit=0", headers=headers)
-    print(result.text)
+    # print(result.text)
     with open("used_proxies.txt") as file:
         used_proxies = [i.rstrip() for i in file.readlines()]
     data = list(
