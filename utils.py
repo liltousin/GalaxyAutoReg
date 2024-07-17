@@ -62,7 +62,10 @@ def choose_city_by_statistics() -> str:
         # можно потом в теории по часу делать а не по времени суток
         # а что если сделать не по среднему значению а по последнему значению в определенный час или по среднему из трех последних в определенный час
         quarter_of_day_statistics = list(
-            filter(lambda x: int(x[5]) == current_quarter_of_day, map(lambda x: x.rstrip().split("\t"), file.readlines()))
+            filter(
+                lambda x: int(get_quarter_of_day(time.strptime(x[4], "%d.%m.%Y %H:%M:%S"))) == current_quarter_of_day,
+                map(lambda x: x.rstrip().split("\t"), file.readlines()),
+            )
         )
     city_probabilities = list(
         set(
