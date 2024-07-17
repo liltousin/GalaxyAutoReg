@@ -10,3 +10,6 @@ proxylist.txt
 statistics.txt
 text_template.txt
 used_proxies.txt
+online_spammed.txt
+bad_users.txt
+offline_spammed.txt

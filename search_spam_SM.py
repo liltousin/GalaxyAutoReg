@@ -190,7 +190,7 @@ class SearchSpamStateMachine:
                 ],
             ),
             State(self.update_global_proxlist, 1, [(([self.global_proxylist_has_been_updated], []), self.replace_local_proxies_with_new_ones)]),
-            State(
+            State(  # надо фиксить если случайно полетит ui и изза этого гг (пока не критично т.к и так работает норм)
                 self.replace_local_proxies_with_new_ones,
                 1,
                 [
@@ -377,6 +377,17 @@ class SearchSpamStateMachine:
 
         return wrapper
 
+    # пока что нахуй не нужен и вообще в ряд ли понадобится но пусть будет тут
+    # @staticmethod
+    # def run_only_once(method):
+    #     @wraps(method)
+    #     def wrapper(self, *args, **kwargs):
+    #         if self.current_state.counter > 1:
+    #             return
+    #         return method(self, *args, **kwargs)
+
+    #     return wrapper
+
     def start(self):
         self.current_state = self.states[0]
         while True:
@@ -388,6 +399,7 @@ class SearchSpamStateMachine:
     @try_to_click_on_dialog_confirm_cancel.__func__
     def initial_state(self):
         self.character_counter = 0
+        self.current_proxy = ""
 
     def current_app_is_super_proxy(self):
         return self.driver.execute_script("mobile: getCurrentPackage") == "com.scheler.superproxy"
@@ -511,7 +523,7 @@ class SearchSpamStateMachine:
     def update_global_proxlist(self):
         with open(f"processes/{self.process_id}/used_proxies.txt") as file:
             used_proxies = [i.rstrip() for i in file.readlines() if i.rstrip()]
-        # можно будет переписать так чтоб убирались повторения
+        # можно будет переписать так чтоб убирались повторения (не забывая про replace_local_proxies_with_new_ones)
         with open("used_proxies.txt", "a") as file:
             file.write("\n".join(used_proxies) + "\n")
         proxies = get_new_unused_proxies()
@@ -529,6 +541,13 @@ class SearchSpamStateMachine:
         process_proxies = split_precise_proxies[self.process_id - 1] + split_precise_proxies[self.process_id % number_of_processes]
         with open(f"processes/{self.process_id}/proxylist.txt", "w") as file:
             file.write("\n".join(process_proxies) + "\n")
+        with open(f"processes/{self.process_id}/used_proxies.txt") as file:
+            local_used_proxies = [i.rstrip() for i in file.readlines() if i.rstrip()]
+        with open("used_proxies.txt") as file:
+            used_proxies = file.readlines()
+        if "\n".join(local_used_proxies) in "\n".join(used_proxies):
+            with open("used_proxies.txt", "a") as file:
+                file.write("\n".join(local_used_proxies) + "\n")
         with open(f"processes/{self.process_id}/used_proxies.txt", "w") as file:
             file.write("")
 
@@ -586,30 +605,23 @@ class SearchSpamStateMachine:
         return self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Port"]').get_attribute("text") == proxy_port
 
     def move_local_proxy_from_proxylist_to_used_proxies(self):
-        # можно так же записывать в атрибут экземпляра current_proxy
         with open(f"processes/{self.process_id}/proxylist.txt") as file:
             proxies = file.readlines()
-        proxy = proxies[0]
+        self.current_proxy = proxies[0]
         with open(f"processes/{self.process_id}/used_proxies.txt", "a") as file:
-            file.write(proxy)
+            file.write(self.current_proxy)
         with open(f"processes/{self.process_id}/proxylist.txt", "w") as file:
             file.write("".join(proxies[1:]))
 
     def found_proxy_in_used_proxies(self):
-        proxy_address = self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Server"]').get_attribute("text")
-        proxy_port = self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Port"]').get_attribute("text")
         with open(f"processes/{self.process_id}/used_proxies.txt") as file:
             used_proxies = file.readlines()
-        proxy = proxy_address + ":" + proxy_port + "\n"
-        return proxy in used_proxies
+        return self.current_proxy in used_proxies
 
     def found_proxy_in_proxylist(self):
-        proxy_address = self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Server"]').get_attribute("text")
-        proxy_port = self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Port"]').get_attribute("text")
         with open(f"processes/{self.process_id}/proxylist.txt") as file:
             proxies = file.readlines()
-        proxy = proxy_address + ":" + proxy_port + "\n"
-        return proxy in proxies
+        return self.current_proxy in proxies
 
     def hide_keyboard_after_entering_proxy_fields(self):
         self.driver.execute_script("mobile: hideKeyboard")
@@ -838,10 +850,14 @@ class SearchSpamStateMachine:
         ):
             self.user = el.get_attribute("text")
             # сделать 3 отдельных файла онлайн, плохие и оффлайн пользоватлеи
-            with open(f"processes/{self.process_id}/already_spammed.txt") as file:
-                already_spammed = file.readlines()
-                if self.user + "\n" not in already_spammed:
-                    return True
+            with open(f"processes/{self.process_id}/online_spammed.txt") as file:
+                online_spammed = file.readlines()
+            with open(f"processes/{self.process_id}/offline_spammed.txt") as file:
+                offline_spammed = file.readlines()
+            with open("bad_users.txt") as file:
+                bad_users = file.readlines()
+            if self.user + "\n" not in online_spammed and self.user + "\n" not in offline_spammed and self.user + "\n" not in bad_users:
+                return True
         return False
 
     def click_on_new_user(self):
