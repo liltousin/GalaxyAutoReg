@@ -50,11 +50,10 @@ def get_quarter_of_day(current_time: time.struct_time) -> int:
 def add_data_to_statistics(city: str, good_messages: int, message_attempts: int):
     # messages_per_minute = str(round((message_attempts) / ((city_end - city_start) / 60), 2)).replace(".", ",")
     current_time = time.localtime()
-    quarter_of_day = get_quarter_of_day(current_time)
     date_and_time = time.strftime("%d.%m.%Y %H:%M:%S", current_time)
     profit = f"{((good_messages/message_attempts)*100):.2f}%".replace(".", ",")
     with open("statistics.txt", "a") as file:
-        file.write(f"{city}\t{good_messages}\t{message_attempts}\t{profit}\t{date_and_time}\t{quarter_of_day}\n")
+        file.write(f"{city}\t{good_messages}\t{message_attempts}\t{profit}\t{date_and_time}\n")
 
 
 def choose_city_by_statistics() -> str:
