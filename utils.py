@@ -36,6 +36,27 @@ def get_text(TG_USERNAME: str):
     return "".join([random.choice(i.split(";")) for i in data.split("\n")])
 
 
+def generate_text(TG_USERNAME: str):
+    {  # 100% 1 в 1
+        "Й": "Й И꙼",
+        "К": "K 𝖪 Ⲕ ꓗ Κ К",
+        "Е": "E Ε Е 𐊆 ꓰ ⴹ",
+        "Н": "H 𝖧 Ⲏ 𐋏 Η Н ꓧ ᕼ",
+        "Г": "Γ Г 𖼇",
+        "З": "Ɜ З",
+        "Х": "𐊐 X ⵝ Х Χ Ⅹ ꓫ Ⲭ ᙭ 𐊴 ᚷ 𝖷",
+        "Ф": "Փ Ф Φ Ⲫ",
+        "В": "B ꓐ Β В 𝖡 𐊂 𐊡",
+        "А": "A 𝖠 А Α 𖽀 ꓮ 𐊠",
+        "П": "Π Ⲡ П",
+        "Р": "𝖯 P Р Ρ",
+        "О": "O О Ο 𐐄",
+        "С": "C С Ⅽ Ϲ",
+        "М": "𝖬 M Μ М ꓟ Ⅿ Ϻ",
+        "Т": "𝖳 𐊗 🝨 T ꓔ 𖼊 Т Τ 𐊱 𑢼",
+    }
+
+
 def get_quarter_of_day(current_time: time.struct_time) -> int:
     hour = int(time.strftime("%H", current_time))
     if 6 <= hour < 12:
