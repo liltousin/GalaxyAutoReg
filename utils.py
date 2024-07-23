@@ -17,8 +17,7 @@ def get_new_unused_proxies():
     headers.update({"User-Agent": "My User Agent 1.0"})
 
     result = requests.get(f"https://api.best-proxies.ru/proxylist.txt?key={BESTPROXIES_APIKEY}&uptime=1&limit=0", headers=headers)
-    print(BESTPROXIES_APIKEY)
-    print(result.text)
+    # print(result.text)
     # {"error":{"code":403,"message":"Ошибка авторизации: Период действия этого ключа окончен, Вы можете купить новый ключ"}}
     with open("used_proxies.txt") as file:
         used_proxies = [i.rstrip() for i in file.readlines()]
@@ -38,7 +37,7 @@ def get_text(TG_USERNAME: str):
     return "".join([random.choice(i.split(";")) for i in data.split("\n")])
 
 
-def generate_text(TG_USERNAME: str):
+def generate_text(tg_username: str, text_template: str):
     replacements = {  # 100% 1 в 1
         "Й": "Й И꙼",
         "К": "K 𝖪 Ⲕ ꓗ Κ К",
@@ -78,6 +77,16 @@ def generate_text(TG_USERNAME: str):
         "и": "и ᴎ",
         "т": "т ᴛ",
     }
+    message = ""
+    # total_variants = 1
+    for char in text_template:
+        if char in replacements:
+            message += random.choice(replacements[char].split(" "))
+            # total_variants *= len(replacements[char].split(" "))
+        else:
+            message += char
+    # print(total_variants)
+    return message.format(tg_username)
 
 
 def get_quarter_of_day(current_time: time.struct_time) -> int:
@@ -151,6 +160,7 @@ def choose_city_by_statistics() -> str:
 
 if __name__ == "__main__":
     # print(get_text(input()))
+    # print(generate_text(input(), input()))
     data = get_new_unused_proxies()
 
     with open("proxylist.txt", "w") as file:
