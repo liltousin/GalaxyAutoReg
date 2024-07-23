@@ -17,7 +17,9 @@ def get_new_unused_proxies():
     headers.update({"User-Agent": "My User Agent 1.0"})
 
     result = requests.get(f"https://api.best-proxies.ru/proxylist.txt?key={BESTPROXIES_APIKEY}&uptime=1&limit=0", headers=headers)
-    # print(result.text)
+    print(BESTPROXIES_APIKEY)
+    print(result.text)
+    # {"error":{"code":403,"message":"Ошибка авторизации: Период действия этого ключа окончен, Вы можете купить новый ключ"}}
     with open("used_proxies.txt") as file:
         used_proxies = [i.rstrip() for i in file.readlines()]
     data = list(
@@ -37,7 +39,7 @@ def get_text(TG_USERNAME: str):
 
 
 def generate_text(TG_USERNAME: str):
-    {  # 100% 1 в 1
+    replacements = {  # 100% 1 в 1
         "Й": "Й И꙼",
         "К": "K 𝖪 Ⲕ ꓗ Κ К",
         "Е": "E Ε Е 𐊆 ꓰ ⴹ",
@@ -54,6 +56,27 @@ def generate_text(TG_USERNAME: str):
         "С": "C С Ⅽ Ϲ",
         "М": "𝖬 M Μ М ꓟ Ⅿ Ϻ",
         "Т": "𝖳 𐊗 🝨 T ꓔ 𖼊 Т Τ 𐊱 𑢼",
+        "й": "𐑍꙼ й ᴎ꙼",
+        "у": "у 𝗒 y",
+        "к": "ᴋ ⲕ ĸ κ к",
+        "е": "e 𝖾 е",
+        "н": "ʜ н",
+        "г": "ᴦ г",
+        "з": "з ᴈ",
+        "х": "х 𝗑 x ⅹ",
+        "ф": "ф ϕ",
+        "в": "в ʙ",
+        "а": "a а",
+        "п": "ᴨ п",
+        "р": "р p",
+        "о": "ᴏ 𐓪 ⲟ 𝗈 о ο 𐐬 o ჿ",
+        "л": "л ᴫ",
+        "ё": "ë ё",
+        "я": "ᴙ я",
+        "с": "с c ᴄ ϲ 𝖼 ⅽ",
+        "м": "м ᴍ",
+        "и": "и ᴎ",
+        "т": "т ᴛ",
     }
 
 
@@ -127,7 +150,7 @@ def choose_city_by_statistics() -> str:
 
 
 if __name__ == "__main__":
-    print(get_text(input()))
+    # print(get_text(input()))
     data = get_new_unused_proxies()
 
     with open("proxylist.txt", "w") as file:
