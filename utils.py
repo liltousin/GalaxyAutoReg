@@ -86,7 +86,7 @@ def generate_text(tg_username: str, text_template: str):
         else:
             message += char
     # print(total_variants)
-    return message.format(tg_username)
+    return message.replace("{}", tg_username)
 
 
 def get_quarter_of_day(current_time: time.struct_time) -> int:
