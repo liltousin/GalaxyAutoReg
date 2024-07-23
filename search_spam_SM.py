@@ -12,7 +12,7 @@ from selenium.webdriver.common.actions import interaction
 from selenium.webdriver.common.actions.action_builder import ActionBuilder
 from selenium.webdriver.common.actions.pointer_input import PointerInput
 
-from utils import choose_city_by_statistics, get_new_unused_proxies
+from utils import choose_city_by_statistics, generate_text, get_new_unused_proxies
 
 
 class State:
@@ -61,9 +61,10 @@ class State:
 
 
 class SearchSpamStateMachine:
-    def __init__(self, driver: webdriver.Remote, tg_username: str, process_id: int):
+    def __init__(self, driver: webdriver.Remote, tg_username: str, text_template: str, process_id: int):
         self.driver = driver
         self.tg_username = tg_username
+        self.text_template = text_template
         self.process_id = process_id
         self.current_state = None
         self.states = [  # чем больше состояний надо пройти тем выше состояние. Все условия переходов состояний записываюся, даже если они избыточны
@@ -255,7 +256,7 @@ class SearchSpamStateMachine:
             State(
                 self.click_on_start_button,
                 1,
-                [
+                [  # а здесь можно 10 сек всего
                     (([self.found_start_button, self.reached_20_iterations_timeout], []), self.click_on_edit_proxy_profile_button),
                     (([self.found_stop_button], []), self.click_on_home_button_after_enabling_proxy_profile),
                 ],
@@ -276,7 +277,7 @@ class SearchSpamStateMachine:
                 1,
                 [
                     (([self.found_female_radio_button, self.found_next_button], []), self.click_on_female_radio_button),
-                    (([self.reached_20_iterations_timeout], []), self.initial_state),
+                    (([self.reached_20_iterations_timeout], []), self.initial_state),  # лучше минутный таймаут сделать
                 ],
             ),
             State(
@@ -359,7 +360,9 @@ class SearchSpamStateMachine:
             State(self.click_on_search_nav_item, 1, [(([self.found_search_people_button], []), self.click_on_search_people_button)]),
             State(self.click_on_search_people_button, 1, [(([self.found_users, self.found_new_user], []), self.click_on_new_user)]),
             State(self.click_on_new_user, 1, [(([self.found_message_button], []), self.click_on_message_button)]),
-            State(self.click_on_message_button, 1, []),
+            State(self.click_on_message_button, 1, [(([self.found_send_message_button], []), self.click_on_message_edit_text)]),
+            State(self.click_on_message_edit_text, 1, [(([self.message_edit_text_is_focused], []), self.paste_message_into_edit_text)]),
+            State(self.paste_message_into_edit_text, 1, []),
         ]
 
     def draw_SM_diagram(self):
@@ -541,6 +544,7 @@ class SearchSpamStateMachine:
         process_proxies = split_precise_proxies[self.process_id - 1] + split_precise_proxies[self.process_id % number_of_processes]
         with open(f"processes/{self.process_id}/proxylist.txt", "w") as file:
             file.write("\n".join(process_proxies) + "\n")
+        # короче вообще это хуйня но пока что лучше ничего нет
         with open(f"processes/{self.process_id}/used_proxies.txt") as file:
             local_used_proxies = [i.rstrip() for i in file.readlines() if i.rstrip()]
         with open("used_proxies.txt") as file:
@@ -548,6 +552,7 @@ class SearchSpamStateMachine:
         if "\n".join(local_used_proxies) in "\n".join(used_proxies):
             with open("used_proxies.txt", "a") as file:
                 file.write("\n".join(local_used_proxies) + "\n")
+        # хуйня окончена
         with open(f"processes/{self.process_id}/used_proxies.txt", "w") as file:
             file.write("")
 
@@ -869,5 +874,30 @@ class SearchSpamStateMachine:
     def click_on_message_button(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.view.View[@content-desc="MESSAGE"]').click()
 
-    def add_user_to_already_spammed(self):
-        pass
+    def found_send_message_button(self):
+        return bool(self.driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="text_input"]/../android.view.View'))
+
+    def click_on_message_edit_text(self):
+        self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="text_input"]').click()
+
+    def message_edit_text_is_focused(self):
+        return bool(
+            self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="text_input"]').get_attribute("focused")
+            == "true"
+        )
+
+    def paste_message_into_edit_text(self):
+        self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="text_input"]').send_keys(
+            generate_text(self.tg_username, self.text_template)
+        )
+
+    def found_city_in_city_input_edit_text(self):
+        return bool(
+            self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="city_input-text"]').get_attribute("text")
+        )
+
+    def hide_keyboard_after_entering_city(self):
+        self.driver.execute_script("mobile: hideKeyboard")
+
+    def found_online(self):
+        return bool(self.driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.TextView[@text="Online"]'))
