@@ -7,10 +7,6 @@ from typing import Callable
 
 from appium import webdriver
 from appium.webdriver.common.appiumby import AppiumBy
-from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.common.actions import interaction
-from selenium.webdriver.common.actions.action_builder import ActionBuilder
-from selenium.webdriver.common.actions.pointer_input import PointerInput
 
 from utils import choose_city_by_statistics, generate_text, get_new_unused_proxies
 
@@ -256,8 +252,8 @@ class SearchSpamStateMachine:
             State(
                 self.click_on_start_button,
                 1,
-                [  # а здесь можно 10 сек всего
-                    (([self.found_start_button, self.reached_20_iterations_timeout], []), self.click_on_edit_proxy_profile_button),
+                [
+                    (([self.found_start_button, self.reached_10_iterations_timeout], []), self.click_on_edit_proxy_profile_button),
                     (([self.found_stop_button], []), self.click_on_home_button_after_enabling_proxy_profile),
                 ],
             ),
@@ -276,8 +272,20 @@ class SearchSpamStateMachine:
                 self.click_on_login_new_character,
                 1,
                 [
+                    (
+                        ([self.reached_60_iterations_timeout], [self.found_female_radio_button, self.found_login_new_character]),
+                        self.click_on_back_button_after_reaching_login_new_character_timeout,
+                    ),
+                    (([self.found_login_new_character], []), self.initial_state),
                     (([self.found_female_radio_button, self.found_next_button], []), self.click_on_female_radio_button),
-                    (([self.reached_20_iterations_timeout], []), self.initial_state),  # лучше минутный таймаут сделать
+                ],
+            ),
+            State(
+                self.click_on_back_button_after_reaching_login_new_character_timeout,
+                1,
+                [
+                    (([self.found_login_new_character], []), self.initial_state),
+                    (([self.found_galaxy, self.found_super_proxy], []), self.initial_state),
                 ],
             ),
             State(
@@ -362,7 +370,17 @@ class SearchSpamStateMachine:
             State(self.click_on_new_user, 1, [(([self.found_message_button], []), self.click_on_message_button)]),
             State(self.click_on_message_button, 1, [(([self.found_send_message_button], []), self.click_on_message_edit_text)]),
             State(self.click_on_message_edit_text, 1, [(([self.message_edit_text_is_focused], []), self.paste_message_into_edit_text)]),
-            State(self.paste_message_into_edit_text, 1, []),
+            State(self.paste_message_into_edit_text, 1, [(([self.found_message_in_edit_text], []), self.hide_keyboard_after_entering_message)]),
+            State(
+                self.hide_keyboard_after_entering_message,
+                1,
+                [
+                    (([self.found_send_message_button, self.found_galaxy_image_button, self.found_online], []), self.add_user_to_online_spammed),
+                    (([self.found_send_message_button, self.found_galaxy_image_button], [self.found_online]), self.add_user_to_offline_spammed),
+                ],
+            ),
+            State(self.add_user_to_online_spammed, 1, []),
+            State(self.add_user_to_offline_spammed, 1, []),
         ]
 
     def draw_SM_diagram(self):
@@ -438,17 +456,12 @@ class SearchSpamStateMachine:
     def click_on_galaxy_image_button_while_checking_current_galaxy_menu(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]').click()
 
-    # Это будет как декоратор
-    # def found_dialog_confirm_cancel(self):
-    #     return bool(self.driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/dialog_confirm_cancel"))
     def scroll_down_menulist_looking_for_exit_nav_item_while_checking_current_galaxy_menu(self):
-        actions = ActionChains(self.driver)
-        actions.w3c_actions = ActionBuilder(self.driver, mouse=PointerInput(interaction.POINTER_TOUCH, "touch"))
-        actions.w3c_actions.pointer_action.move_to_location(510, 1150)
-        actions.w3c_actions.pointer_action.pointer_down()
-        actions.w3c_actions.pointer_action.move_to_location(510, 150)
-        actions.w3c_actions.pointer_action.release()
-        actions.perform()
+        self.driver.find_elements(
+            by=AppiumBy.ANDROID_UIAUTOMATOR,
+            value='new UiScrollable(new UiSelector().resourceId("ru.mobstudio.andgalaxy:id/menulist").scrollable(true))'
+            + '.scrollIntoView(new UiSelector().resourceId("ru.mobstudio.andgalaxy:id/nav_item_text").text("Exit"))',
+        )
 
     def click_on_home_button_after_checking_current_galaxy_menu(self):
         self.driver.execute_script("mobile: pressKey", {"keycode": 3})
@@ -670,8 +683,8 @@ class SearchSpamStateMachine:
     def click_on_start_button(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.Button[@content-desc="Start"]').click()
 
-    def reached_20_iterations_timeout(self):
-        return self.current_state.counter > 20
+    def reached_10_iterations_timeout(self):
+        return self.current_state.counter > 10
 
     def click_on_home_button_after_enabling_proxy_profile(self):
         self.driver.execute_script("mobile: pressKey", {"keycode": 3})
@@ -685,11 +698,17 @@ class SearchSpamStateMachine:
         self.user_counter = 0
         self.online_message_sent_counter = 0
 
+    def reached_60_iterations_timeout(self):
+        return self.current_state.counter > 60
+
     def found_female_radio_button(self):
         return bool(self.driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.RadioButton[@text="Female"]'))
 
     def found_next_button(self):
         return bool(self.driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("NEXT")'))
+
+    def click_on_back_button_after_reaching_login_new_character_timeout(self):
+        self.driver.execute_script("mobile: pressKey", {"keycode": 4})
 
     def click_on_female_radio_button(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.RadioButton[@text="Female"]').click()
@@ -715,7 +734,7 @@ class SearchSpamStateMachine:
     def paste_nickname_into_nick_input_edit_text(self):
         # можно так же записывать в атрибут экземляра current_nick
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="nick_input-text"]').send_keys(
-            "".join(random.choice(string.ascii_letters + string.digits) for _ in range(12))
+            "".join(random.choice(string.ascii_letters + string.digits) for _ in range(12))  # TODO: бльше символов и должен содердаться tg_username
         )
 
     def found_nickname_in_nick_input_edit_text(self):
@@ -808,13 +827,11 @@ class SearchSpamStateMachine:
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]').click()
 
     def scroll_down_menulist_looking_for_search_nav_item(self):
-        actions = ActionChains(self.driver)
-        actions.w3c_actions = ActionBuilder(self.driver, mouse=PointerInput(interaction.POINTER_TOUCH, "touch"))
-        actions.w3c_actions.pointer_action.move_to_location(510, 1150)
-        actions.w3c_actions.pointer_action.pointer_down()
-        actions.w3c_actions.pointer_action.move_to_location(510, 150)
-        actions.w3c_actions.pointer_action.release()
-        actions.perform()
+        self.driver.find_elements(
+            by=AppiumBy.ANDROID_UIAUTOMATOR,
+            value='new UiScrollable(new UiSelector().resourceId("ru.mobstudio.andgalaxy:id/menulist").scrollable(true))'
+            + '.scrollIntoView(new UiSelector().resourceId("ru.mobstudio.andgalaxy:id/nav_item_text").text("Search"))',
+        )
 
     def found_search_nav_item(self):
         return bool(
@@ -891,13 +908,19 @@ class SearchSpamStateMachine:
             generate_text(self.tg_username, self.text_template)
         )
 
-    def found_city_in_city_input_edit_text(self):
-        return bool(
-            self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="city_input-text"]').get_attribute("text")
-        )
+    def found_message_in_edit_text(self):
+        return bool(self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="text_input"]').get_attribute("text"))
 
-    def hide_keyboard_after_entering_city(self):
+    def hide_keyboard_after_entering_message(self):
         self.driver.execute_script("mobile: hideKeyboard")
 
     def found_online(self):
         return bool(self.driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.TextView[@text="Online"]'))
+
+    def add_user_to_online_spammed(self):
+        with open(f"processes/{self.process_id}/online_spammed.txt", "a") as file:
+            file.write(self.user + "\n")
+
+    def add_user_to_offline_spammed(self):
+        with open(f"processes/{self.process_id}/offline_spammed.txt", "a") as file:
+            file.write(self.user + "\n")
