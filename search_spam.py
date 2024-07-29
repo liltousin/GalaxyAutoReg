@@ -79,7 +79,7 @@ for _ in range(1000):
                 el15.click()
             tc += 1
             # надо ебануть проверку а не на акке ли он уже
-            if tc > 20:
+            if tc > 10:
                 # может хуйня выйти просто потому что не вышел с акка (однако может быть залупная загрузка поэтому все правильно)
                 # если залупная загрузка то лучше просто назад нажать и все пройдет (только хуй знает как ее вычислить)
                 # может меньше чем за 10 секунд нахуй послать
@@ -550,6 +550,10 @@ for _ in range(1000):
                             by=AppiumBy.XPATH,
                             value="//android.widget.TextView"
                             + '[@text="You have punishment and not allowed to private message anyone except your friends"]',
+                        )
+                        and not driver.find_elements(
+                            by=AppiumBy.XPATH,
+                            value='//android.widget.TextView[@text="Such user doesn\'t exist. You can send a request to private message"]',
                         )
                         and not driver.find_elements(
                             by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="text_input"]/../android.widget.TextView'
