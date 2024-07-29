@@ -1,5 +1,6 @@
 import os
 import random
+import string
 import time
 
 import requests
@@ -87,6 +88,26 @@ def generate_text(tg_username: str, text_template: str):
             message += char
     # print(total_variants)
     return message.replace("{}", tg_username)
+
+
+def generate_nickname(tg_username: str):
+    possible_characters = string.ascii_letters + string.digits + "[]/^{}_=`"
+    print(len(possible_characters))
+    if 14 - len(tg_username) > 3:
+        random_characters = "".join(
+            [random.choice(possible_characters)] + [random.choice(possible_characters + "-") for _ in range(14 - len(tg_username) - 1)]
+        )
+        n = random.randint(0, len(random_characters))
+        if n == 0:
+            return tg_username + random.choice("[]/^{}_=`-") + random_characters[n+1:]
+        if n == 1:
+            return random.choice("[]/^{}_=`") + tg_username + random.choice("[]/^{}_=`-") + random_characters[n+1:]
+        if n == len(random_characters) - 1:
+            return random_characters[:n-1] + random.choice("[]/^{}_=`-") + tg_username + random.choice("[]/^{}_=`-")
+        if n == len(random_characters):
+            return random_characters[:n-1] + random.choice("[]/^{}_=`-") + tg_username
+        return random_characters[:n-1] + random.choice("[]/^{}_=`-") + tg_username + random.choice("[]/^{}_=`-") + random_characters[n+1:]
+    return "".join([random.choice(possible_characters)] + [random.choice(possible_characters + "-") for _ in range(13)])
 
 
 def get_quarter_of_day(current_time: time.struct_time) -> int:
