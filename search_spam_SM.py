@@ -1,6 +1,4 @@
 import os
-import random
-import string
 import time
 from functools import wraps
 from typing import Callable
@@ -8,7 +6,12 @@ from typing import Callable
 from appium import webdriver
 from appium.webdriver.common.appiumby import AppiumBy
 
-from utils import choose_city_by_statistics, generate_text, get_new_unused_proxies
+from utils import (
+    choose_city_by_statistics,
+    generate_nickname,
+    generate_text,
+    get_new_unused_proxies,
+)
 
 
 class State:
@@ -68,7 +71,7 @@ class SearchSpamStateMachine:
                 self.initial_state,
                 1,
                 [
-                    (([self.current_app_is_super_proxy], []), self.click_on_home_button_before_checking_current_galaxy_menu),
+                    (([self.current_app_is_super_proxy], []), self.press_home_button_before_checking_current_galaxy_menu),
                     (([self.found_galaxy, self.found_super_proxy], []), self.click_on_galaxy_app_to_check_current_galaxy_menu),
                     (([self.found_galaxy_image_button], []), self.click_on_galaxy_image_button_while_checking_current_galaxy_menu),
                     (
@@ -78,11 +81,11 @@ class SearchSpamStateMachine:
                     (([self.found_galaxy_menulist, self.found_exit_nav_item], []), self.click_on_exit_nav_item_while_checking_current_galaxy_menu),
                     # (([self.current_app_is_galaxy])) #  кликаем назад
                     # (([self.found_browser_loader]))
-                    (([self.found_login_new_character], []), self.click_on_home_button_after_checking_current_galaxy_menu),
+                    (([self.found_login_new_character], []), self.press_home_button_after_checking_current_galaxy_menu),
                 ],
             ),
             State(
-                self.click_on_home_button_before_checking_current_galaxy_menu,
+                self.press_home_button_before_checking_current_galaxy_menu,
                 1,
                 [(([self.found_galaxy, self.found_super_proxy], []), self.click_on_galaxy_app_to_check_current_galaxy_menu)],
             ),
@@ -91,7 +94,7 @@ class SearchSpamStateMachine:
                 1,
                 [
                     (([self.found_galaxy_image_button], []), self.click_on_galaxy_image_button_while_checking_current_galaxy_menu),
-                    (([self.found_login_new_character], []), self.click_on_home_button_after_checking_current_galaxy_menu),
+                    (([self.found_login_new_character], []), self.press_home_button_after_checking_current_galaxy_menu),
                 ],
             ),
             State(
@@ -107,10 +110,10 @@ class SearchSpamStateMachine:
             State(
                 self.click_on_exit_nav_item_while_checking_current_galaxy_menu,
                 1,
-                [(([self.found_login_new_character], []), self.click_on_home_button_after_checking_current_galaxy_menu)],
+                [(([self.found_login_new_character], []), self.press_home_button_after_checking_current_galaxy_menu)],
             ),
             State(
-                self.click_on_home_button_after_checking_current_galaxy_menu,
+                self.press_home_button_after_checking_current_galaxy_menu,
                 1,
                 [(([self.found_galaxy, self.found_super_proxy], []), self.click_on_super_proxy_app)],
             ),
@@ -217,10 +220,10 @@ class SearchSpamStateMachine:
             State(
                 self.move_local_proxy_from_proxylist_to_used_proxies,
                 1,
-                [(([self.found_proxy_in_used_proxies], [self.found_proxy_in_proxylist]), self.hide_keyboard_after_entering_proxy_fields)],
+                [(([self.found_proxy_in_used_proxies], [self.found_proxy_in_proxylist]), self.wait_for_proxy_connection_result_via_socks5)],
             ),
             State(
-                self.hide_keyboard_after_entering_proxy_fields,
+                self.wait_for_proxy_connection_result_via_socks5,
                 1,
                 [
                     (([self.found_proxy_connection_error], []), self.click_on_protocol_edit_text_to_select_http),
@@ -228,9 +231,9 @@ class SearchSpamStateMachine:
                 ],
             ),
             State(self.click_on_protocol_edit_text_to_select_http, 1, [(([self.found_http_in_dropdown_list], []), self.click_on_http)]),
-            State(self.click_on_http, 1, [(([self.found_http_in_protocol_edit_text], []), self.wait_for_proxy_connection_result)]),
+            State(self.click_on_http, 1, [(([self.found_http_in_protocol_edit_text], []), self.wait_for_proxy_connection_result_via_http)]),
             State(
-                self.wait_for_proxy_connection_result,
+                self.wait_for_proxy_connection_result_via_http,
                 1,
                 [
                     (
@@ -254,12 +257,12 @@ class SearchSpamStateMachine:
                 1,
                 [
                     (([self.found_start_button, self.reached_10_iterations_timeout], []), self.click_on_edit_proxy_profile_button),
-                    (([self.found_stop_button], []), self.click_on_home_button_after_enabling_proxy_profile),
+                    (([self.found_stop_button], []), self.press_home_button_after_enabling_proxy_profile),
                 ],
             ),
             # новое состояние нажать кнопку ок при старте прокси в первый раз
             State(
-                self.click_on_home_button_after_enabling_proxy_profile,
+                self.press_home_button_after_enabling_proxy_profile,
                 1,
                 [(([self.found_galaxy, self.found_super_proxy], []), self.click_on_galaxy_app_after_enabling_proxy_profile)],
             ),
@@ -273,15 +276,15 @@ class SearchSpamStateMachine:
                 1,
                 [
                     (
-                        ([self.reached_60_iterations_timeout], [self.found_female_radio_button, self.found_login_new_character]),
-                        self.click_on_back_button_after_reaching_login_new_character_timeout,
+                        ([self.reached_10_iterations_timeout], [self.found_female_radio_button, self.found_login_new_character]),
+                        self.press_back_button_after_reaching_login_new_character_timeout,
                     ),
-                    (([self.found_login_new_character], []), self.initial_state),
+                    (([self.reached_10_iterations_timeout, self.found_login_new_character], []), self.initial_state),
                     (([self.found_female_radio_button, self.found_next_button], []), self.click_on_female_radio_button),
                 ],
             ),
             State(
-                self.click_on_back_button_after_reaching_login_new_character_timeout,
+                self.press_back_button_after_reaching_login_new_character_timeout,
                 1,
                 [
                     (([self.found_login_new_character], []), self.initial_state),
@@ -305,9 +308,10 @@ class SearchSpamStateMachine:
             State(
                 self.paste_nickname_into_nick_input_edit_text,
                 1,
-                [(([self.found_nickname_in_nick_input_edit_text], []), self.hide_keyboard_after_entering_nickname)],
+                [(([self.found_nickname_in_nick_input_edit_text], []), self.press_enter_button_after_entering_nickname)],
             ),
-            State(self.hide_keyboard_after_entering_nickname, 1, [(([self.found_username_available], []), self.click_on_finish_button)]),
+            State(self.press_enter_button_after_entering_nickname, 1, [(([self.found_finish_button], []), self.wait_for_nickname_check_result)]),
+            State(self.wait_for_nickname_check_result, 1, [(([self.found_username_available], []), self.click_on_finish_button)]),
             State(self.click_on_finish_button, 1, [(([self.found_confirm_button_ok], []), self.click_on_confirm_button_ok)]),
             State(
                 self.click_on_confirm_button_ok, 1, [(([self.found_galaxy_image_button], []), self.click_on_galaxy_image_button_before_entering_city)]
@@ -317,10 +321,7 @@ class SearchSpamStateMachine:
                 self.click_on_galaxy_image_button_before_entering_city,
                 1,
                 [
-                    (
-                        ([self.found_galaxy_menulist, self.found_confirm_registration_nav_item], []),
-                        self.scroll_down_menulist_looking_for_exit_nav_item_while_checking_current_galaxy_menu,
-                    ),
+                    (([self.found_galaxy_menulist, self.found_confirm_registration_nav_item], []), self.initial_state),
                     (
                         (
                             [self.found_galaxy_menulist, self.found_friends_nav_item],
@@ -346,9 +347,9 @@ class SearchSpamStateMachine:
             State(
                 self.paste_city_into_city_input_edit_text,
                 1,
-                [(([self.found_city_in_city_input_edit_text], []), self.hide_keyboard_after_entering_city)],
+                [(([self.found_city_in_city_input_edit_text], []), self.press_enter_button_after_entering_city)],
             ),
-            State(self.hide_keyboard_after_entering_city, 1, [(([self.found_first_ru_image_button], []), self.click_on_first_ru_image_button)]),
+            State(self.press_enter_button_after_entering_city, 1, [(([self.found_first_ru_image_button], []), self.click_on_first_ru_image_button)]),
             State(
                 self.click_on_first_ru_image_button, 1, [(([self.found_no_firends_yet], []), self.click_on_galaxy_image_button_after_entering_city)]
             ),
@@ -366,21 +367,50 @@ class SearchSpamStateMachine:
                 [(([self.found_galaxy_menulist, self.found_search_nav_item], []), self.click_on_search_nav_item)],
             ),
             State(self.click_on_search_nav_item, 1, [(([self.found_search_people_button], []), self.click_on_search_people_button)]),
-            State(self.click_on_search_people_button, 1, [(([self.found_users, self.found_new_user], []), self.click_on_new_user)]),
-            State(self.click_on_new_user, 1, [(([self.found_message_button], []), self.click_on_message_button)]),
-            State(self.click_on_message_button, 1, [(([self.found_send_message_button], []), self.click_on_message_edit_text)]),
-            State(self.click_on_message_edit_text, 1, [(([self.message_edit_text_is_focused], []), self.paste_message_into_edit_text)]),
-            State(self.paste_message_into_edit_text, 1, [(([self.found_message_in_edit_text], []), self.hide_keyboard_after_entering_message)]),
             State(
-                self.hide_keyboard_after_entering_message,
+                self.click_on_search_people_button, 1, [(([self.found_users, self.found_new_user], []), self.click_on_new_user)]
+            ),  # TODO: нормальный свайп
+            State(self.click_on_new_user, 1, [(([self.found_message_button], []), self.click_on_message_button)]),
+            State(
+                self.click_on_message_button,
+                1,
+                [
+                    (([self.found_send_message_button], []), self.click_on_message_edit_text),
+                    (([self.found_bad_user_text], []), self.add_user_to_bad_users),
+                ],
+            ),
+            State(self.click_on_message_edit_text, 1, [(([self.message_edit_text_is_focused], []), self.paste_message_into_edit_text)]),
+            State(self.add_user_to_bad_users, 1, [(([self.found_user_in_bad_users], []), self.click_on_galaxy_image_button_after_sending_message)]),
+            State(self.paste_message_into_edit_text, 1, [(([self.found_message_in_edit_text], []), self.click_on_send_message_button)]),
+            State(
+                self.click_on_send_message_button,
                 1,
                 [
                     (([self.found_send_message_button, self.found_galaxy_image_button, self.found_online], []), self.add_user_to_online_spammed),
                     (([self.found_send_message_button, self.found_galaxy_image_button], [self.found_online]), self.add_user_to_offline_spammed),
                 ],
             ),
-            State(self.add_user_to_online_spammed, 1, []),
-            State(self.add_user_to_offline_spammed, 1, []),
+            State(
+                self.add_user_to_online_spammed,
+                1,
+                [(([self.found_user_in_online_spammed], []), self.click_on_galaxy_image_button_after_sending_message)],
+            ),
+            State(
+                self.add_user_to_offline_spammed,
+                1,
+                [(([self.found_user_in_offline_spammed], []), self.click_on_galaxy_image_button_after_sending_message)],
+            ),
+            State(
+                self.click_on_galaxy_image_button_after_sending_message,
+                1,
+                [
+                    (
+                        ([self.found_galaxy_menulist, self.user_counter_is_under_25], [self.found_search_nav_item]),
+                        self.scroll_down_menulist_looking_for_search_nav_item,
+                    ),
+                    (([self.found_galaxy_menulist, self.found_search_nav_item, self.user_counter_is_under_25], []), self.click_on_search_nav_item),
+                ],
+            ),
         ]
 
     def draw_SM_diagram(self):
@@ -447,7 +477,7 @@ class SearchSpamStateMachine:
     def found_login_new_character(self):
         return bool(self.driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/login_new_character"))
 
-    def click_on_home_button_before_checking_current_galaxy_menu(self):
+    def press_home_button_before_checking_current_galaxy_menu(self):
         self.driver.execute_script("mobile: pressKey", {"keycode": 3})
 
     def click_on_galaxy_app_to_check_current_galaxy_menu(self):
@@ -456,6 +486,7 @@ class SearchSpamStateMachine:
     def click_on_galaxy_image_button_while_checking_current_galaxy_menu(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]').click()
 
+    @try_to_click_on_dialog_confirm_cancel.__func__
     def scroll_down_menulist_looking_for_exit_nav_item_while_checking_current_galaxy_menu(self):
         self.driver.find_elements(
             by=AppiumBy.ANDROID_UIAUTOMATOR,
@@ -463,7 +494,7 @@ class SearchSpamStateMachine:
             + '.scrollIntoView(new UiSelector().resourceId("ru.mobstudio.andgalaxy:id/nav_item_text").text("Exit"))',
         )
 
-    def click_on_home_button_after_checking_current_galaxy_menu(self):
+    def press_home_button_after_checking_current_galaxy_menu(self):
         self.driver.execute_script("mobile: pressKey", {"keycode": 3})
 
     def found_exit_nav_item(self):
@@ -562,7 +593,7 @@ class SearchSpamStateMachine:
             local_used_proxies = [i.rstrip() for i in file.readlines() if i.rstrip()]
         with open("used_proxies.txt") as file:
             used_proxies = file.readlines()
-        if "\n".join(local_used_proxies) in "\n".join(used_proxies):
+        if "\n".join(local_used_proxies) not in "\n".join(used_proxies):
             with open("used_proxies.txt", "a") as file:
                 file.write("\n".join(local_used_proxies) + "\n")
         # хуйня окончена
@@ -641,8 +672,8 @@ class SearchSpamStateMachine:
             proxies = file.readlines()
         return self.current_proxy in proxies
 
-    def hide_keyboard_after_entering_proxy_fields(self):
-        self.driver.execute_script("mobile: hideKeyboard")
+    def wait_for_proxy_connection_result_via_socks5(self):
+        pass
 
     def found_proxy_connection_error(self):
         return bool(
@@ -670,7 +701,7 @@ class SearchSpamStateMachine:
     def found_http_in_protocol_edit_text(self):
         return self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Protocol"]').get_attribute("text") == "HTTP"
 
-    def wait_for_proxy_connection_result(self):
+    def wait_for_proxy_connection_result_via_http(self):
         pass
 
     def click_on_save_proxy_profile_button(self):
@@ -686,7 +717,7 @@ class SearchSpamStateMachine:
     def reached_10_iterations_timeout(self):
         return self.current_state.counter > 10
 
-    def click_on_home_button_after_enabling_proxy_profile(self):
+    def press_home_button_after_enabling_proxy_profile(self):
         self.driver.execute_script("mobile: pressKey", {"keycode": 3})
 
     def click_on_galaxy_app_after_enabling_proxy_profile(self):
@@ -698,16 +729,13 @@ class SearchSpamStateMachine:
         self.user_counter = 0
         self.online_message_sent_counter = 0
 
-    def reached_60_iterations_timeout(self):
-        return self.current_state.counter > 60
-
     def found_female_radio_button(self):
         return bool(self.driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.RadioButton[@text="Female"]'))
 
     def found_next_button(self):
         return bool(self.driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("NEXT")'))
 
-    def click_on_back_button_after_reaching_login_new_character_timeout(self):
+    def press_back_button_after_reaching_login_new_character_timeout(self):
         self.driver.execute_script("mobile: pressKey", {"keycode": 4})
 
     def click_on_female_radio_button(self):
@@ -734,7 +762,7 @@ class SearchSpamStateMachine:
     def paste_nickname_into_nick_input_edit_text(self):
         # можно так же записывать в атрибут экземляра current_nick
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="nick_input-text"]').send_keys(
-            "".join(random.choice(string.ascii_letters + string.digits) for _ in range(12))  # TODO: бльше символов и должен содердаться tg_username
+            generate_nickname(self.tg_username)
         )
 
     def found_nickname_in_nick_input_edit_text(self):
@@ -742,8 +770,14 @@ class SearchSpamStateMachine:
             self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="nick_input-text"]').get_attribute("text")
         )
 
-    def hide_keyboard_after_entering_nickname(self):
-        self.driver.execute_script("mobile: hideKeyboard")
+    def press_enter_button_after_entering_nickname(self):
+        self.driver.execute_script("mobile: pressKey", {"keycode": 66})
+
+    def found_finish_button(self):
+        return bool(self.driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("FINISH")'))
+
+    def wait_for_nickname_check_result(self):
+        pass
 
     def found_username_available(self):
         return bool(self.driver.find_elements(by=AppiumBy.XPATH, value='//android.view.View[@text="Username available"]'))  # android 11
@@ -754,6 +788,7 @@ class SearchSpamStateMachine:
     def found_confirm_button_ok(self):
         return bool(self.driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/confirm_button_ok"))
 
+    @try_to_click_on_dialog_confirm_cancel.__func__
     def click_on_confirm_button_ok(self):
         self.driver.find_element(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/confirm_button_ok").click()
 
@@ -785,7 +820,7 @@ class SearchSpamStateMachine:
         return bool(self.driver.find_elements(by=AppiumBy.XPATH, value='//android.view.View[@text="No friends yet"]'))
 
     def found_my_location(self):
-        return bool(self.driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.TextView[@text="My Location"]'))
+        return bool(self.driver.find_elements(by=AppiumBy.XPATH, value='//android.view.View[@text="My Location"]'))
 
     def found_your_location(self):
         return bool(self.driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.TextView[@text="your location"]'))
@@ -814,8 +849,8 @@ class SearchSpamStateMachine:
             self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="city_input-text"]').get_attribute("text")
         )
 
-    def hide_keyboard_after_entering_city(self):
-        self.driver.execute_script("mobile: hideKeyboard")
+    def press_enter_button_after_entering_city(self):
+        self.driver.execute_script("mobile: pressKey", {"keycode": 66})
 
     def found_first_ru_image_button(self):
         return bool(self.driver.find_elements(by=AppiumBy.XPATH, value='(//android.widget.Image[@text="RU"])[1]'))
@@ -840,6 +875,7 @@ class SearchSpamStateMachine:
             )
         )
 
+    @try_to_click_on_dialog_confirm_cancel.__func__
     def click_on_search_nav_item(self):
         self.driver.find_element(
             by=AppiumBy.XPATH, value='//android.widget.TextView[@resource-id="ru.mobstudio.andgalaxy:id/nav_item_text" and @text="Search"]'
@@ -894,14 +930,32 @@ class SearchSpamStateMachine:
     def found_send_message_button(self):
         return bool(self.driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="text_input"]/../android.view.View'))
 
+    def found_bad_user_text(self):
+        return bool(
+            self.driver.find_elements(
+                by=AppiumBy.XPATH,
+                value='//android.view.View[@text="This user receives private messages only from Friends. You can send a request to private message"]',
+            )
+        )
+
     def click_on_message_edit_text(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="text_input"]').click()
+
+    def add_user_to_bad_users(self):
+        self.user_counter += 1
+        with open("bad_users.txt", "a") as file:
+            file.write(self.user + "\n")
 
     def message_edit_text_is_focused(self):
         return bool(
             self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="text_input"]').get_attribute("focused")
             == "true"
         )
+
+    def found_user_in_bad_users(self):
+        with open("bad_users.txt") as file:
+            bad_users = file.readlines()
+        return self.user + "\n" in bad_users
 
     def paste_message_into_edit_text(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="text_input"]').send_keys(
@@ -911,16 +965,34 @@ class SearchSpamStateMachine:
     def found_message_in_edit_text(self):
         return bool(self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="text_input"]').get_attribute("text"))
 
-    def hide_keyboard_after_entering_message(self):
-        self.driver.execute_script("mobile: hideKeyboard")
+    def click_on_send_message_button(self):
+        self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="text_input"]/../android.view.View').click()
 
     def found_online(self):
         return bool(self.driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.TextView[@text="Online"]'))
 
     def add_user_to_online_spammed(self):
+        self.user_counter += 1
         with open(f"processes/{self.process_id}/online_spammed.txt", "a") as file:
             file.write(self.user + "\n")
 
+    def found_user_in_online_spammed(self):
+        with open(f"processes/{self.process_id}/online_spammed.txt") as file:
+            online_spammed = file.readlines()
+        return self.user + "\n" in online_spammed
+
     def add_user_to_offline_spammed(self):
+        self.user_counter += 1
         with open(f"processes/{self.process_id}/offline_spammed.txt", "a") as file:
             file.write(self.user + "\n")
+
+    def found_user_in_offline_spammed(self):
+        with open(f"processes/{self.process_id}/offline_spammed.txt") as file:
+            offline_spammed = file.readlines()
+        return self.user + "\n" in offline_spammed
+
+    def click_on_galaxy_image_button_after_sending_message(self):
+        self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]').click()
+
+    def user_counter_is_under_25(self):
+        return self.user_counter < 25
