@@ -316,12 +316,12 @@ class SearchSpamStateMachine:
             State(
                 self.click_on_confirm_button_ok, 1, [(([self.found_galaxy_image_button], []), self.click_on_galaxy_image_button_before_entering_city)]
             ),
-            # вот тут надо бы провер очку на login_new_character а еще надо бы ебнуть декоратор на функцию который бы dialog_confirm_cancel кликал
+            # TODO: вот тут надо провер очку на login_new_character
             State(
                 self.click_on_galaxy_image_button_before_entering_city,
                 1,
                 [
-                    (([self.found_galaxy_menulist, self.found_confirm_registration_nav_item], []), self.initial_state),
+                    (([self.found_galaxy_menulist, self.found_confirm_registration_nav_item], []), self.initial_state),  # TODO: перед этим лог
                     (
                         (
                             [self.found_galaxy_menulist, self.found_friends_nav_item],
@@ -368,8 +368,14 @@ class SearchSpamStateMachine:
             ),
             State(self.click_on_search_nav_item, 1, [(([self.found_search_people_button], []), self.click_on_search_people_button)]),
             State(
-                self.click_on_search_people_button, 1, [(([self.found_users, self.found_new_user], []), self.click_on_new_user)]
-            ),  # TODO: нормальный свайп
+                self.click_on_search_people_button,
+                1,
+                [
+                    (([self.found_users], [self.found_new_user]), self.scroll_down_looking_for_new_user),
+                    (([self.found_users, self.found_new_user], []), self.click_on_new_user),
+                ],
+            ),
+            State(self.scroll_down_looking_for_new_user, 1, [(([self.found_users, self.found_new_user], []), self.click_on_new_user)]),
             State(self.click_on_new_user, 1, [(([self.found_message_button], []), self.click_on_message_button)]),
             State(
                 self.click_on_message_button,
@@ -409,8 +415,24 @@ class SearchSpamStateMachine:
                         self.scroll_down_menulist_looking_for_search_nav_item,
                     ),
                     (([self.found_galaxy_menulist, self.found_search_nav_item, self.user_counter_is_under_25], []), self.click_on_search_nav_item),
+                    (
+                        ([self.found_galaxy_menulist], [self.user_counter_is_under_25, self.found_exit_nav_item]),
+                        self.scroll_down_menulist_looking_for_exit_nav_item_after_city_spamming_stops,
+                    ),
+                    (
+                        ([self.found_galaxy_menulist, self.found_exit_nav_item], [self.user_counter_is_under_25]),
+                        self.click_on_exit_nav_item_after_city_spamming_stops,
+                    ),
                 ],
             ),
+            State(
+                self.scroll_down_menulist_looking_for_exit_nav_item_after_city_spamming_stops,
+                1,
+                [(([self.found_galaxy_menulist, self.found_exit_nav_item], [self.click_on_exit_nav_item_after_city_spamming_stops]))],
+            ),
+            State(
+                self.click_on_exit_nav_item_after_city_spamming_stops, 1, []
+            ),  # TODO: запись в статистику и как раз при записе character_counter += 1
         ]
 
     def draw_SM_diagram(self):
@@ -918,6 +940,9 @@ class SearchSpamStateMachine:
                 return True
         return False
 
+    def scroll_down_looking_for_new_user(self):
+        self.driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value="new UiScrollable(new UiSelector().scrollable(true)).scrollForward()")
+
     def click_on_new_user(self):
         self.driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value=f'new UiSelector().text("{self.user}")').click()
 
@@ -973,6 +998,7 @@ class SearchSpamStateMachine:
 
     def add_user_to_online_spammed(self):
         self.user_counter += 1
+        self.online_message_sent_counter += 1
         with open(f"processes/{self.process_id}/online_spammed.txt", "a") as file:
             file.write(self.user + "\n")
 
@@ -996,3 +1022,15 @@ class SearchSpamStateMachine:
 
     def user_counter_is_under_25(self):
         return self.user_counter < 25
+
+    def scroll_down_menulist_looking_for_exit_nav_item_after_city_spamming_stops(self):
+        self.driver.find_elements(
+            by=AppiumBy.ANDROID_UIAUTOMATOR,
+            value='new UiScrollable(new UiSelector().resourceId("ru.mobstudio.andgalaxy:id/menulist").scrollable(true))'
+            + '.scrollIntoView(new UiSelector().resourceId("ru.mobstudio.andgalaxy:id/nav_item_text").text("Exit"))',
+        )
+
+    def click_on_exit_nav_item_after_city_spamming_stops(self):
+        self.driver.find_element(
+            by=AppiumBy.XPATH, value='//android.widget.TextView[@resource-id="ru.mobstudio.andgalaxy:id/nav_item_text" and @text="Exit"]'
+        ).click()
