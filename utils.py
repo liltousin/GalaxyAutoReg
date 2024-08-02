@@ -121,13 +121,12 @@ def get_quarter_of_day(current_time: time.struct_time) -> int:
     return 1
 
 
-def add_data_to_statistics(city: str, good_messages: int, message_attempts: int, process_id=0):
+def get_statistics_row(
+    city: str, good_messages: int, message_attempts: int, current_date_and_time=time.strftime("%d.%m.%Y %H:%M:%S", time.localtime()), process_id=0
+) -> str:
     # messages_per_minute = str(round((message_attempts) / ((city_end - city_start) / 60), 2)).replace(".", ",")
-    current_time = time.localtime()
-    date_and_time = time.strftime("%d.%m.%Y %H:%M:%S", current_time)
     profit = f"{((good_messages/message_attempts)*100):.2f}%".replace(".", ",")
-    with open("statistics.txt", "a") as file:
-        file.write(f"{city}\t{good_messages}\t{message_attempts}\t{profit}\t{date_and_time}\t{process_id}\n")
+    return f"{city}\t{good_messages}\t{message_attempts}\t{profit}\t{current_date_and_time}\t{process_id}\n"
 
 
 def choose_city_by_statistics() -> str:
