@@ -11,6 +11,7 @@ from utils import (
     generate_nickname,
     generate_text,
     get_new_unused_proxies,
+    get_statistics_row,
 )
 
 
@@ -316,7 +317,7 @@ class SearchSpamStateMachine:
             State(
                 self.click_on_confirm_button_ok, 1, [(([self.found_galaxy_image_button], []), self.click_on_galaxy_image_button_before_entering_city)]
             ),
-            # TODO: вот тут надо провер очку на login_new_character
+            # TODO: вот тут надо провер очку на login_new_character (но потом надо не забывать про статсистику (после ввода города))
             State(
                 self.click_on_galaxy_image_button_before_entering_city,
                 1,
@@ -366,7 +367,9 @@ class SearchSpamStateMachine:
                 1,
                 [(([self.found_galaxy_menulist, self.found_search_nav_item], []), self.click_on_search_nav_item)],
             ),
-            State(self.click_on_search_nav_item, 1, [(([self.found_search_people_button], []), self.click_on_search_people_button)]),
+            State(
+                self.click_on_search_nav_item, 1, [(([self.found_search_people_button], []), self.click_on_search_people_button)]
+            ),  # начиная отсюда имеест смысл добавлять в статистику вместе с user_counter_greater_than_1
             State(
                 self.click_on_search_people_button,
                 1,
@@ -407,20 +410,20 @@ class SearchSpamStateMachine:
                 [(([self.found_user_in_offline_spammed], []), self.click_on_galaxy_image_button_after_sending_message)],
             ),
             State(
-                self.click_on_galaxy_image_button_after_sending_message,
+                self.click_on_galaxy_image_button_after_sending_message,  # после этого не надо self.user_counter_greater_than_1
                 1,
                 [
                     (
-                        ([self.found_galaxy_menulist, self.user_counter_is_under_25], [self.found_search_nav_item]),
+                        ([self.found_galaxy_menulist, self.user_counter_less_than_25], [self.found_search_nav_item]),
                         self.scroll_down_menulist_looking_for_search_nav_item,
                     ),
-                    (([self.found_galaxy_menulist, self.found_search_nav_item, self.user_counter_is_under_25], []), self.click_on_search_nav_item),
+                    (([self.found_galaxy_menulist, self.found_search_nav_item, self.user_counter_less_than_25], []), self.click_on_search_nav_item),
                     (
-                        ([self.found_galaxy_menulist], [self.user_counter_is_under_25, self.found_exit_nav_item]),
+                        ([self.found_galaxy_menulist], [self.user_counter_less_than_25, self.found_exit_nav_item]),
                         self.scroll_down_menulist_looking_for_exit_nav_item_after_city_spamming_stops,
                     ),
                     (
-                        ([self.found_galaxy_menulist, self.found_exit_nav_item], [self.user_counter_is_under_25]),
+                        ([self.found_galaxy_menulist, self.found_exit_nav_item], [self.user_counter_less_than_25]),
                         self.click_on_exit_nav_item_after_city_spamming_stops,
                     ),
                 ],
@@ -431,8 +434,16 @@ class SearchSpamStateMachine:
                 [(([self.found_galaxy_menulist, self.found_exit_nav_item], [self.click_on_exit_nav_item_after_city_spamming_stops]))],
             ),
             State(
-                self.click_on_exit_nav_item_after_city_spamming_stops, 1, []
+                self.click_on_exit_nav_item_after_city_spamming_stops, 1, [(([self.found_login_new_character], []), self.add_data_to_statistics)]
             ),  # TODO: запись в статистику и как раз при записе character_counter += 1
+            State(
+                self.add_data_to_statistics,
+                1,
+                [
+                    (([self.found_data_in_statistics, self.character_counter_less_than_4], []), self.click_on_login_new_character),
+                    (([self.found_data_in_statistics], [self.character_counter_less_than_4]), self.initial_state),
+                ],
+            ),
         ]
 
     def draw_SM_diagram(self):
@@ -444,22 +455,27 @@ class SearchSpamStateMachine:
         def wrapper(self, *args, **kwargs):
             try:
                 self.driver.find_element(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/dialog_confirm_cancel").click()
+                current_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+                print(f"{current_time}\t{self.try_to_click_on_dialog_confirm_cancel.__name__}")
             except Exception:
                 pass
             return method(self, *args, **kwargs)
 
         return wrapper
 
-    # пока что нахуй не нужен и вообще в ряд ли понадобится но пусть будет тут
-    # @staticmethod
-    # def run_only_once(method):
-    #     @wraps(method)
-    #     def wrapper(self, *args, **kwargs):
-    #         if self.current_state.counter > 1:
-    #             return
-    #         return method(self, *args, **kwargs)
+    @staticmethod
+    def try_to_click_on_aerr_wait(method):
+        @wraps(method)
+        def wrapper(self, *args, **kwargs):
+            try:
+                self.driver.find_element(by=AppiumBy.ID, value="android:id/aerr_wait").click()
+                current_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+                print(f"{current_time}\t{self.try_to_click_on_aerr_wait.__name__}")
+            except Exception:
+                pass
+            return method(self, *args, **kwargs)
 
-    #     return wrapper
+        return wrapper
 
     def start(self):
         self.current_state = self.states[0]
@@ -469,6 +485,7 @@ class SearchSpamStateMachine:
             print(f"{current_time}\t{iteration_counter}\t{self.current_state} ---{transition_condition}--> {new_state_name}")
             self.current_state = self.states[self.states.index(new_state_name)]
 
+    @try_to_click_on_aerr_wait.__func__
     @try_to_click_on_dialog_confirm_cancel.__func__
     def initial_state(self):
         self.character_counter = 0
@@ -631,6 +648,7 @@ class SearchSpamStateMachine:
     def click_on_socks5(self):
         self.driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="SOCKS5").click()
 
+    @try_to_click_on_aerr_wait.__func__
     def click_on_server_edit_text(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Server"]').click()
 
@@ -746,10 +764,11 @@ class SearchSpamStateMachine:
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.TextView[@content-desc="Galaxy"]').click()
 
     def click_on_login_new_character(self):
-        self.driver.find_element(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/login_new_character").click()
         self.city = ""
         self.user_counter = 0
-        self.online_message_sent_counter = 0
+        self.online_message_counter = 0
+        self.current_date_and_time = time.strftime("%d.%m.%Y %H:%M:%S", time.localtime())
+        self.driver.find_element(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/login_new_character").click()
 
     def found_female_radio_button(self):
         return bool(self.driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.RadioButton[@text="Female"]'))
@@ -908,6 +927,9 @@ class SearchSpamStateMachine:
             self.driver.find_elements(by=AppiumBy.XPATH, value='//android.view.View[@resource-id="search"]/android.view.View[2]/android.view.View[2]')
         )
 
+    def user_counter_greater_than_1(self):
+        return self.user_counter > 1
+
     def click_on_search_people_button(self):
         self.driver.find_element(
             by=AppiumBy.XPATH, value='//android.view.View[@resource-id="search"]/android.view.View[2]/android.view.View[2]'
@@ -967,9 +989,9 @@ class SearchSpamStateMachine:
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="text_input"]').click()
 
     def add_user_to_bad_users(self):
-        self.user_counter += 1
         with open("bad_users.txt", "a") as file:
             file.write(self.user + "\n")
+        self.user_counter += 1
 
     def message_edit_text_is_focused(self):
         return bool(
@@ -997,10 +1019,10 @@ class SearchSpamStateMachine:
         return bool(self.driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.TextView[@text="Online"]'))
 
     def add_user_to_online_spammed(self):
-        self.user_counter += 1
-        self.online_message_sent_counter += 1
         with open(f"processes/{self.process_id}/online_spammed.txt", "a") as file:
             file.write(self.user + "\n")
+        self.user_counter += 1
+        self.online_message_counter += 1
 
     def found_user_in_online_spammed(self):
         with open(f"processes/{self.process_id}/online_spammed.txt") as file:
@@ -1008,9 +1030,9 @@ class SearchSpamStateMachine:
         return self.user + "\n" in online_spammed
 
     def add_user_to_offline_spammed(self):
-        self.user_counter += 1
         with open(f"processes/{self.process_id}/offline_spammed.txt", "a") as file:
             file.write(self.user + "\n")
+        self.user_counter += 1
 
     def found_user_in_offline_spammed(self):
         with open(f"processes/{self.process_id}/offline_spammed.txt") as file:
@@ -1020,7 +1042,7 @@ class SearchSpamStateMachine:
     def click_on_galaxy_image_button_after_sending_message(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]').click()
 
-    def user_counter_is_under_25(self):
+    def user_counter_less_than_25(self):
         return self.user_counter < 25
 
     def scroll_down_menulist_looking_for_exit_nav_item_after_city_spamming_stops(self):
@@ -1034,3 +1056,16 @@ class SearchSpamStateMachine:
         self.driver.find_element(
             by=AppiumBy.XPATH, value='//android.widget.TextView[@resource-id="ru.mobstudio.andgalaxy:id/nav_item_text" and @text="Exit"]'
         ).click()
+
+    def add_data_to_statistics(self):
+        with open("statistics.txt", "a") as file:
+            file.write(get_statistics_row(self.city, self.online_message_counter, self.user_counter, self.current_date_and_time, self.process_id))
+        self.character_counter += 1
+
+    def found_data_in_statistics(self):
+        data = get_statistics_row(self.city, self.online_message_counter, self.user_counter, self.current_date_and_time, self.process_id)
+        with open("statistics.txt") as file:
+            return data in file.readlines()
+
+    def character_counter_less_than_4(self):
+        return self.character_counter < 4
