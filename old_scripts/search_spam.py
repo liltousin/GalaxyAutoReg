@@ -21,7 +21,7 @@ from selenium.webdriver.common.actions import interaction
 from selenium.webdriver.common.actions.action_builder import ActionBuilder
 from selenium.webdriver.common.actions.pointer_input import PointerInput
 
-from new_proxy_change import change_proxy
+from old_scripts.new_proxy_change import change_proxy
 from utils import choose_city_by_statistics, get_statistics_row, get_text
 
 parser = argparse.ArgumentParser()
