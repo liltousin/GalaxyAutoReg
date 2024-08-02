@@ -99,14 +99,14 @@ def generate_nickname(tg_username: str):
         )
         n = random.randint(0, len(random_characters))
         if n == 0:
-            return tg_username + random.choice("[]/^{}_=`-") + random_characters[n+1:]
+            return tg_username + random.choice("[]/^{}_=`-") + random_characters[n + 1 :]
         if n == 1:
-            return random.choice("[]/^{}_=`") + tg_username + random.choice("[]/^{}_=`-") + random_characters[n+1:]
+            return random.choice("[]/^{}_=`") + tg_username + random.choice("[]/^{}_=`-") + random_characters[n + 1 :]
         if n == len(random_characters) - 1:
-            return random_characters[:n-1] + random.choice("[]/^{}_=`-") + tg_username + random.choice("[]/^{}_=`-")
+            return random_characters[: n - 1] + random.choice("[]/^{}_=`-") + tg_username + random.choice("[]/^{}_=`-")
         if n == len(random_characters):
-            return random_characters[:n-1] + random.choice("[]/^{}_=`-") + tg_username
-        return random_characters[:n-1] + random.choice("[]/^{}_=`-") + tg_username + random.choice("[]/^{}_=`-") + random_characters[n+1:]
+            return random_characters[: n - 1] + random.choice("[]/^{}_=`-") + tg_username
+        return random_characters[: n - 1] + random.choice("[]/^{}_=`-") + tg_username + random.choice("[]/^{}_=`-") + random_characters[n + 1 :]
     return "".join([random.choice(possible_characters)] + [random.choice(possible_characters + "-") for _ in range(13)])
 
 
@@ -121,13 +121,13 @@ def get_quarter_of_day(current_time: time.struct_time) -> int:
     return 1
 
 
-def add_data_to_statistics(city: str, good_messages: int, message_attempts: int):
+def add_data_to_statistics(city: str, good_messages: int, message_attempts: int, process_id=0):
     # messages_per_minute = str(round((message_attempts) / ((city_end - city_start) / 60), 2)).replace(".", ",")
     current_time = time.localtime()
     date_and_time = time.strftime("%d.%m.%Y %H:%M:%S", current_time)
     profit = f"{((good_messages/message_attempts)*100):.2f}%".replace(".", ",")
     with open("statistics.txt", "a") as file:
-        file.write(f"{city}\t{good_messages}\t{message_attempts}\t{profit}\t{date_and_time}\n")
+        file.write(f"{city}\t{good_messages}\t{message_attempts}\t{profit}\t{date_and_time}\t{process_id}\n")
 
 
 def choose_city_by_statistics() -> str:
