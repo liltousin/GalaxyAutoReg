@@ -22,7 +22,7 @@ from selenium.webdriver.common.actions.action_builder import ActionBuilder
 from selenium.webdriver.common.actions.pointer_input import PointerInput
 
 from new_proxy_change import change_proxy
-from utils import add_data_to_statistics, choose_city_by_statistics, get_text
+from utils import choose_city_by_statistics, get_statistics_row, get_text
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--udid", required=True, help="UDID of the device.")
@@ -677,7 +677,8 @@ for _ in range(1000):
             city_end = time.time()
             # if not need_new_proxy:
             if city_is_entered and mac:
-                add_data_to_statistics(city, good_messages, mac)
+                with open("statistics.txt", "a") as file:
+                    file.write(get_statistics_row(city, good_messages, mac))
                 city_is_entered = False
                 mac = 0
 
