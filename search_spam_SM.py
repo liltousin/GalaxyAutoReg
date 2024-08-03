@@ -385,7 +385,8 @@ class SearchSpamStateMachine:
                 1,
                 [
                     (([self.found_send_message_button], []), self.click_on_message_edit_text),
-                    (([self.found_bad_user_text], []), self.add_user_to_bad_users),
+                    
+                    (([self.found_bad_user_text], []), self.add_user_to_bad_users),  # 3 вариант надо понять надо ли менять проксю (не надо походу)
                 ],
             ),
             State(self.click_on_message_edit_text, 1, [(([self.message_edit_text_is_focused], []), self.paste_message_into_edit_text)]),
@@ -431,7 +432,7 @@ class SearchSpamStateMachine:
             State(
                 self.scroll_down_menulist_looking_for_exit_nav_item_after_city_spamming_stops,
                 1,
-                [(([self.found_galaxy_menulist, self.found_exit_nav_item], [self.click_on_exit_nav_item_after_city_spamming_stops]))],
+                [(([self.found_galaxy_menulist, self.found_exit_nav_item], []), self.click_on_exit_nav_item_after_city_spamming_stops)],
             ),
             State(
                 self.click_on_exit_nav_item_after_city_spamming_stops, 1, [(([self.found_login_new_character], []), self.add_data_to_statistics)]
@@ -607,11 +608,6 @@ class SearchSpamStateMachine:
         ).click()
 
     def update_global_proxlist(self):
-        with open(f"processes/{self.process_id}/used_proxies.txt") as file:
-            used_proxies = [i.rstrip() for i in file.readlines() if i.rstrip()]
-        # можно будет переписать так чтоб убирались повторения (не забывая про replace_local_proxies_with_new_ones)
-        with open("used_proxies.txt", "a") as file:
-            file.write("\n".join(used_proxies) + "\n")
         proxies = get_new_unused_proxies()
         with open("proxylist.txt", "w") as file:
             file.write("\n".join(proxies) + "\n")
@@ -627,15 +623,6 @@ class SearchSpamStateMachine:
         process_proxies = split_precise_proxies[self.process_id - 1] + split_precise_proxies[self.process_id % number_of_processes]
         with open(f"processes/{self.process_id}/proxylist.txt", "w") as file:
             file.write("\n".join(process_proxies) + "\n")
-        # короче вообще это хуйня но пока что лучше ничего нет
-        with open(f"processes/{self.process_id}/used_proxies.txt") as file:
-            local_used_proxies = [i.rstrip() for i in file.readlines() if i.rstrip()]
-        with open("used_proxies.txt") as file:
-            used_proxies = file.readlines()
-        if "\n".join(local_used_proxies) not in "\n".join(used_proxies):
-            with open("used_proxies.txt", "a") as file:
-                file.write("\n".join(local_used_proxies) + "\n")
-        # хуйня окончена
         with open(f"processes/{self.process_id}/used_proxies.txt", "w") as file:
             file.write("")
 
@@ -645,6 +632,7 @@ class SearchSpamStateMachine:
     def found_socks5_in_dropdown_list(self):
         return bool(self.driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="SOCKS5"))
 
+    @try_to_click_on_aerr_wait.__func__
     def click_on_socks5(self):
         self.driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="SOCKS5").click()
 
@@ -655,12 +643,14 @@ class SearchSpamStateMachine:
     def server_edit_text_is_focused(self):
         return self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Server"]').get_attribute("focused") == "true"
 
+    @try_to_click_on_aerr_wait.__func__
     def clear_server_edit_text(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Server"]').clear()
 
     def server_edit_text_is_empty(self):
         return not self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Server"]').get_attribute("text")
 
+    @try_to_click_on_aerr_wait.__func__
     def paste_proxy_address_into_server_edit_text(self):
         with open(f"processes/{self.process_id}/proxylist.txt") as file:
             proxy_address = file.readlines()[0].rstrip().split(":")[0]
@@ -671,18 +661,21 @@ class SearchSpamStateMachine:
             proxy_address = file.readlines()[0].rstrip().split(":")[0]
         return self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Server"]').get_attribute("text") == proxy_address
 
+    @try_to_click_on_aerr_wait.__func__
     def click_on_port_edit_text(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Port"]').click()
 
     def port_edit_text_is_focused(self):
         return self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Port"]').get_attribute("focused") == "true"
 
+    @try_to_click_on_aerr_wait.__func__
     def clear_port_edit_text(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Port"]').clear()
 
     def port_edit_text_is_empty(self):
         return not self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Port"]').get_attribute("text")
 
+    @try_to_click_on_aerr_wait.__func__
     def paste_proxy_port_into_port_edit_text(self):
         with open(f"processes/{self.process_id}/proxylist.txt") as file:
             proxy_port = file.readlines()[0].rstrip().split(":")[1]
@@ -712,6 +705,7 @@ class SearchSpamStateMachine:
             proxies = file.readlines()
         return self.current_proxy in proxies
 
+    @try_to_click_on_aerr_wait.__func__
     def wait_for_proxy_connection_result_via_socks5(self):
         pass
 
@@ -763,6 +757,7 @@ class SearchSpamStateMachine:
     def click_on_galaxy_app_after_enabling_proxy_profile(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.TextView[@content-desc="Galaxy"]').click()
 
+    @try_to_click_on_aerr_wait.__func__
     def click_on_login_new_character(self):
         self.city = ""
         self.user_counter = 0
@@ -776,15 +771,18 @@ class SearchSpamStateMachine:
     def found_next_button(self):
         return bool(self.driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("NEXT")'))
 
+    @try_to_click_on_aerr_wait.__func__
     def press_back_button_after_reaching_login_new_character_timeout(self):
         self.driver.execute_script("mobile: pressKey", {"keycode": 4})
 
+    @try_to_click_on_aerr_wait.__func__
     def click_on_female_radio_button(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.RadioButton[@text="Female"]').click()
 
     def female_radio_button_is_checked(self):
         return self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.RadioButton[@text="Female"]').get_attribute("checked") == "true"
 
+    @try_to_click_on_aerr_wait.__func__
     def click_next_button_in_choose_your_caracter_menu(self):
         self.driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("NEXT")').click()
 
@@ -852,6 +850,7 @@ class SearchSpamStateMachine:
             )
         )
 
+    @try_to_click_on_dialog_confirm_cancel.__func__
     def click_on_friends_nav_item(self):
         self.driver.find_element(
             by=AppiumBy.XPATH, value='//android.widget.TextView[@resource-id="ru.mobstudio.andgalaxy:id/nav_item_text" and @text="Friends"]'
@@ -890,7 +889,8 @@ class SearchSpamStateMachine:
             self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="city_input-text"]').get_attribute("text")
         )
 
-    def press_enter_button_after_entering_city(self):
+    def press_enter_button_after_entering_city(self):  # может быть бага изза того что всему пиздец и он изза этого будет кликать на акки
+        # (можно попробовать будет обьеденить все в 1)
         self.driver.execute_script("mobile: pressKey", {"keycode": 66})
 
     def found_first_ru_image_button(self):
@@ -902,6 +902,7 @@ class SearchSpamStateMachine:
     def click_on_galaxy_image_button_after_entering_city(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]').click()
 
+    @try_to_click_on_dialog_confirm_cancel.__func__
     def scroll_down_menulist_looking_for_search_nav_item(self):
         self.driver.find_elements(
             by=AppiumBy.ANDROID_UIAUTOMATOR,
@@ -916,6 +917,7 @@ class SearchSpamStateMachine:
             )
         )
 
+    @try_to_click_on_aerr_wait.__func__
     @try_to_click_on_dialog_confirm_cancel.__func__
     def click_on_search_nav_item(self):
         self.driver.find_element(
@@ -930,6 +932,7 @@ class SearchSpamStateMachine:
     def user_counter_greater_than_1(self):
         return self.user_counter > 1
 
+    @try_to_click_on_dialog_confirm_cancel.__func__
     def click_on_search_people_button(self):
         self.driver.find_element(
             by=AppiumBy.XPATH, value='//android.view.View[@resource-id="search"]/android.view.View[2]/android.view.View[2]'
@@ -962,15 +965,19 @@ class SearchSpamStateMachine:
                 return True
         return False
 
+    @try_to_click_on_dialog_confirm_cancel.__func__
     def scroll_down_looking_for_new_user(self):
         self.driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value="new UiScrollable(new UiSelector().scrollable(true)).scrollForward()")
 
+    @try_to_click_on_dialog_confirm_cancel.__func__
     def click_on_new_user(self):
         self.driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value=f'new UiSelector().text("{self.user}")').click()
 
     def found_message_button(self):
         return bool(self.driver.find_elements(by=AppiumBy.XPATH, value='//android.view.View[@content-desc="MESSAGE"]'))
 
+    @try_to_click_on_aerr_wait.__func__
+    @try_to_click_on_dialog_confirm_cancel.__func__
     def click_on_message_button(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.view.View[@content-desc="MESSAGE"]').click()
 
@@ -985,6 +992,8 @@ class SearchSpamStateMachine:
             )
         )
 
+    @try_to_click_on_aerr_wait.__func__
+    @try_to_click_on_dialog_confirm_cancel.__func__
     def click_on_message_edit_text(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="text_input"]').click()
 
@@ -1012,6 +1021,7 @@ class SearchSpamStateMachine:
     def found_message_in_edit_text(self):
         return bool(self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="text_input"]').get_attribute("text"))
 
+    @try_to_click_on_dialog_confirm_cancel.__func__
     def click_on_send_message_button(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="text_input"]/../android.view.View').click()
 
@@ -1039,6 +1049,7 @@ class SearchSpamStateMachine:
             offline_spammed = file.readlines()
         return self.user + "\n" in offline_spammed
 
+    @try_to_click_on_dialog_confirm_cancel.__func__
     def click_on_galaxy_image_button_after_sending_message(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]').click()
 
