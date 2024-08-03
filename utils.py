@@ -20,11 +20,14 @@ def get_new_unused_proxies():
     result = requests.get(f"https://api.best-proxies.ru/proxylist.txt?key={BESTPROXIES_APIKEY}&uptime=1&limit=0", headers=headers)
     # print(result.text)
     # {"error":{"code":403,"message":"Ошибка авторизации: Период действия этого ключа окончен, Вы можете купить новый ключ"}}
-    with open("used_proxies.txt") as file:
-        used_proxies = [i.rstrip() for i in file.readlines()]
+    with open("conf_reg_proxies.txt") as file:
+        conf_reg_proxies = [i.rstrip() for i in file.readlines()]
     data = list(
         filter(
-            lambda x: len(x.split(":")) == 2 and x.rstrip().split(":")[1] and ")" not in x and "(" not in x and x not in used_proxies,
+            lambda x: len(x.split(":")) == 2
+            and all(c in "0123456789" for c in x.rstrip().split(":")[1])
+            and all(all(s in "0123456789" for s in c) for c in x.rstrip().split(":")[0].split("."))
+            and x not in conf_reg_proxies,
             result.text.split(),
         )
     )
