@@ -61,11 +61,12 @@ class State:
 
 
 class SearchSpamStateMachine:
-    def __init__(self, driver: webdriver.Remote, tg_username: str, text_template: str, process_id: int):
+    def __init__(self, driver: webdriver.Remote, tg_username: str, text_template: str, process_id: int, user_counter_limit: int):
         self.driver = driver
         self.tg_username = tg_username
         self.text_template = text_template
         self.process_id = process_id
+        self.user_counter_limit = user_counter_limit
         self.current_state = None
         self.states = [  # чем больше состояний надо пройти тем выше состояние. Все условия переходов состояний записываюся, даже если они избыточны
             State(
@@ -73,6 +74,13 @@ class SearchSpamStateMachine:
                 1,
                 [
                     (([self.current_app_is_super_proxy], []), self.press_home_button_before_checking_current_galaxy_menu),
+                    (
+                        (
+                            [self.current_app_is_galaxy, self.reached_10_iterations_timeout],
+                            [self.found_login_new_character, self.found_galaxy_menulist, self.found_galaxy_image_button],
+                        ),
+                        self.press_back_button_before_checking_current_galaxy_menu,
+                    ),
                     (([self.found_galaxy, self.found_super_proxy], []), self.click_on_galaxy_app_to_check_current_galaxy_menu),
                     (([self.found_galaxy_image_button], []), self.click_on_galaxy_image_button_while_checking_current_galaxy_menu),
                     (
@@ -80,8 +88,6 @@ class SearchSpamStateMachine:
                         self.scroll_down_menulist_looking_for_exit_nav_item_while_checking_current_galaxy_menu,
                     ),
                     (([self.found_galaxy_menulist, self.found_exit_nav_item], []), self.click_on_exit_nav_item_while_checking_current_galaxy_menu),
-                    # (([self.current_app_is_galaxy])) #  кликаем назад
-                    # (([self.found_browser_loader]))
                     (([self.found_login_new_character], []), self.press_home_button_after_checking_current_galaxy_menu),
                 ],
             ),
@@ -91,11 +97,31 @@ class SearchSpamStateMachine:
                 [(([self.found_galaxy, self.found_super_proxy], []), self.click_on_galaxy_app_to_check_current_galaxy_menu)],
             ),
             State(
+                self.press_back_button_before_checking_current_galaxy_menu,
+                1,
+                [
+                    (([self.found_galaxy_image_button], []), self.click_on_galaxy_image_button_while_checking_current_galaxy_menu),
+                    (
+                        ([self.found_galaxy_menulist], [self.found_exit_nav_item]),
+                        self.scroll_down_menulist_looking_for_exit_nav_item_while_checking_current_galaxy_menu,
+                    ),
+                    (([self.found_galaxy_menulist, self.found_exit_nav_item], []), self.click_on_exit_nav_item_while_checking_current_galaxy_menu),
+                    (([self.found_login_new_character], []), self.press_home_button_after_checking_current_galaxy_menu),
+                ],
+            ),
+            State(
                 self.click_on_galaxy_app_to_check_current_galaxy_menu,
                 1,
                 [
                     (([self.found_galaxy_image_button], []), self.click_on_galaxy_image_button_while_checking_current_galaxy_menu),
                     (([self.found_login_new_character], []), self.press_home_button_after_checking_current_galaxy_menu),
+                    (
+                        (
+                            [self.current_app_is_galaxy, self.reached_10_iterations_timeout],
+                            [self.found_login_new_character, self.found_galaxy_image_button],
+                        ),
+                        self.press_back_button_before_checking_current_galaxy_menu,
+                    ),
                 ],
             ),
             State(
@@ -295,7 +321,6 @@ class SearchSpamStateMachine:
             State(
                 self.click_on_female_radio_button,
                 1,
-                # добавить нажатие кнопки назад если появилась эта хуевая загрузка поставить таймаут просто и кнопка назад хотя возможно и не надо
                 [(([self.female_radio_button_is_checked], []), self.click_next_button_in_choose_your_caracter_menu)],
             ),
             State(
@@ -322,7 +347,7 @@ class SearchSpamStateMachine:
                 self.click_on_galaxy_image_button_before_entering_city,
                 1,
                 [
-                    (([self.found_galaxy_menulist, self.found_confirm_registration_nav_item], []), self.initial_state),  # TODO: перед этим лог
+                    (([self.found_galaxy_menulist, self.found_confirm_registration_nav_item], []), self.add_current_proxy_to_conf_reg_proxies),
                     (
                         (
                             [self.found_galaxy_menulist, self.found_friends_nav_item],
@@ -332,6 +357,7 @@ class SearchSpamStateMachine:
                     ),
                 ],
             ),
+            State(self.add_current_proxy_to_conf_reg_proxies, 1, [(([self.found_current_proxy_in_conf_reg_proxies], []), self.initial_state)]),
             State(
                 self.click_on_friends_nav_item,
                 1,
@@ -385,8 +411,7 @@ class SearchSpamStateMachine:
                 1,
                 [
                     (([self.found_send_message_button], []), self.click_on_message_edit_text),
-                    
-                    (([self.found_bad_user_text], []), self.add_user_to_bad_users),  # 3 вариант надо понять надо ли менять проксю (не надо походу)
+                    (([self.found_bad_user_text], []), self.add_user_to_bad_users),
                 ],
             ),
             State(self.click_on_message_edit_text, 1, [(([self.message_edit_text_is_focused], []), self.paste_message_into_edit_text)]),
@@ -415,16 +440,16 @@ class SearchSpamStateMachine:
                 1,
                 [
                     (
-                        ([self.found_galaxy_menulist, self.user_counter_less_than_25], [self.found_search_nav_item]),
+                        ([self.found_galaxy_menulist, self.user_counter_limit_reached], [self.found_search_nav_item]),
                         self.scroll_down_menulist_looking_for_search_nav_item,
                     ),
-                    (([self.found_galaxy_menulist, self.found_search_nav_item, self.user_counter_less_than_25], []), self.click_on_search_nav_item),
+                    (([self.found_galaxy_menulist, self.found_search_nav_item, self.user_counter_limit_reached], []), self.click_on_search_nav_item),
                     (
-                        ([self.found_galaxy_menulist], [self.user_counter_less_than_25, self.found_exit_nav_item]),
+                        ([self.found_galaxy_menulist], [self.user_counter_limit_reached, self.found_exit_nav_item]),
                         self.scroll_down_menulist_looking_for_exit_nav_item_after_city_spamming_stops,
                     ),
                     (
-                        ([self.found_galaxy_menulist, self.found_exit_nav_item], [self.user_counter_less_than_25]),
+                        ([self.found_galaxy_menulist, self.found_exit_nav_item], [self.user_counter_limit_reached]),
                         self.click_on_exit_nav_item_after_city_spamming_stops,
                     ),
                 ],
@@ -441,11 +466,16 @@ class SearchSpamStateMachine:
                 self.add_data_to_statistics,
                 1,
                 [
-                    (([self.found_data_in_statistics, self.character_counter_less_than_4], []), self.click_on_login_new_character),
-                    (([self.found_data_in_statistics], [self.character_counter_less_than_4]), self.initial_state),
+                    (([self.found_data_in_statistics, self.character_counter_limit_reached], []), self.click_on_login_new_character),
+                    (([self.found_data_in_statistics], [self.character_counter_limit_reached]), self.initial_state),
                 ],
             ),
         ]
+        for i in range(1, len(self.states)):
+            self.states[i].transitions.append((([self.reached_100_iterations_timeout], [self.user_counter_greater_than_1]), self.initial_state))
+            self.states[i].transitions.append(
+                (([self.reached_100_iterations_timeout, self.user_counter_greater_than_1], []), self.add_data_to_statistics)
+            )
 
     def draw_SM_diagram(self):
         pass
@@ -483,7 +513,7 @@ class SearchSpamStateMachine:
         while True:
             new_state_name, transition_condition, iteration_counter = self.current_state.run()
             current_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-            print(f"{current_time}\t{iteration_counter}\t{self.current_state} ---{transition_condition}--> {new_state_name}")
+            print(f"{current_time}\t{iteration_counter}\t{self.user_counter}\t{self.current_state} ---{transition_condition}--> {new_state_name}")
             self.current_state = self.states[self.states.index(new_state_name)]
 
     @try_to_click_on_aerr_wait.__func__
@@ -491,6 +521,7 @@ class SearchSpamStateMachine:
     def initial_state(self):
         self.character_counter = 0
         self.current_proxy = ""
+        self.user_counter = 0
 
     def current_app_is_super_proxy(self):
         return self.driver.execute_script("mobile: getCurrentPackage") == "com.scheler.superproxy"
@@ -511,6 +542,9 @@ class SearchSpamStateMachine:
             )
         )
 
+    def current_app_is_galaxy(self):
+        return self.driver.execute_script("mobile: getCurrentPackage") == "ru.mobstudio.andgalaxy"
+
     def found_browser_loader(self):
         return bool(self.driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/browser_loader"))
 
@@ -520,12 +554,20 @@ class SearchSpamStateMachine:
     def press_home_button_before_checking_current_galaxy_menu(self):
         self.driver.execute_script("mobile: pressKey", {"keycode": 3})
 
+    def press_back_button_before_checking_current_galaxy_menu(self):
+        self.driver.execute_script("mobile: pressKey", {"keycode": 4})
+
     def click_on_galaxy_app_to_check_current_galaxy_menu(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.TextView[@content-desc="Galaxy"]').click()
 
+    @try_to_click_on_dialog_confirm_cancel.__func__
     def click_on_galaxy_image_button_while_checking_current_galaxy_menu(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]').click()
 
+    def reached_100_iterations_timeout(self):
+        return self.current_state.counter > 100
+
+    @try_to_click_on_aerr_wait.__func__
     @try_to_click_on_dialog_confirm_cancel.__func__
     def scroll_down_menulist_looking_for_exit_nav_item_while_checking_current_galaxy_menu(self):
         self.driver.find_elements(
@@ -620,7 +662,9 @@ class SearchSpamStateMachine:
             proxies[round(i * len(proxies) / number_of_processes) : round((i + 1) * len(proxies) / number_of_processes)]
             for i in range(number_of_processes)
         ]
-        process_proxies = split_precise_proxies[self.process_id - 1] + split_precise_proxies[self.process_id % number_of_processes]
+        process_proxies = (
+            split_precise_proxies[self.process_id - 1] + split_precise_proxies[self.process_id % number_of_processes]
+        )  # Возможно стоит это убрать и оставить только split_precise_proxies[self.process_id - 1]
         with open(f"processes/{self.process_id}/proxylist.txt", "w") as file:
             file.write("\n".join(process_proxies) + "\n")
         with open(f"processes/{self.process_id}/used_proxies.txt", "w") as file:
@@ -735,6 +779,7 @@ class SearchSpamStateMachine:
     def found_http_in_protocol_edit_text(self):
         return self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Protocol"]').get_attribute("text") == "HTTP"
 
+    @try_to_click_on_aerr_wait.__func__
     def wait_for_proxy_connection_result_via_http(self):
         pass
 
@@ -762,7 +807,6 @@ class SearchSpamStateMachine:
         self.city = ""
         self.user_counter = 0
         self.online_message_counter = 0
-        self.current_date_and_time = time.strftime("%d.%m.%Y %H:%M:%S", time.localtime())
         self.driver.find_element(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/login_new_character").click()
 
     def found_female_radio_button(self):
@@ -815,6 +859,7 @@ class SearchSpamStateMachine:
     def found_finish_button(self):
         return bool(self.driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("FINISH")'))
 
+    @try_to_click_on_aerr_wait.__func__
     def wait_for_nickname_check_result(self):
         pass
 
@@ -827,10 +872,12 @@ class SearchSpamStateMachine:
     def found_confirm_button_ok(self):
         return bool(self.driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/confirm_button_ok"))
 
+    @try_to_click_on_aerr_wait.__func__
     @try_to_click_on_dialog_confirm_cancel.__func__
     def click_on_confirm_button_ok(self):
         self.driver.find_element(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/confirm_button_ok").click()
 
+    @try_to_click_on_aerr_wait.__func__
     @try_to_click_on_dialog_confirm_cancel.__func__
     def click_on_galaxy_image_button_before_entering_city(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]').click()
@@ -850,11 +897,20 @@ class SearchSpamStateMachine:
             )
         )
 
+    def add_current_proxy_to_conf_reg_proxies(self):
+        with open("conf_reg_proxies.txt", "a") as file:
+            file.write(self.current_proxy)
+
     @try_to_click_on_dialog_confirm_cancel.__func__
     def click_on_friends_nav_item(self):
         self.driver.find_element(
             by=AppiumBy.XPATH, value='//android.widget.TextView[@resource-id="ru.mobstudio.andgalaxy:id/nav_item_text" and @text="Friends"]'
         ).click()
+
+    def found_current_proxy_in_conf_reg_proxies(self):
+        with open("conf_reg_proxies.txt") as file:
+            conf_reg_proxies = file.readlines()
+        return self.current_proxy in conf_reg_proxies
 
     def found_no_firends_yet(self):
         return bool(self.driver.find_elements(by=AppiumBy.XPATH, value='//android.view.View[@text="No friends yet"]'))
@@ -902,6 +958,7 @@ class SearchSpamStateMachine:
     def click_on_galaxy_image_button_after_entering_city(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]').click()
 
+    @try_to_click_on_aerr_wait.__func__
     @try_to_click_on_dialog_confirm_cancel.__func__
     def scroll_down_menulist_looking_for_search_nav_item(self):
         self.driver.find_elements(
@@ -965,13 +1022,18 @@ class SearchSpamStateMachine:
                 return True
         return False
 
+    @try_to_click_on_aerr_wait.__func__
     @try_to_click_on_dialog_confirm_cancel.__func__
     def scroll_down_looking_for_new_user(self):
         self.driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value="new UiScrollable(new UiSelector().scrollable(true)).scrollForward()")
 
     @try_to_click_on_dialog_confirm_cancel.__func__
     def click_on_new_user(self):
-        self.driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value=f'new UiSelector().text("{self.user}")').click()
+        self.driver.find_element(
+            by=AppiumBy.XPATH,
+            value='//android.view.View[@resource-id="people_near_content"]/android.view.View/android.view.View/android.widget.TextView[@text='
+            + f'"{self.user}"]|//android.view.View[@resource-id="people_near_content"]/android.view.View/android.view.View[@text="{self.user}"]',
+        ).click()
 
     def found_message_button(self):
         return bool(self.driver.find_elements(by=AppiumBy.XPATH, value='//android.view.View[@content-desc="MESSAGE"]'))
@@ -988,7 +1050,8 @@ class SearchSpamStateMachine:
         return bool(
             self.driver.find_elements(
                 by=AppiumBy.XPATH,
-                value='//android.view.View[@text="This user receives private messages only from Friends. You can send a request to private message"]',
+                value='//android.view.View[@text="This user receives private messages only from Friends. You can send a request to private message"]'
+                + '|//android.view.View[@text="You can\'t private message this user because they have punishment"]',
             )
         )
 
@@ -1053,8 +1116,8 @@ class SearchSpamStateMachine:
     def click_on_galaxy_image_button_after_sending_message(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]').click()
 
-    def user_counter_less_than_25(self):
-        return self.user_counter < 25
+    def user_counter_limit_reached(self):
+        return self.user_counter < self.user_counter_limit
 
     def scroll_down_menulist_looking_for_exit_nav_item_after_city_spamming_stops(self):
         self.driver.find_elements(
@@ -1069,6 +1132,7 @@ class SearchSpamStateMachine:
         ).click()
 
     def add_data_to_statistics(self):
+        self.current_date_and_time = time.strftime("%d.%m.%Y %H:%M:%S", time.localtime())
         with open("statistics.txt", "a") as file:
             file.write(get_statistics_row(self.city, self.online_message_counter, self.user_counter, self.current_date_and_time, self.process_id))
         self.character_counter += 1
@@ -1078,5 +1142,5 @@ class SearchSpamStateMachine:
         with open("statistics.txt") as file:
             return data in file.readlines()
 
-    def character_counter_less_than_4(self):
-        return self.character_counter < 4
+    def character_counter_limit_reached(self):
+        return self.character_counter < 4  # TODO: сделтаь тоже как отдельный аргумент
