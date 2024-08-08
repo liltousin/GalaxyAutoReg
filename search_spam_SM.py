@@ -412,6 +412,8 @@ class SearchSpamStateMachine:
                 [
                     (([self.found_send_message_button], []), self.click_on_message_edit_text),
                     (([self.found_bad_user_text], []), self.add_user_to_bad_users),
+                    # found_character_ban_text (на айпи похуй)
+                    # //android.view.View[@text="You have punishment and not allowed to private message anyone except your friends"]
                 ],
             ),
             State(self.click_on_message_edit_text, 1, [(([self.message_edit_text_is_focused], []), self.paste_message_into_edit_text)]),
@@ -502,6 +504,22 @@ class SearchSpamStateMachine:
                 self.driver.find_element(by=AppiumBy.ID, value="android:id/aerr_wait").click()
                 current_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
                 print(f"{current_time}\t{self.try_to_click_on_aerr_wait.__name__}")
+            except Exception:
+                pass
+            return method(self, *args, **kwargs)
+
+        return wrapper
+
+    @staticmethod
+    def try_to_click_on_load_more(method):
+        @wraps(method)
+        def wrapper(self, *args, **kwargs):
+            try:
+                self.driver.find_element(
+                    by=AppiumBy.XPATH, value='//android.view.View[@resource-id="people_near_loader" and @text="LOAD MORE"]'
+                ).click()
+                current_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+                print(f"{current_time}\t{self.try_to_click_on_load_more.__name__}")
             except Exception:
                 pass
             return method(self, *args, **kwargs)
@@ -624,6 +642,7 @@ class SearchSpamStateMachine:
             for i in range(number_of_processes)
         ]
         process_proxies = split_precise_proxies[self.process_id - 1] + split_precise_proxies[self.process_id % number_of_processes]
+        # TODO: сделать отдеьный параметр сколько наложений прокси будет
         return used_proxies != process_proxies
 
     def found_socks5_in_protocol_edit_text(self):
@@ -662,9 +681,9 @@ class SearchSpamStateMachine:
             proxies[round(i * len(proxies) / number_of_processes) : round((i + 1) * len(proxies) / number_of_processes)]
             for i in range(number_of_processes)
         ]
-        process_proxies = (
-            split_precise_proxies[self.process_id - 1] + split_precise_proxies[self.process_id % number_of_processes]
-        )  # Возможно стоит это убрать и оставить только split_precise_proxies[self.process_id - 1]
+        process_proxies = split_precise_proxies[self.process_id - 1] + split_precise_proxies[self.process_id % number_of_processes]
+        # Возможно стоит это убрать и оставить только split_precise_proxies[self.process_id - 1]
+        # TODO: сделать отдеьный параметр сколько наложений прокси будет
         with open(f"processes/{self.process_id}/proxylist.txt", "w") as file:
             file.write("\n".join(process_proxies) + "\n")
         with open(f"processes/{self.process_id}/used_proxies.txt", "w") as file:
@@ -773,6 +792,7 @@ class SearchSpamStateMachine:
     def found_http_in_dropdown_list(self):
         return bool(self.driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="HTTP"))
 
+    @try_to_click_on_aerr_wait.__func__
     def click_on_http(self):
         self.driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="HTTP").click()
 
@@ -796,6 +816,7 @@ class SearchSpamStateMachine:
     def reached_10_iterations_timeout(self):
         return self.current_state.counter > 10
 
+    @try_to_click_on_aerr_wait.__func__
     def press_home_button_after_enabling_proxy_profile(self):
         self.driver.execute_script("mobile: pressKey", {"keycode": 3})
 
@@ -989,6 +1010,7 @@ class SearchSpamStateMachine:
     def user_counter_greater_than_1(self):
         return self.user_counter > 1
 
+    @try_to_click_on_aerr_wait.__func__
     @try_to_click_on_dialog_confirm_cancel.__func__
     def click_on_search_people_button(self):
         self.driver.find_element(
@@ -1024,9 +1046,14 @@ class SearchSpamStateMachine:
 
     @try_to_click_on_aerr_wait.__func__
     @try_to_click_on_dialog_confirm_cancel.__func__
+    @try_to_click_on_load_more.__func__
     def scroll_down_looking_for_new_user(self):
-        self.driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value="new UiScrollable(new UiSelector().scrollable(true)).scrollForward()")
+        self.driver.find_elements(
+            by=AppiumBy.ANDROID_UIAUTOMATOR,
+            value='new UiScrollable(new UiSelector().className("android.webkit.WebView").scrollable(true).scrollForward()',
+        )
 
+    @try_to_click_on_aerr_wait.__func__
     @try_to_click_on_dialog_confirm_cancel.__func__
     def click_on_new_user(self):
         self.driver.find_element(
@@ -1076,6 +1103,7 @@ class SearchSpamStateMachine:
             bad_users = file.readlines()
         return self.user + "\n" in bad_users
 
+    @try_to_click_on_dialog_confirm_cancel.__func__
     def paste_message_into_edit_text(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="text_input"]').send_keys(
             generate_text(self.tg_username, self.text_template)
