@@ -21,7 +21,13 @@ from selenium.webdriver.common.actions.action_builder import ActionBuilder
 from selenium.webdriver.common.actions.pointer_input import PointerInput
 
 from old_scripts.new_proxy_change import change_proxy
-from utils import get_text
+
+
+def get_text(TG_USERNAME: str):
+    with open(f"{TG_USERNAME}/text_template.txt") as file:
+        data = "".join(file.readlines()).replace("*", " ").format(TG_USERNAME)
+    return "".join([random.choice(i.split(";")) for i in data.split("\n")])
+
 
 options = AppiumOptions()
 options.load_capabilities(

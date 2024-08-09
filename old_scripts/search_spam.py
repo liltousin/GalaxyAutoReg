@@ -22,7 +22,14 @@ from selenium.webdriver.common.actions.action_builder import ActionBuilder
 from selenium.webdriver.common.actions.pointer_input import PointerInput
 
 from old_scripts.new_proxy_change import change_proxy
-from utils import choose_city_by_statistics, get_statistics_row, get_text
+from utils import choose_city_by_statistics, get_statistics_row
+
+
+def get_text(TG_USERNAME: str):
+    with open(f"{TG_USERNAME}/text_template.txt") as file:
+        data = "".join(file.readlines()).replace("*", " ").format(TG_USERNAME)
+    return "".join([random.choice(i.split(";")) for i in data.split("\n")])
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--udid", required=True, help="UDID of the device.")
