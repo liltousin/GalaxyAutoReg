@@ -134,7 +134,7 @@ def choose_city_by_statistics() -> str:
         quarter_of_day_statistics = list(
             filter(
                 lambda x: int(get_quarter_of_day(time.strptime(x[4], "%d.%m.%Y %H:%M:%S"))) == current_quarter_of_day,
-                map(lambda x: x.rstrip().split("\t"), file.readlines()),
+                map(lambda x: x.rstrip().split("\t"), file.readlines()[1:]),
             )
         )
     city_probabilities = list(

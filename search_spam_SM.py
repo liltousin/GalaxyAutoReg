@@ -24,12 +24,12 @@ class State:
     ):
         self.state_function = state_function
         self.name = state_function.__name__
-        self.transitions = transitions  # (функция, функция нового состояния)
+        self.transitions = transitions
         self.counter = 0
         self.delay = delay
 
     def run(self):
-        new_state, transition_condition = None, None
+        new_state, transition_condition = self.check_conditions()
         while not (new_state and transition_condition):
             self.counter += 1
             try:
@@ -68,9 +68,22 @@ class SearchSpamStateMachine:
         self.process_id = process_id
         self.user_counter_limit = user_counter_limit
         self.current_state = None
+
+        # делать состояния и переходы с учетом того что состояние может не выполнится ни разу и сразу перейти на другое
+
         self.states = [  # чем больше состояний надо пройти тем выше состояние. Все условия переходов состояний записываюся, даже если они избыточны
             State(
                 self.initial_state,
+                1,
+                [
+                    (
+                        ([self.character_counter_is_zeroed, self.current_proxy_is_zeroed, self.user_counter_is_zeroed], []),
+                        self.wait_for_ui_determination,
+                    )
+                ],
+            ),
+            State(
+                self.wait_for_ui_determination,
                 1,
                 [
                     (([self.current_app_is_super_proxy], []), self.press_home_button_before_checking_current_galaxy_menu),
@@ -217,21 +230,25 @@ class SearchSpamStateMachine:
                 ],
             ),
             State(self.update_global_proxlist, 1, [(([self.global_proxylist_has_been_updated], []), self.replace_local_proxies_with_new_ones)]),
-            State(  # надо фиксить если случайно полетит ui и изза этого гг (пока не критично т.к и так работает норм)
+            State(  # надо фиксить если случайно полетит ui и изза этого гг (пока не критично т.к и так работает норм) (вроде пофиксил)
                 self.replace_local_proxies_with_new_ones,
                 1,
                 [
                     (
-                        ([self.found_unused_local_proxies], [self.found_socks5_in_protocol_edit_text]),
+                        ([self.found_unused_local_proxies, self.found_http_in_protocol_edit_text], [self.found_socks5_in_protocol_edit_text]),
                         self.click_on_protocol_edit_text_to_select_socks5,
                     ),
-                    (([self.found_unused_local_proxies, self.found_socks5_in_protocol_edit_text], []), self.click_on_server_edit_text),
+                    (
+                        ([self.found_unused_local_proxies, self.found_socks5_in_protocol_edit_text], [self.found_http_in_protocol_edit_text]),
+                        self.click_on_server_edit_text,
+                    ),
                 ],
             ),
             State(self.click_on_protocol_edit_text_to_select_socks5, 1, [(([self.found_socks5_in_dropdown_list], []), self.click_on_socks5)]),
             State(self.click_on_server_edit_text, 1, [(([self.server_edit_text_is_focused], []), self.clear_server_edit_text)]),
             State(self.click_on_socks5, 1, [(([self.found_socks5_in_protocol_edit_text], []), self.click_on_server_edit_text)]),
-            State(self.clear_server_edit_text, 1, [(([self.server_edit_text_is_empty], []), self.paste_proxy_address_into_server_edit_text)]),
+            State(self.clear_server_edit_text, 1, [(([self.server_edit_text_is_empty], []), self.set_new_current_proxy)]),
+            State(self.set_new_current_proxy, 1, [(([self.new_current_proxy_is_set], []), self.paste_proxy_address_into_server_edit_text)]),
             State(
                 self.paste_proxy_address_into_server_edit_text,
                 1,
@@ -303,10 +320,10 @@ class SearchSpamStateMachine:
                 1,
                 [
                     (
-                        ([self.reached_10_iterations_timeout], [self.found_female_radio_button, self.found_login_new_character]),
+                        ([self.reached_login_new_character_timeout], [self.found_female_radio_button, self.found_login_new_character]),
                         self.press_back_button_after_reaching_login_new_character_timeout,
                     ),
-                    (([self.reached_10_iterations_timeout, self.found_login_new_character], []), self.initial_state),
+                    (([self.reached_login_new_character_timeout, self.found_login_new_character], []), self.initial_state),
                     (([self.found_female_radio_button, self.found_next_button], []), self.click_on_female_radio_button),
                 ],
             ),
@@ -376,10 +393,8 @@ class SearchSpamStateMachine:
                 1,
                 [(([self.found_city_in_city_input_edit_text], []), self.press_enter_button_after_entering_city)],
             ),
-            State(self.press_enter_button_after_entering_city, 1, [(([self.found_first_ru_image_button], []), self.click_on_first_ru_image_button)]),
-            State(
-                self.click_on_first_ru_image_button, 1, [(([self.found_no_firends_yet], []), self.click_on_galaxy_image_button_after_entering_city)]
-            ),
+            State(self.press_enter_button_after_entering_city, 1, [(([self.found_first_ru_image], []), self.click_on_first_ru_image)]),
+            State(self.click_on_first_ru_image, 1, [(([self.found_no_firends_yet], []), self.click_on_galaxy_image_button_after_entering_city)]),
             State(
                 self.click_on_galaxy_image_button_after_entering_city,
                 1,
@@ -410,9 +425,9 @@ class SearchSpamStateMachine:
                 self.click_on_message_button,
                 1,
                 [
-                    (([self.found_send_message_button], []), self.click_on_message_edit_text),
-                    (([self.found_bad_user_text], []), self.add_user_to_bad_users),
-                    # found_character_ban_text (на айпи похуй)
+                    (([self.found_send_message_button, self.found_no_msg_image], []), self.click_on_message_edit_text),
+                    (([self.found_bad_user_text, self.found_no_msg_image], []), self.add_user_to_bad_users),
+                    # found_character_ban_text (на айпи похуй) TODO
                     # //android.view.View[@text="You have punishment and not allowed to private message anyone except your friends"]
                 ],
             ),
@@ -423,8 +438,14 @@ class SearchSpamStateMachine:
                 self.click_on_send_message_button,
                 1,
                 [
-                    (([self.found_send_message_button, self.found_galaxy_image_button, self.found_online], []), self.add_user_to_online_spammed),
-                    (([self.found_send_message_button, self.found_galaxy_image_button], [self.found_online]), self.add_user_to_offline_spammed),
+                    (
+                        ([self.found_send_message_button, self.found_galaxy_image_button, self.found_online], [self.found_no_msg_image]),
+                        self.add_user_to_online_spammed,
+                    ),
+                    (
+                        ([self.found_send_message_button, self.found_galaxy_image_button], [self.found_online, self.found_no_msg_image]),
+                        self.add_user_to_offline_spammed,
+                    ),
                 ],
             ),
             State(
@@ -461,9 +482,7 @@ class SearchSpamStateMachine:
                 1,
                 [(([self.found_galaxy_menulist, self.found_exit_nav_item], []), self.click_on_exit_nav_item_after_city_spamming_stops)],
             ),
-            State(
-                self.click_on_exit_nav_item_after_city_spamming_stops, 1, [(([self.found_login_new_character], []), self.add_data_to_statistics)]
-            ),  # TODO: запись в статистику и как раз при записе character_counter += 1
+            State(self.click_on_exit_nav_item_after_city_spamming_stops, 1, [(([self.found_login_new_character], []), self.add_data_to_statistics)]),
             State(
                 self.add_data_to_statistics,
                 1,
@@ -478,6 +497,7 @@ class SearchSpamStateMachine:
             self.states[i].transitions.append(
                 (([self.reached_100_iterations_timeout, self.user_counter_greater_than_1], []), self.add_data_to_statistics)
             )
+        # TODO сделать при инициализации проверку всех файлов процесса и создание при необзодимости
 
     def draw_SM_diagram(self):
         pass
@@ -491,8 +511,7 @@ class SearchSpamStateMachine:
                 current_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
                 print(f"{current_time}\t{self.try_to_click_on_dialog_confirm_cancel.__name__}")
             except Exception:
-                pass
-            return method(self, *args, **kwargs)
+                return method(self, *args, **kwargs)
 
         return wrapper
 
@@ -505,8 +524,7 @@ class SearchSpamStateMachine:
                 current_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
                 print(f"{current_time}\t{self.try_to_click_on_aerr_wait.__name__}")
             except Exception:
-                pass
-            return method(self, *args, **kwargs)
+                return method(self, *args, **kwargs)
 
         return wrapper
 
@@ -521,8 +539,7 @@ class SearchSpamStateMachine:
                 current_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
                 print(f"{current_time}\t{self.try_to_click_on_load_more.__name__}")
             except Exception:
-                pass
-            return method(self, *args, **kwargs)
+                return method(self, *args, **kwargs)
 
         return wrapper
 
@@ -532,14 +549,27 @@ class SearchSpamStateMachine:
             new_state_name, transition_condition, iteration_counter = self.current_state.run()
             current_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
             print(f"{current_time}\t{iteration_counter}\t{self.user_counter}\t{self.current_state} ---{transition_condition}--> {new_state_name}")
+            # TODO: log to file
             self.current_state = self.states[self.states.index(new_state_name)]
 
-    @try_to_click_on_aerr_wait.__func__
-    @try_to_click_on_dialog_confirm_cancel.__func__
     def initial_state(self):
         self.character_counter = 0
         self.current_proxy = ""
         self.user_counter = 0
+
+    def character_counter_is_zeroed(self):
+        return self.character_counter == 0
+
+    def current_proxy_is_zeroed(self):
+        return self.current_proxy == ""
+
+    def user_counter_is_zeroed(self):
+        return self.user_counter == 0
+
+    @try_to_click_on_aerr_wait
+    @try_to_click_on_dialog_confirm_cancel
+    def wait_for_ui_determination(self):
+        pass
 
     def current_app_is_super_proxy(self):
         return self.driver.execute_script("mobile: getCurrentPackage") == "com.scheler.superproxy"
@@ -578,15 +608,15 @@ class SearchSpamStateMachine:
     def click_on_galaxy_app_to_check_current_galaxy_menu(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.TextView[@content-desc="Galaxy"]').click()
 
-    @try_to_click_on_dialog_confirm_cancel.__func__
+    @try_to_click_on_dialog_confirm_cancel
     def click_on_galaxy_image_button_while_checking_current_galaxy_menu(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]').click()
 
     def reached_100_iterations_timeout(self):
         return self.current_state.counter > 100
 
-    @try_to_click_on_aerr_wait.__func__
-    @try_to_click_on_dialog_confirm_cancel.__func__
+    @try_to_click_on_aerr_wait
+    @try_to_click_on_dialog_confirm_cancel
     def scroll_down_menulist_looking_for_exit_nav_item_while_checking_current_galaxy_menu(self):
         self.driver.find_elements(
             by=AppiumBy.ANDROID_UIAUTOMATOR,
@@ -609,6 +639,7 @@ class SearchSpamStateMachine:
             by=AppiumBy.XPATH, value='//android.widget.TextView[@resource-id="ru.mobstudio.andgalaxy:id/nav_item_text" and @text="Exit"]'
         ).click()
 
+    @try_to_click_on_aerr_wait
     def click_on_super_proxy_app(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.TextView[@content-desc="Super Proxy"]').click()
 
@@ -643,6 +674,7 @@ class SearchSpamStateMachine:
         ]
         process_proxies = split_precise_proxies[self.process_id - 1] + split_precise_proxies[self.process_id % number_of_processes]
         # TODO: сделать отдеьный параметр сколько наложений прокси будет
+        # TODO: сделать отдельную функцию под получение прокей для процесса get_process_proxies
         return used_proxies != process_proxies
 
     def found_socks5_in_protocol_edit_text(self):
@@ -655,6 +687,7 @@ class SearchSpamStateMachine:
             + "android.view.View/android.view.View/android.view.View[1]/android.view.View/android.view.View[2]/android.view.View[1]",
         ).click()
 
+    @try_to_click_on_aerr_wait
     def click_on_stop_button(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.Button[@content-desc="Stop"]').click()
 
@@ -695,64 +728,69 @@ class SearchSpamStateMachine:
     def found_socks5_in_dropdown_list(self):
         return bool(self.driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="SOCKS5"))
 
-    @try_to_click_on_aerr_wait.__func__
+    @try_to_click_on_aerr_wait
     def click_on_socks5(self):
         self.driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="SOCKS5").click()
 
-    @try_to_click_on_aerr_wait.__func__
+    @try_to_click_on_aerr_wait
     def click_on_server_edit_text(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Server"]').click()
 
     def server_edit_text_is_focused(self):
         return self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Server"]').get_attribute("focused") == "true"
 
-    @try_to_click_on_aerr_wait.__func__
+    @try_to_click_on_aerr_wait
     def clear_server_edit_text(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Server"]').clear()
 
     def server_edit_text_is_empty(self):
         return not self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Server"]').get_attribute("text")
 
-    @try_to_click_on_aerr_wait.__func__
-    def paste_proxy_address_into_server_edit_text(self):
+    def set_new_current_proxy(self):
         with open(f"processes/{self.process_id}/proxylist.txt") as file:
-            proxy_address = file.readlines()[0].rstrip().split(":")[0]
+            proxies = file.readlines()
+        self.current_proxy = proxies[0]
+
+    def new_current_proxy_is_set(self):
+        with open(f"processes/{self.process_id}/proxylist.txt") as file:
+            proxies = file.readlines()
+        return self.current_proxy == proxies[0]
+
+    @try_to_click_on_aerr_wait
+    def paste_proxy_address_into_server_edit_text(self):
+        proxy_address = self.current_proxy.rstrip().split(":")[0]
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Server"]').send_keys(proxy_address)
 
     def found_proxy_address_in_server_edit_text(self):
-        with open(f"processes/{self.process_id}/proxylist.txt") as file:
-            proxy_address = file.readlines()[0].rstrip().split(":")[0]
+        proxy_address = self.current_proxy.rstrip().split(":")[0]
         return self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Server"]').get_attribute("text") == proxy_address
 
-    @try_to_click_on_aerr_wait.__func__
+    @try_to_click_on_aerr_wait
     def click_on_port_edit_text(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Port"]').click()
 
     def port_edit_text_is_focused(self):
         return self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Port"]').get_attribute("focused") == "true"
 
-    @try_to_click_on_aerr_wait.__func__
+    @try_to_click_on_aerr_wait
     def clear_port_edit_text(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Port"]').clear()
 
     def port_edit_text_is_empty(self):
         return not self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Port"]').get_attribute("text")
 
-    @try_to_click_on_aerr_wait.__func__
+    @try_to_click_on_aerr_wait
     def paste_proxy_port_into_port_edit_text(self):
-        with open(f"processes/{self.process_id}/proxylist.txt") as file:
-            proxy_port = file.readlines()[0].rstrip().split(":")[1]
+        proxy_port = self.current_proxy.rstrip().split(":")[1]
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Port"]').send_keys(proxy_port)
 
     def found_proxy_port_in_port_edit_text(self):
-        with open(f"processes/{self.process_id}/proxylist.txt") as file:
-            proxy_port = file.readlines()[0].rstrip().split(":")[1]
+        proxy_port = self.current_proxy.rstrip().split(":")[1]
         return self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Port"]').get_attribute("text") == proxy_port
 
     def move_local_proxy_from_proxylist_to_used_proxies(self):
         with open(f"processes/{self.process_id}/proxylist.txt") as file:
             proxies = file.readlines()
-        self.current_proxy = proxies[0]
         with open(f"processes/{self.process_id}/used_proxies.txt", "a") as file:
             file.write(self.current_proxy)
         with open(f"processes/{self.process_id}/proxylist.txt", "w") as file:
@@ -768,7 +806,7 @@ class SearchSpamStateMachine:
             proxies = file.readlines()
         return self.current_proxy in proxies
 
-    @try_to_click_on_aerr_wait.__func__
+    @try_to_click_on_aerr_wait
     def wait_for_proxy_connection_result_via_socks5(self):
         pass
 
@@ -792,14 +830,14 @@ class SearchSpamStateMachine:
     def found_http_in_dropdown_list(self):
         return bool(self.driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="HTTP"))
 
-    @try_to_click_on_aerr_wait.__func__
+    @try_to_click_on_aerr_wait
     def click_on_http(self):
         self.driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="HTTP").click()
 
     def found_http_in_protocol_edit_text(self):
         return self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@hint="Protocol"]').get_attribute("text") == "HTTP"
 
-    @try_to_click_on_aerr_wait.__func__
+    @try_to_click_on_aerr_wait
     def wait_for_proxy_connection_result_via_http(self):
         pass
 
@@ -816,19 +854,23 @@ class SearchSpamStateMachine:
     def reached_10_iterations_timeout(self):
         return self.current_state.counter > 10
 
-    @try_to_click_on_aerr_wait.__func__
+    @try_to_click_on_aerr_wait
     def press_home_button_after_enabling_proxy_profile(self):
         self.driver.execute_script("mobile: pressKey", {"keycode": 3})
 
+    @try_to_click_on_aerr_wait
     def click_on_galaxy_app_after_enabling_proxy_profile(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.TextView[@content-desc="Galaxy"]').click()
 
-    @try_to_click_on_aerr_wait.__func__
+    @try_to_click_on_aerr_wait
     def click_on_login_new_character(self):
         self.city = ""
         self.user_counter = 0
         self.online_message_counter = 0
         self.driver.find_element(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/login_new_character").click()
+
+    def reached_login_new_character_timeout(self):
+        return self.current_state.counter > 20  # TODO: отдельный аргумент
 
     def found_female_radio_button(self):
         return bool(self.driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.RadioButton[@text="Female"]'))
@@ -836,18 +878,18 @@ class SearchSpamStateMachine:
     def found_next_button(self):
         return bool(self.driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("NEXT")'))
 
-    @try_to_click_on_aerr_wait.__func__
+    @try_to_click_on_aerr_wait
     def press_back_button_after_reaching_login_new_character_timeout(self):
         self.driver.execute_script("mobile: pressKey", {"keycode": 4})
 
-    @try_to_click_on_aerr_wait.__func__
+    @try_to_click_on_aerr_wait
     def click_on_female_radio_button(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.RadioButton[@text="Female"]').click()
 
     def female_radio_button_is_checked(self):
         return self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.RadioButton[@text="Female"]').get_attribute("checked") == "true"
 
-    @try_to_click_on_aerr_wait.__func__
+    @try_to_click_on_aerr_wait
     def click_next_button_in_choose_your_caracter_menu(self):
         self.driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("NEXT")').click()
 
@@ -880,7 +922,7 @@ class SearchSpamStateMachine:
     def found_finish_button(self):
         return bool(self.driver.find_elements(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("FINISH")'))
 
-    @try_to_click_on_aerr_wait.__func__
+    @try_to_click_on_aerr_wait
     def wait_for_nickname_check_result(self):
         pass
 
@@ -893,13 +935,13 @@ class SearchSpamStateMachine:
     def found_confirm_button_ok(self):
         return bool(self.driver.find_elements(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/confirm_button_ok"))
 
-    @try_to_click_on_aerr_wait.__func__
-    @try_to_click_on_dialog_confirm_cancel.__func__
+    @try_to_click_on_aerr_wait
+    @try_to_click_on_dialog_confirm_cancel
     def click_on_confirm_button_ok(self):
         self.driver.find_element(by=AppiumBy.ID, value="ru.mobstudio.andgalaxy:id/confirm_button_ok").click()
 
-    @try_to_click_on_aerr_wait.__func__
-    @try_to_click_on_dialog_confirm_cancel.__func__
+    @try_to_click_on_aerr_wait
+    @try_to_click_on_dialog_confirm_cancel
     def click_on_galaxy_image_button_before_entering_city(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]').click()
 
@@ -922,7 +964,8 @@ class SearchSpamStateMachine:
         with open("conf_reg_proxies.txt", "a") as file:
             file.write(self.current_proxy)
 
-    @try_to_click_on_dialog_confirm_cancel.__func__
+    @try_to_click_on_aerr_wait
+    @try_to_click_on_dialog_confirm_cancel
     def click_on_friends_nav_item(self):
         self.driver.find_element(
             by=AppiumBy.XPATH, value='//android.widget.TextView[@resource-id="ru.mobstudio.andgalaxy:id/nav_item_text" and @text="Friends"]'
@@ -970,17 +1013,18 @@ class SearchSpamStateMachine:
         # (можно попробовать будет обьеденить все в 1)
         self.driver.execute_script("mobile: pressKey", {"keycode": 66})
 
-    def found_first_ru_image_button(self):
+    def found_first_ru_image(self):
         return bool(self.driver.find_elements(by=AppiumBy.XPATH, value='(//android.widget.Image[@text="RU"])[1]'))
 
-    def click_on_first_ru_image_button(self):
+    @try_to_click_on_aerr_wait
+    def click_on_first_ru_image(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='(//android.widget.Image[@text="RU"])[1]').click()
 
     def click_on_galaxy_image_button_after_entering_city(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]').click()
 
-    @try_to_click_on_aerr_wait.__func__
-    @try_to_click_on_dialog_confirm_cancel.__func__
+    @try_to_click_on_aerr_wait
+    @try_to_click_on_dialog_confirm_cancel
     def scroll_down_menulist_looking_for_search_nav_item(self):
         self.driver.find_elements(
             by=AppiumBy.ANDROID_UIAUTOMATOR,
@@ -995,8 +1039,8 @@ class SearchSpamStateMachine:
             )
         )
 
-    @try_to_click_on_aerr_wait.__func__
-    @try_to_click_on_dialog_confirm_cancel.__func__
+    @try_to_click_on_aerr_wait
+    @try_to_click_on_dialog_confirm_cancel
     def click_on_search_nav_item(self):
         self.driver.find_element(
             by=AppiumBy.XPATH, value='//android.widget.TextView[@resource-id="ru.mobstudio.andgalaxy:id/nav_item_text" and @text="Search"]'
@@ -1010,8 +1054,8 @@ class SearchSpamStateMachine:
     def user_counter_greater_than_1(self):
         return self.user_counter > 1
 
-    @try_to_click_on_aerr_wait.__func__
-    @try_to_click_on_dialog_confirm_cancel.__func__
+    @try_to_click_on_aerr_wait
+    @try_to_click_on_dialog_confirm_cancel
     def click_on_search_people_button(self):
         self.driver.find_element(
             by=AppiumBy.XPATH, value='//android.view.View[@resource-id="search"]/android.view.View[2]/android.view.View[2]'
@@ -1044,17 +1088,17 @@ class SearchSpamStateMachine:
                 return True
         return False
 
-    @try_to_click_on_aerr_wait.__func__
-    @try_to_click_on_dialog_confirm_cancel.__func__
-    @try_to_click_on_load_more.__func__
+    @try_to_click_on_aerr_wait
+    @try_to_click_on_dialog_confirm_cancel
+    @try_to_click_on_load_more
     def scroll_down_looking_for_new_user(self):
         self.driver.find_elements(
             by=AppiumBy.ANDROID_UIAUTOMATOR,
-            value='new UiScrollable(new UiSelector().className("android.webkit.WebView").scrollable(true).scrollForward()',
+            value='new UiScrollable(new UiSelector().className("android.webkit.WebView").scrollable(true)).scrollForward())',
         )
 
-    @try_to_click_on_aerr_wait.__func__
-    @try_to_click_on_dialog_confirm_cancel.__func__
+    @try_to_click_on_aerr_wait
+    @try_to_click_on_dialog_confirm_cancel
     def click_on_new_user(self):
         self.driver.find_element(
             by=AppiumBy.XPATH,
@@ -1065,8 +1109,8 @@ class SearchSpamStateMachine:
     def found_message_button(self):
         return bool(self.driver.find_elements(by=AppiumBy.XPATH, value='//android.view.View[@content-desc="MESSAGE"]'))
 
-    @try_to_click_on_aerr_wait.__func__
-    @try_to_click_on_dialog_confirm_cancel.__func__
+    @try_to_click_on_aerr_wait
+    @try_to_click_on_dialog_confirm_cancel
     def click_on_message_button(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.view.View[@content-desc="MESSAGE"]').click()
 
@@ -1082,8 +1126,8 @@ class SearchSpamStateMachine:
             )
         )
 
-    @try_to_click_on_aerr_wait.__func__
-    @try_to_click_on_dialog_confirm_cancel.__func__
+    @try_to_click_on_aerr_wait
+    @try_to_click_on_dialog_confirm_cancel
     def click_on_message_edit_text(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="text_input"]').click()
 
@@ -1103,7 +1147,8 @@ class SearchSpamStateMachine:
             bad_users = file.readlines()
         return self.user + "\n" in bad_users
 
-    @try_to_click_on_dialog_confirm_cancel.__func__
+    @try_to_click_on_aerr_wait
+    @try_to_click_on_dialog_confirm_cancel
     def paste_message_into_edit_text(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="text_input"]').send_keys(
             generate_text(self.tg_username, self.text_template)
@@ -1112,12 +1157,16 @@ class SearchSpamStateMachine:
     def found_message_in_edit_text(self):
         return bool(self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="text_input"]').get_attribute("text"))
 
-    @try_to_click_on_dialog_confirm_cancel.__func__
+    @try_to_click_on_aerr_wait
+    @try_to_click_on_dialog_confirm_cancel
     def click_on_send_message_button(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="text_input"]/../android.view.View').click()
 
     def found_online(self):
         return bool(self.driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.TextView[@text="Online"]'))
+
+    def found_no_msg_image(self):
+        return bool(self.driver.find_elements(by=AppiumBy.XPATH, value='//android.widget.Image[@text="no_msg@2x"]'))
 
     def add_user_to_online_spammed(self):
         with open(f"processes/{self.process_id}/online_spammed.txt", "a") as file:
@@ -1140,7 +1189,8 @@ class SearchSpamStateMachine:
             offline_spammed = file.readlines()
         return self.user + "\n" in offline_spammed
 
-    @try_to_click_on_dialog_confirm_cancel.__func__
+    @try_to_click_on_aerr_wait
+    @try_to_click_on_dialog_confirm_cancel
     def click_on_galaxy_image_button_after_sending_message(self):
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.ImageButton[@content-desc="Galaxy"]').click()
 
