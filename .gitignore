@@ -4,6 +4,7 @@ __pycache__
 .env
 .DS_Store
 test.py
+statistic.ipynb
 already_spammed.txt
 bad_proxies.txt
 proxylist.txt
@@ -14,4 +15,3 @@ online_spammed.txt
 bad_users.txt
 offline_spammed.txt
 conf_reg_proxies.txt
-statistic.ipynb
