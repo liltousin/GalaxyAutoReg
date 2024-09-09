@@ -118,23 +118,22 @@ def get_quarter_of_day(current_time: time.struct_time) -> int:
     return 1
 
 
-def get_statistics_row(
-    city: str, good_messages: int, message_attempts: int, current_date_and_time=time.strftime("%d.%m.%Y %H:%M:%S", time.localtime()), process_id=0
+def get_statistic_row(
+    city: str, good_messages: int, message_attempts: int, current_date_and_time=time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), process_id=0
 ) -> str:
     # messages_per_minute = str(round((message_attempts) / ((city_end - city_start) / 60), 2)).replace(".", ",")
-    profit = f"{((good_messages/message_attempts)*100):.2f}%".replace(".", ",")
-    return f"{city}\t{good_messages}\t{message_attempts}\t{profit}\t{current_date_and_time}\t{process_id}\n"
+    return f"{city},{good_messages},{message_attempts},{current_date_and_time},{process_id}"
 
 
-def choose_city_by_statistics() -> str:
+def choose_city_by_statistic() -> str:
     current_quarter_of_day = get_quarter_of_day(time.localtime())
-    with open("statistics.txt") as file:
+    with open("statistic.csv") as file:
         # можно потом в теории по часу делать а не по времени суток
         # а что если сделать не по среднему значению а по последнему значению в определенный час или по среднему из трех последних в определенный час
         quarter_of_day_statistics = list(
             filter(
-                lambda x: int(get_quarter_of_day(time.strptime(x[4], "%d.%m.%Y %H:%M:%S"))) == current_quarter_of_day,
-                map(lambda x: x.rstrip().split("\t"), file.readlines()[1:]),
+                lambda x: int(get_quarter_of_day(time.strptime(x[3], "%Y-%m-%d %H:%M:%S"))) == current_quarter_of_day,
+                map(lambda x: x.rstrip().split(","), file.readlines()[1:]),
             )
         )
     city_probabilities = list(

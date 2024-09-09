@@ -7,7 +7,7 @@ test.py
 already_spammed.txt
 bad_proxies.txt
 proxylist.txt
-statistics.txt
+statistic.csv
 text_template.txt
 used_proxies.txt
 online_spammed.txt

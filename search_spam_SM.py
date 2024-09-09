@@ -7,11 +7,11 @@ from appium import webdriver
 from appium.webdriver.common.appiumby import AppiumBy
 
 from utils import (
-    choose_city_by_statistics,
+    choose_city_by_statistic,
     generate_nickname,
     generate_text,
     get_new_unused_proxies,
-    get_statistics_row,
+    get_statistic_row,
 )
 
 
@@ -387,7 +387,8 @@ class SearchSpamStateMachine:
                 ],
             ),
             State(self.click_on_your_location, 1, [(([self.found_city_input_edit_text], []), self.click_on_city_input_edit_text)]),
-            State(self.click_on_city_input_edit_text, 1, [(([self.city_input_edit_text_is_focused], []), self.paste_city_into_city_input_edit_text)]),
+            State(self.click_on_city_input_edit_text, 1, [(([self.city_input_edit_text_is_focused], []), self.choose_new_city)]),
+            State(self.choose_new_city, 1, [(([self.new_city_is_chosen], []), self.paste_city_into_city_input_edit_text)]),
             State(
                 self.paste_city_into_city_input_edit_text,
                 1,
@@ -830,7 +831,7 @@ class SearchSpamStateMachine:
     def found_http_in_dropdown_list(self):
         return bool(self.driver.find_elements(by=AppiumBy.ACCESSIBILITY_ID, value="HTTP"))
 
-    @try_to_click_on_aerr_wait
+    @try_to_click_on_aerr_wait  # не имеет смысла т.к сбивает dropdown menu и по хорошему вот это вот все надо как то в 1 действие сделать как то
     def click_on_http(self):
         self.driver.find_element(by=AppiumBy.ACCESSIBILITY_ID, value="HTTP").click()
 
@@ -929,6 +930,7 @@ class SearchSpamStateMachine:
     def found_username_available(self):
         return bool(self.driver.find_elements(by=AppiumBy.XPATH, value='//android.view.View[@text="Username available"]'))  # android 11
 
+    @try_to_click_on_aerr_wait
     def click_on_finish_button(self):
         self.driver.find_element(by=AppiumBy.ANDROID_UIAUTOMATOR, value='new UiSelector().text("FINISH")').click()
 
@@ -1000,13 +1002,20 @@ class SearchSpamStateMachine:
             == "true"
         )
 
+    def choose_new_city(self):
+        self.city = choose_city_by_statistic()
+
+    def new_city_is_chosen(self):
+        return self.city != ""
+
     def paste_city_into_city_input_edit_text(self):
-        self.city = choose_city_by_statistics()
         self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="city_input-text"]').send_keys(self.city)
 
     def found_city_in_city_input_edit_text(self):
-        return bool(
+        return (
             self.driver.find_element(by=AppiumBy.XPATH, value='//android.widget.EditText[@resource-id="city_input-text"]').get_attribute("text")
+            == self.city  # TODO: переписать все нахер сделать вставку в 1 состояние, при этом добавить предварительную отчистку полей
+            # TODO: проверить все get_attribute и нет ои там такого же говна которое может привести к потенциальным ошибкам
         )
 
     def press_enter_button_after_entering_city(self):  # может быть бага изза того что всему пиздец и он изза этого будет кликать на акки
@@ -1211,13 +1220,13 @@ class SearchSpamStateMachine:
 
     def add_data_to_statistics(self):
         self.current_date_and_time = time.strftime("%d.%m.%Y %H:%M:%S", time.localtime())
-        with open("statistics.txt", "a") as file:
-            file.write(get_statistics_row(self.city, self.online_message_counter, self.user_counter, self.current_date_and_time, self.process_id))
+        with open("statistic.csv", "a") as file:
+            file.write(get_statistic_row(self.city, self.online_message_counter, self.user_counter, self.current_date_and_time, self.process_id))
         self.character_counter += 1
 
     def found_data_in_statistics(self):
-        data = get_statistics_row(self.city, self.online_message_counter, self.user_counter, self.current_date_and_time, self.process_id)
-        with open("statistics.txt") as file:
+        data = get_statistic_row(self.city, self.online_message_counter, self.user_counter, self.current_date_and_time, self.process_id)
+        with open("statistic.csv") as file:
             return data in file.readlines()
 
     def character_counter_limit_reached(self):

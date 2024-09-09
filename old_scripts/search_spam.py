@@ -22,7 +22,7 @@ from selenium.webdriver.common.actions.action_builder import ActionBuilder
 from selenium.webdriver.common.actions.pointer_input import PointerInput
 
 from old_scripts.new_proxy_change import change_proxy
-from utils import choose_city_by_statistics, get_statistics_row
+from utils import choose_city_by_statistic, get_statistic_row
 
 
 def get_text(TG_USERNAME: str):
@@ -326,7 +326,7 @@ for _ in range(1000):
             ]
             cities_by_probability = [cities[j][0] for j in range(len(cities)) for _ in range(cities[j][1] // 10)]
             city = random.choice(cities_by_probability)
-            city = choose_city_by_statistics()
+            city = choose_city_by_statistic()
             print(f"NEW CHOSEN CITY: {city}", time.strftime("%Y-%m-%d %H:%M:%S MSK", time.localtime()), c, gc, mc, mac, asc, sep="\t")
             city_is_entered = False
             while not city_is_entered:
@@ -685,7 +685,7 @@ for _ in range(1000):
             # if not need_new_proxy:
             if city_is_entered and mac:
                 with open("statistics.txt", "a") as file:
-                    file.write(get_statistics_row(city, good_messages, mac))
+                    file.write(get_statistic_row(city, good_messages, mac))
                 city_is_entered = False
                 mac = 0
 

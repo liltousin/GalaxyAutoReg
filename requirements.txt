@@ -1,7 +1,9 @@
 Appium-Python-Client==4.0.0
-bs4==0.0.2
+attrs==23.2.0
 graphviz==0.20.3
 lxml==5.2.1
+pandas==2.2.2
 pydot==2.0.0
 python-dotenv==1.0.1
 requests==2.31.0
+selenium==4.20.0
