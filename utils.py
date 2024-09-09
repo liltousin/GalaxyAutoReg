@@ -122,7 +122,7 @@ def get_statistic_row(
     city: str, good_messages: int, message_attempts: int, current_date_and_time=time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()), process_id=0
 ) -> str:
     # messages_per_minute = str(round((message_attempts) / ((city_end - city_start) / 60), 2)).replace(".", ",")
-    return f"{city},{good_messages},{message_attempts},{current_date_and_time},{process_id}"
+    return f"{city},{good_messages},{message_attempts},{current_date_and_time},{process_id}\n"
 
 
 def choose_city_by_statistic() -> str:
