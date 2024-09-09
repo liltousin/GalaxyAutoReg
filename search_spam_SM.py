@@ -1219,7 +1219,7 @@ class SearchSpamStateMachine:
         ).click()
 
     def add_data_to_statistics(self):
-        self.current_date_and_time = time.strftime("%d.%m.%Y %H:%M:%S", time.localtime())
+        self.current_date_and_time = time.localtime()
         with open("statistic.csv", "a") as file:
             file.write(get_statistic_row(self.city, self.online_message_counter, self.user_counter, self.current_date_and_time, self.process_id))
         self.character_counter += 1
